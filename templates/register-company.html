@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block content %} 
+
+<div class="container">
+    <div class="row align-items-center gx-5">
+      <div class="col-6">
+        <form>
+          <div class="mb-3">
+            <label for="email" class="form-label">Email address</label>
+            <input type="email" class="form-control shadow" id="email" placeholder="e.g. john.doe@mail.com">
+          </div>
+  
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control shadow" id="password" placeholder="*************">
+          </div>
+  
+          <div class="mb-3">
+            <label for="company-name" class="form-label">Company name</label>
+            <input type="text" class="form-control shadow" id="company-name" placeholder="e.g. Metal Inc.">
+          </div>
+          
+          <div class="mb-3">
+            <label for="country" class="form-label">Country</label>
+            <select class="form-select" id="country">
+              <option selected>-----</option>
+              <option value="1">Country 1</option>
+              <option value="2">Country 2</option>
+              <option value="3">Country 3</option>
+            </select>
+          </div>
+  
+          <div class="mb-3">
+            <label for="field" class="form-label">Field</label>
+            <input type="text" class="form-control shadow" id="field" placeholder="Construction">
+          </div>
+          
+          <div class="mb-3">
+            <label for="num-employees" class="form-label">Number of employees</label>
+            <input type="number" class="form-control shadow" id="num-employees" placeholder="80">
+          </div>
+  
+          <div class="mb-3">
+            <label for="founding-year" class="form-label">Founding year</label>
+            <input type="number" class="form-control shadow" id="founding-year" placeholder="1998">
+          </div>
+          
+          <button type="submit" class="btn btn-lg btn-primary mt-3">Submit</button>
+        </form>
+      </div>
+
+      <div class="col-6 fs-3 text-center">
+        <div class="card py-4 shadow">
+          <div class="card-body">
+            <h5 class="card-title">Hello Company!</h5>
+            <h6 class="card-subtitle mb-3 text-body-secondary">Clarification</h6>
+            <p class="card-text fst-italic">Please fill out your user- and company-related information. This will be helpful when students will apply for your offers and view your profiles. You can fill out further information once you have registered.</p>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+
+</div>
+
+{% endblock %}

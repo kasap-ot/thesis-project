@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- 
+  Field
+  Country
+  Salary
+  Length
+  Deadline
+  Company
+  Min. year
+  Action
+    
+  Requirements
+  Responsibilities
+  
+  Company name
+ -->
+
+<div class="container w-75">
+  <div class="card w-100 shadow">
+    <div class="card-body">
+      <div class="ms-2 mt-3">
+        <h5 class="card-title">Mechanical Engineering</h5>
+        <h6 class="card-subtitle mb-4 text-body-secondary">Brazil, Rio de Janeiro</h6>
+      </div>
+
+      <div class="container text-center my-5">
+        <div class="row column-gap-5 fs-5">
+          <div class="col bg-success text-light rounded-pill p-2 shadow">
+            <strong>Salary:</strong> <br> 1500 EUR
+          </div>
+          <div class="col bg-success text-light rounded-pill p-2 shadow">
+            <strong>Length:</strong> <br> 26-52 weeks
+          </div>
+          <div class="col bg-success text-light rounded-pill p-2 shadow">
+            <strong>Deadline:</strong> <br> 31 December
+          </div>
+          <div class="col bg-success text-light rounded-pill p-2 shadow">
+            <strong>Student</strong> <br> 2+ year
+          </div>
+        </div>
+      </div>
+
+      <p class="lead mt-4">Requirements</p>
+      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Debitis pariatur officiis, veritatis sapiente nam
+        beatae incidunt perspiciatis illum assumenda temporibus soluta necessitatibus odit delectus explicabo quisquam
+        earum rerum sit itaque autem placeat ex dolorem at repellendus! Expedita, fuga amet, quam libero perspiciatis
+        corrupti maiores debitis temporibus, in quas quia corporis?</p>
+
+      <p class="lead mt-4">Responsibilities</p>
+      <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Libero, officia facere hic nihil velit similique ab
+        quasi doloribus nam quia eligendi iste assumenda eos aperiam reiciendis odit suscipit quam ut. Possimus id fuga
+        debitis cumque, incidunt esse voluptatibus doloremque non quod aliquam dolorum provident assumenda, reiciendis
+        eveniet quos in quaerat.</p>
+
+      <p class="lead mb-1 mt-4">Offer provided by:</p>
+      <p>Fire Engine Inc.</p>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col">
+      <a href="/offers" class="btn btn-secondary mt-2"><i class="bi bi-arrow-left"> Back</i></a>
+    </div>
+    
+    <div class="col text-end">
+      <button type="button" class="btn btn-success mt-2" data-bs-toggle="modal" data-bs-target="#myModal">
+        <i class="bi bi-check-circle-fill"></i> Apply for offer</i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="myModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="myModalLabel">Modal title</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure? <br>
+          This offer will be added to your 'applications' list
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+          <a href="/applications" class="btn btn-success">I'm sure</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

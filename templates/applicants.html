@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container w-75">
+    <h2>Applicants for offer</h2>
+
+    <ul class="list-group mt-4">
+        <li class="list-group-item bg-primary text-light fw-bold">
+            <div class="row text-center">
+                <div class="col">Name</div>
+                <div class="col">Country</div>
+                <div class="col">University</div>
+                <div class="col">Major</div>
+                <div class="col">Credits</div>
+                <div class="col">Status</div>
+                <div class="col">Action</div>
+            </div>
+        </li>
+
+        {% for color in colors %}
+        <li class="list-group-item list-group-item-action list-group-item-{{color}}">
+            <div class="row text-center align-items-center">
+                <div class="col">John Doe</div>
+                <div class="col">Norway</div>
+                <div class="col">University of Oslo</div>
+                <div class="col">Civil Engineering</div>
+                <div class="col">152</div>
+                <div class="col">
+                    {% if color == 'success' %} Accepted
+                    {% elif color == 'warning' %} Waiting
+                    {% elif color == 'danger' %} Rejected 
+                    {% endif %}
+                </div>
+                <div class="col">
+                    <a href="/student-profile" class="btn btn-success btn-sm w-75 rounded-pill py-2">View</a>
+                </div>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+
+{% endblock %}
