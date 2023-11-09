@@ -1,8 +1,10 @@
 from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 import random
 
 app = FastAPI()
+app.mount('/static', StaticFiles(directory='static'), name='static')
 templates = Jinja2Templates(directory='templates')
 
 def random_color():
@@ -73,12 +75,12 @@ async def applicants(request: Request):
 
 
 @app.get('/student-profile')
-async def student_profile():
-    return 'student profile'
+async def student_profile(request: Request):
+    return templates.TemplateResponse('student-profile.html', {'request': request})
 
 
 @app.get('/company-profile')
-async def company_profile():
-    return 'company profile'
+async def company_profile(request: Request):
+    return templates.TemplateResponse('company-profile.html', {'request': request})
 
 # others?
