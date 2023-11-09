@@ -1,22 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<!-- 
-  Field
-  Country
-  Salary
-  Length
-  Deadline
-  Company
-  Min. year
-  Action
-    
-  Requirements
-  Responsibilities
-  
-  Company name
- -->
-
 <div class="container w-75">
   <div class="card w-100 shadow">
     <div class="card-body">
@@ -55,18 +39,24 @@
         eveniet quos in quaerat.</p>
 
       <p class="lead mb-1 mt-4">Offer provided by:</p>
-      <p>Fire Engine Inc.</p>
+      <span>Fire Engine Inc.</span>
     </div>
   </div>
   
   <div class="row">
     <div class="col">
-      <a href="/offers" class="btn btn-secondary mt-2"><i class="bi bi-arrow-left"> Back</i></a>
+      <a href="/offers" class="btn btn-secondary mt-2"><i class="bi bi-arrow-left"></i> Offers</a>
     </div>
     
-    <div class="col text-end">
-      <button type="button" class="btn btn-success mt-2" data-bs-toggle="modal" data-bs-target="#myModal">
-        <i class="bi bi-check-circle-fill"></i> Apply for offer</i>
+    <div class="col text-end mt-2">
+      <a href="/applicants" class="btn btn-primary">
+        <i class="bi bi-eye-fill"></i> Applicants
+      </a>
+      <a href="/company-profile" class="btn btn-warning">
+        <i class="bi bi-eye-fill"></i> Company
+      </a>
+      <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#myModal">
+        <i class="bi bi-check-circle-fill"></i> Apply
       </button>
     </div>
   </div>

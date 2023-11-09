@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container w-75">
+    <div class="card w-100 shadow">
+        <div class="card-body">
+            <div class="row">
+                <div class="col d-flex flex-column justify-content-center">
+                    <h1>John Doe</h1>
+                    <h3 class="mb-4 text-body-secondary">Switzerland</h3>
+                </div>
+                <div class="col d-flex align-items-center justify-content-end me-2 mt-2">
+                    <img src="{{ url_for('static', path='img/person.png') }}" alt="Some image" height="180rem">
+                </div>
+            </div>
+
+            <hr class="mb-4">
+
+            <div class="row text-center column-gap-5 m-3 fs-5">
+                <div class="col bg-success text-light shadow rounded-pill p-2">
+                    <strong>University:</strong><br>MIT University
+                </div>
+                <div class="col bg-success text-light shadow rounded-pill p-2">
+                    <strong>Major:</strong><br>Biomedical engineering
+                </div>
+                <div class="col bg-success text-light shadow rounded-pill p-2">
+                    <strong>Credits:</strong><br>150
+                </div>
+            </div>
+
+            <hr class="mt-4">
+
+            <h5 class="my-4">Experiences</h5>
+
+            <p class="lead">Experience title</p>
+
+            <p>
+                Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ab, ducimus quae! Sequi amet eum similique
+                neque sint, nesciunt consequuntur, accusantium hic dolores aperiam asperiores et praesentium repudiandae
+                a provident voluptates labore repellendus expedita itaque. Explicabo, doloremque. Mollitia, suscipit
+                delectus eos nisi ipsam deleniti doloremque porro maxime consequuntur harum, quo nemo!
+            </p>
+            
+            <p class="lead">Experience title</p>
+
+            <p>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Et optio rem corrupti ex quasi illum enim nulla
+                doloribus quos corporis saepe facere facilis veritatis sint explicabo sunt officia, cupiditate
+                dignissimos molestiae, iusto alias! Quidem exercitationem deleniti obcaecati inventore, autem in debitis
+                accusamus. Ipsa pariatur deserunt voluptatem explicabo rem officia! Alias.
+            </p>
+
+            <p class="lead">Experience title</p>
+
+            <p>
+                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ex tenetur perspiciatis alias ut, iusto nemo
+                quidem, aliquid repudiandae nam distinctio deserunt adipisci perferendis, rerum minus voluptatibus
+                pariatur sapiente ea provident. Necessitatibus ratione quasi eos optio consequuntur et expedita dolores,
+                sunt harum sed. Sequi quidem ea modi nesciunt sapiente inventore quae.
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <a href="/applicants" class="btn btn-secondary mt-2"><i class="bi bi-arrow-left"></i> Applicants</a>
+        </div>
+
+        <div class="col text-end mt-2">
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                <i class="bi bi-x-circle-fill"></i> Reject
+            </button>
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#acceptModal">
+                <i class="bi bi-check-circle-fill"></i> Accept
+            </button>
+        </div>
+    </div>
+
+    <!-- Reject - modal -->
+    <div class="modal fade" id="rejectModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5">Reject applicant?</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    The student will be marked as rejected. They will be able to see this action.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    <a href="/applicants" class="btn btn-success">I'm sure</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accept - modal -->
+    <div class="modal fade" id="acceptModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="myModalLabel">Accept applicant?</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    The student will be added to your 'accepted' list. They will be able to see this action.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    <a href="/applicants" class="btn btn-success">I'm sure</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
