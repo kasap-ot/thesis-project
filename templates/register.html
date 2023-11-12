@@ -1,14 +1,15 @@
 {% extends 'base.html' %}
-{% block content %} 
+{% block content %}
 
-<div class="container">
-    <div class="h1 text-center my-5">Register as:</div>
 
-    <div class="row justify-content-center">
-        <div class="col-2 text-center"><a href="/register-student" class="btn btn-xlg btn-success p-5 fs-3">Student</a></div>
-        <div class="col-2 text-center"><a href="/register-company" class="btn btn-xlg btn-success p-5 fs-3">Company</a></div>
-    </div>
-
-</div>
+<ul class="list-group w-50 mx-auto mt-4">
+    <li class="list-group-item bg-primary-subtle h3 mb-0 text-center border border-0 py-4">Register as</li>
+    <li class="list-group-item d-flex justify-content-around py-5">
+        <a href="/register-student" class="btn btn-primary p-5 fs-3 rounded-pill"
+            style="width: 40%;">Student</a>
+        <a href="/register-company" class="btn btn-primary p-5 fs-3 rounded-pill"
+            style="width: 40%;">Company</a>
+    </li>
+</ul>
 
 {% endblock %}
