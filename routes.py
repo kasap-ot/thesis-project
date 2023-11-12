@@ -17,6 +17,8 @@ async def welcome(request: Request):
     return templates.TemplateResponse('welcome.html', {'request': request})
 
 
+# ------------------------------ USERS ------------------------------
+
 @router.get('/register', response_class=HTMLResponse)
 async def register(request: Request):
     return templates.TemplateResponse('register.html', {'request': request})
@@ -31,51 +33,6 @@ async def register_student(request: Request):
 async def register_company(request: Request):
     return templates.TemplateResponse('register-company.html', {'request': request})
 
-
-@router.get('/log-in', response_class=HTMLResponse)
-async def log_in(request: Request):
-    return templates.TemplateResponse('log-in.html', {'request': request})
-
-
-@router.get('/home-students')
-async def home_students():
-    return 'home students'
-
-
-@router.get('/home-companies')
-async def home_companies():
-    return 'home companies'
-
-
-@router.get('/offers', response_class=HTMLResponse)
-async def offers(request: Request):
-    return templates.TemplateResponse('offers.html', {'request': request})
-
-
-@router.get('/offer', response_class=HTMLResponse)
-async def offer(request: Request):
-    return templates.TemplateResponse('offer.html', {'request': request})
-
-
-@router.get('/offer-edit', response_class=HTMLResponse)
-async def offer_edit(request: Request):
-    return templates.TemplateResponse('offer-edit.html', {'request': request})
-
-
-@router.get('/applications', response_class=HTMLResponse)
-async def applications(request: Request):
-    return templates.TemplateResponse('applications.html', {'request': request})
-
-
-@router.get('/applicants', response_class=HTMLResponse)
-async def applicants(request: Request):
-    return templates.TemplateResponse(
-        'applicants.html', 
-        {
-            'request': request,
-            'colors': ['danger', 'danger', 'warning', 'success', 'success', 'success']
-        }
-    )
 
 @router.get('/student-profile', response_class=HTMLResponse)
 async def student_profile(request: Request):
@@ -95,3 +52,53 @@ async def company_profile(request: Request):
 @router.get('/company-profile-edit', response_class=HTMLResponse)
 async def company_profile_edit(request: Request):
     return templates.TemplateResponse('company-profile-edit.html', {'request': request})
+
+
+@router.get('/log-in', response_class=HTMLResponse)
+async def log_in(request: Request):
+    return templates.TemplateResponse('log-in.html', {'request': request})
+
+
+@router.get('/home-students')
+async def home_students(request: Request):
+    return templates.TemplateResponse('student-home.html', {'request': request})
+
+
+@router.get('/home-companies')
+async def home_companies(request: Request):
+    return templates.TemplateResponse('company-home.html', {'request': request})
+
+
+# ------------------------------ OFFERS ------------------------------
+
+@router.get('/offers', response_class=HTMLResponse)
+async def offers(request: Request):
+    return templates.TemplateResponse('offers.html', {'request': request})
+
+
+@router.get('/offer', response_class=HTMLResponse)
+async def offer(request: Request):
+    return templates.TemplateResponse('offer.html', {'request': request})
+
+
+@router.get('/offer-edit', response_class=HTMLResponse)
+async def offer_edit(request: Request):
+    return templates.TemplateResponse('offer-edit.html', {'request': request})
+
+
+# ------------------------------ APPLICATIONS ------------------------------
+
+@router.get('/applications', response_class=HTMLResponse)
+async def applications(request: Request):
+    return templates.TemplateResponse('applications.html', {'request': request})
+
+
+@router.get('/applicants', response_class=HTMLResponse)
+async def applicants(request: Request):
+    return templates.TemplateResponse(
+        'applicants.html', 
+        {
+            'request': request,
+            'colors': ['danger', 'danger', 'warning', 'success', 'success', 'success']
+        }
+    )
