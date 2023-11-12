@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h3>Edit your profile</h3>
+
+<div class="row mt-4">
+    <div class="col-5">
+        <p class="fs-5">General information</p>
+        <form action="/" class="bg-primary-subtle px-4 pt-3 pb-5 rounded border border-light border-4">
+            <label for="" class="form-label">Name</label>
+            <input type="text" class="form-control shadow" value="This is some text" id="">
+
+            <label for="" class="form-label mt-3">Country</label>
+            <input type="text" class="form-control shadow" value="This is some text" id="">
+
+            <label for="" class="form-label mt-3">Email</label>
+            <input type="text" class="form-control shadow" value="This is some text" id="">
+
+            <label for="" class="form-label mt-3">Number of employees</label>
+            <input type="text" class="form-control shadow" value="This is some text" id="">
+
+            <label for="" class="form-label mt-3">Founding year</label>
+            <input type="text" class="form-control shadow" value="This is some text" id="">
+
+            <label for="" class="form-label mt-3">Website</label>
+            <input type="text" class="form-control shadow" value="This is some text" id="">
+
+        </form>
+    </div>
+    <div class="col-5">
+        <p class="fs-5">Description</p>
+
+        <ul class="list-group">
+            <li class="list-group-item bg-primary-subtle">Your company's description</li>
+            <li class="list-group-item">
+                <textarea class="form-control shadow my-3"
+                    style="height: 30rem;">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Impedit, alias nam pariatur quisquam assumenda esse cumque inventore tempore ratione iste, blanditiis nemo labore dolor recusandae aperiam doloribus ipsum quis neque? Beatae, placeat. Dignissimos blanditiis illo voluptatibus quisquam alias odio dolores laboriosam eligendi impedit repudiandae at, quaerat maiores iusto nam, quia, qui modi non. Sapiente, dignissimos! Doloribus repellendus officiis amet soluta quas neque, sed temporibus provident quo eius. Sit, veniam eligendi numquam obcaecati harum voluptatem velit quo inventore illo maxime, possimus quas ea placeat aliquid quos ad asperiores quibusdam delectus tempore architecto. Id, maiores modi ipsam ducimus hic molestiae alias architecto?</textarea>
+            </li>
+        </ul>
+    </div>
+    <div class="col-2">
+        <p class="fs-5">Edit profile photo</p>
+        <img src="{{ url_for('static', path='img/no-image.PNG') }}" alt="Some image"
+            class="img-fluid shadow rounded mb-2">
+        <input type="file" class="form-control shadow">
+    </div>
+</div>
+
+<a href="/company-profile" class="btn btn-secondary mt-2"><i class="bi bi-x-circle"> Cancel</i></a>
+<a href="/company-profile" class="btn btn-success mt-2"><i class="bi bi-check-circle-fill"> Confirm</i></a>
+
+{% endblock %}

@@ -57,6 +57,11 @@ async def offer(request: Request):
     return templates.TemplateResponse('offer.html', {'request': request})
 
 
+@router.get('/offer-edit', response_class=HTMLResponse)
+async def offer_edit(request: Request):
+    return templates.TemplateResponse('offer-edit.html', {'request': request})
+
+
 @router.get('/applications', response_class=HTMLResponse)
 async def applications(request: Request):
     return templates.TemplateResponse('applications.html', {'request': request})
@@ -85,3 +90,8 @@ async def student_profile_edit(request: Request):
 @router.get('/company-profile', response_class=HTMLResponse)
 async def company_profile(request: Request):
     return templates.TemplateResponse('company-profile.html', {'request': request})
+
+
+@router.get('/company-profile-edit', response_class=HTMLResponse)
+async def company_profile_edit(request: Request):
+    return templates.TemplateResponse('company-profile-edit.html', {'request': request})
