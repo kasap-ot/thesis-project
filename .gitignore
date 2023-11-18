@@ -2,3 +2,5 @@ venv/
 __pycache__/
 commands.sh
 test.py
+test/
+templates/test.html
