@@ -6,8 +6,10 @@ from enums import Status
 class Base(BaseModel):
     id: int
 
+
 class Country(Base):
     name: str
+
 
 class User(Base):
     email: str
@@ -15,22 +17,26 @@ class User(Base):
     name: str
     country_id: int
 
+
 class Company(User):
     field: str
     num_employees: int
     year_founded: int
     website: str
 
+
 class Student(User):
     university: str
     major: str
     credits: int
+
 
 class Experience(Base):
     from_date: date
     to_date: date
     company: str
     description: str
+
 
 class Offer(Base):
     country_id: int
@@ -42,6 +48,7 @@ class Offer(Base):
     requirements: str
     responsibilities: str
     # min_year: int (not necessary?)
+
 
 class Application(Base):
     student_id: int
