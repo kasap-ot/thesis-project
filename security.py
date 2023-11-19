@@ -5,8 +5,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
 from passlib.context import CryptContext
 from schemas import UserInDB
-from database import fake_db
-from uuid import UUID
+from database import fake_db, get_user
 
 
 """ Constant variables used for generating JWT tokens """
@@ -43,17 +42,6 @@ class TokenData(BaseModel):
     exp: datetime | None = None
 
 
-def get_user(db: dict, username: str) -> UserInDB | None:
-    """
-    Helper function. Retrieves the user
-    with the defined username from the DB.
-    """
-    if username in db:
-        user_dict = db[username]
-        return UserInDB(**user_dict)
-    return None
-
-
 def create_token(data: TokenData, expires_delta: timedelta) -> str:
     """
     Helper function. Creates a JWT token with
@@ -75,8 +63,8 @@ def authenticate_user(db: dict, username: str, password: str) -> UserInDB | None
 
     if not user_in_db:
         return None
-    # if not pwd_context.verify(password, user_in_db.hashed_password):
-    #     return None
+    if not pwd_context.verify(password, user_in_db.hashed_password):
+        return None
 
     return user_in_db
 
@@ -106,10 +94,6 @@ def login_for_token(username: str, password: str) -> Token:
     )
 
     return Token(access_token=token, token_type="bearer")
-    # return {
-    #     "access_token": token,
-    #     "token_type": "bearer",
-    # }
 
 
 """ To reduce code duplication """
