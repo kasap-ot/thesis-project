@@ -1,37 +1,59 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from security import login_for_token, verify_token, Token
-from schemas import User
-from database import fake_db
+from security import (
+    Token,
+    login_for_token, 
+    verify_token, 
+    pwd_context
+)
+from schemas import UserCreate, UserInDB, UserRead, UserUpdate
+from database import fake_db, get_user
 
 
 router = APIRouter()
 
 
 @router.post("/register")
-async def register(user: User):
-    fake_db.update({user.username: user.model_dump()})
+async def register(user: UserCreate) -> UserRead:
+    """
+    Takes in the user information.
+    Checks if the username already exists.
+    Hashes the provided password.
+    Stores the user info (with the hash) in the DB.
+    """
+    user_in_db = get_user(fake_db, user.username)
+    if user_in_db is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Username already exists",
+        )
+    hashed_password = pwd_context.hash(user.password)
+    user_to_insert = UserInDB(
+        **user.model_dump(), 
+        hashed_password=hashed_password,
+    )
+    fake_db.update({user.username: user_to_insert.model_dump()})
     return fake_db[user.username]
 
 
 @router.get("/users")
-async def users_read():
+async def users_read() -> dict[str, UserRead]:
     return fake_db
 
 
 @router.get("/users/{username}")
-async def user_read(username: str):
+async def user_read(username: str) -> UserRead:
     return fake_db[username]
 
 
 @router.put("/users/{username}", dependencies=[Depends(verify_token)])
-async def user_update(username: str, user: User):
+async def user_update(username: str, user: UserUpdate) -> UserRead:
     fake_db[username] = user
     return fake_db[username]
 
 
 @router.delete("/users/{username}", dependencies=[Depends(verify_token)])
-async def user_delete(username: str):
+async def user_delete(username: str) -> UserRead:
     return fake_db.pop(username)
 
 
