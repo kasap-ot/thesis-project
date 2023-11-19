@@ -1,4 +1,5 @@
 import random
+from fastapi.templating import Jinja2Templates
 
 
 # Temporary helper function
@@ -14,3 +15,7 @@ def random_color():
         "dark",
     ]
     return random.choice(colors)
+
+
+templates = Jinja2Templates(directory="templates")
+templates.env.filters["random_color"] = random_color

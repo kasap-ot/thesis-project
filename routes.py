@@ -1,17 +1,47 @@
-from fastapi.responses import HTMLResponse
-from fastapi import Request, APIRouter
-from fastapi import Request
-from fastapi.responses import HTMLResponse, RedirectResponse
-from fastapi.templating import Jinja2Templates
-from utils import random_color
+from fastapi import APIRouter, Depends
+from fastapi.security import OAuth2PasswordRequestForm
+from security import login_for_token, get_current_user, Token
+from schemas import User
+from database import fake_db
+from uuid import UUID
 
 
 router = APIRouter()
 
-templates = Jinja2Templates(directory="templates")
-templates.env.filters["random_color"] = random_color
+
+@router.post("/register")
+async def register(user: User):
+    fake_db.update({user.id: user})
+    return fake_db[user.id]
 
 
+@router.get("/users")
+async def users_read():
+    return fake_db
+
+
+@router.get("/users/{user_id}")
+async def user_read(user_id: UUID):
+    return fake_db[user_id]
+
+
+@router.put("/users/{user_id}")
+async def user_update(user_id: UUID, user: User):
+    fake_db[user_id] = user
+    return fake_db[user_id]
+
+
+@router.delete("/users/{user_id}")
+async def user_delete(user_id: UUID, current_user: User = Depends(get_current_user)):
+    return fake_db.pop(user_id)
+
+
+@router.post("/token", response_model=Token)
+async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+    return login_for_token(form_data)
+
+
+"""
 @router.get("/", response_class=HTMLResponse)
 async def welcome(request: Request):
     return templates.TemplateResponse("welcome.html", {"request": request})
@@ -117,3 +147,4 @@ async def applicants(request: Request):
             "colors": ["danger", "danger", "warning", "success", "success", "success"],
         },
     )
+"""

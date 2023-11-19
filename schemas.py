@@ -16,7 +16,18 @@ class User(Base):
     email: str
     password: str
     name: str
-    country_id: int
+    username: str
+    # country_id: int
+
+
+class UserInDB(User):
+    hashed_password: str
+
+
+class UserUpdate(BaseModel):
+    email: str | None = None
+    password: str | None = None
+    name: str | None = None
 
 
 class Company(User):
