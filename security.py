@@ -75,20 +75,20 @@ def authenticate_user(db: dict, username: str, password: str) -> UserInDB | None
 
     if not user_in_db:
         return None
-    if not pwd_context.verify(password, user_in_db.hashed_password):
-        return None
+    # if not pwd_context.verify(password, user_in_db.hashed_password):
+    #     return None
 
     return user_in_db
 
 
-async def login_for_token(form_data: OAuth2PasswordRequestForm) -> Token:
+def login_for_token(username: str, password: str) -> Token:
     """
     Main function. Authenticates the login request.
     Creates a JWT token that will be later used by
     the client for further authorization.
     """
     user_in_db = authenticate_user(
-        db=fake_db, username=form_data.username, password=form_data.password
+        db=fake_db, username=username, password=password
     )
 
     if user_in_db is None:
@@ -106,6 +106,10 @@ async def login_for_token(form_data: OAuth2PasswordRequestForm) -> Token:
     )
 
     return Token(access_token=token, token_type="bearer")
+    # return {
+    #     "access_token": token,
+    #     "token_type": "bearer",
+    # }
 
 
 """ To reduce code duplication """

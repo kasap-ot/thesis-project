@@ -1,9 +1,8 @@
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
-from security import login_for_token, get_current_user, Token
+from security import login_for_token, verify_token, Token
 from schemas import User
 from database import fake_db
-from uuid import UUID
 
 
 router = APIRouter()
@@ -11,8 +10,8 @@ router = APIRouter()
 
 @router.post("/register")
 async def register(user: User):
-    fake_db.update({user.id: user})
-    return fake_db[user.id]
+    fake_db.update({user.username: user.model_dump()})
+    return fake_db[user.username]
 
 
 @router.get("/users")
@@ -20,25 +19,25 @@ async def users_read():
     return fake_db
 
 
-@router.get("/users/{user_id}")
-async def user_read(user_id: UUID):
-    return fake_db[user_id]
+@router.get("/users/{username}")
+async def user_read(username: str):
+    return fake_db[username]
 
 
-@router.put("/users/{user_id}")
-async def user_update(user_id: UUID, user: User):
-    fake_db[user_id] = user
-    return fake_db[user_id]
+@router.put("/users/{username}", dependencies=[Depends(verify_token)])
+async def user_update(username: str, user: User):
+    fake_db[username] = user
+    return fake_db[username]
 
 
-@router.delete("/users/{user_id}")
-async def user_delete(user_id: UUID, current_user: User = Depends(get_current_user)):
-    return fake_db.pop(user_id)
+@router.delete("/users/{username}", dependencies=[Depends(verify_token)])
+async def user_delete(username: str):
+    return fake_db.pop(username)
 
 
 @router.post("/token", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    return login_for_token(form_data)
+    return login_for_token(form_data.username, form_data.password)
 
 
 """

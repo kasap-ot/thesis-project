@@ -12,7 +12,7 @@ class Country(Base):
     name: str
 
 
-class User(Base):
+class User(BaseModel):
     email: str
     password: str
     name: str
@@ -21,7 +21,8 @@ class User(Base):
 
 
 class UserInDB(User):
-    hashed_password: str
+    # hashed_password: str
+    ...
 
 
 class UserUpdate(BaseModel):
