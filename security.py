@@ -49,7 +49,7 @@ def create_token(data: TokenData, expires_delta: timedelta) -> str:
     """
     expiration_time = datetime.utcnow() + expires_delta
     data.exp = expiration_time
-    data_dict = data.model_dump()
+    data_dict = data.dict()
     encoded_jwt = jwt.encode(data_dict, SECRET_KEY, ALGORITHM)
     return encoded_jwt
 

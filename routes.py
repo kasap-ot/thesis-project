@@ -29,10 +29,10 @@ async def register(user: UserCreate) -> UserRead:
         )
     hashed_password = pwd_context.hash(user.password)
     user_to_insert = UserInDB(
-        **user.model_dump(), 
+        **user.dict(), 
         hashed_password=hashed_password,
     )
-    fake_db.update({user.username: user_to_insert.model_dump()})
+    fake_db.update({user.username: user_to_insert.dict()})
     return fake_db[user.username]
 
 
