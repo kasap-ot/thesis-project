@@ -3,9 +3,10 @@ from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
-from schemas import UserInDB
-from database import fake_db, get_user
+from database import get_session
 from utils import pwd_context
+from sqlmodel import Session
+from models import User, UserRead
 
 
 """ Constant variables used for generating JWT tokens """
@@ -35,7 +36,7 @@ class TokenData(BaseModel):
     A schema for what will be stored in the
     JWT token. Can be modified/expanded.
     """
-    sub: str
+    sub: str | None = None
     exp: datetime | None = None
 
 
@@ -51,12 +52,12 @@ def create_token(data: TokenData, expires_delta: timedelta) -> str:
     return encoded_jwt
 
 
-def authenticate_user(db: dict, username: str, password: str) -> UserInDB | None:
+def authenticate_user(user_id: int, password: str, session: Session) -> User | None:
     """
     Helper function. Checks if the user exists and
     if the password matches the one in the database.
     """
-    user_in_db = get_user(fake_db, username)
+    user_in_db = session.get(User, user_id)
 
     if not user_in_db:
         return None
@@ -66,15 +67,13 @@ def authenticate_user(db: dict, username: str, password: str) -> UserInDB | None
     return user_in_db
 
 
-def login_for_token(username: str, password: str) -> Token:
+def login_for_token(user_id: int, password: str, session: Session) -> Token:
     """
     Main function. Authenticates the login request.
     Creates a JWT token that will be later used by
     the client for further authorization.
     """
-    user_in_db = authenticate_user(
-        db=fake_db, username=username, password=password
-    )
+    user_in_db = authenticate_user(user_id, password, session)
 
     if user_in_db is None:
         raise HTTPException(
@@ -86,7 +85,7 @@ def login_for_token(username: str, password: str) -> Token:
     token_expiration_delta = timedelta(minutes=TOKEN_EXPIRE_MINUTES)
 
     token = create_token(
-        data=TokenData(sub=user_in_db.username),
+        data=TokenData(sub=str(user_in_db.id)),
         expires_delta=token_expiration_delta,
     )
 
@@ -109,17 +108,21 @@ async def verify_token(token: str = Depends(oauth2_scheme)) -> None:
     raises exception.
     """    
     try:
+        print("[1]", token)
         payload = jwt.decode(token, SECRET_KEY, [ALGORITHM])
-        username: str | None = payload.get("sub")
-        if username is None:
+        print("[2]")
+        user_id: int | None = payload.get("sub")
+        if user_id is None:
+            print("NO USER ID ERROR!")
             raise credentials_exception
     except JWTError:
+        print("JWT ERROR!")
         raise credentials_exception
     
     return None
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserInDB:
+async def get_current_user(token: str = Depends(oauth2_scheme), session: Session = Depends(get_session)) -> User:
     """
     Used as a dependency. Requires a valid JWT token in
     the 'Authorization' header. Checks token validity. If
@@ -128,13 +131,13 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserInDB:
     """
     try:
         payload: dict = jwt.decode(token, SECRET_KEY, [ALGORITHM])
-        username: str | None = payload.get("sub")
-        if username is None:
+        user_id: int | None = payload.get("sub")
+        if user_id is None:
             raise credentials_exception
     except JWTError:
         raise credentials_exception
 
-    user_in_db = get_user(fake_db, username)
+    user_in_db = session.get(User, user_id)
 
     if user_in_db is None:
         raise credentials_exception

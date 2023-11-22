@@ -1,11 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Header
 from fastapi.security import OAuth2PasswordRequestForm
-# from security import (
-#     Token,
-#     login_for_token, 
-#     verify_token, 
-#     pwd_context
-# )
+from security import (
+    Token,
+    login_for_token, 
+    verify_token, 
+)
 from models import UserCreate, UserRead, UserUpdate
 from sqlmodel import Session, select
 from database import get_session
@@ -14,7 +13,6 @@ from controllers import register_user, get_users, get_user, update_user, delete_
 
 
 router = APIRouter()
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 @router.post("/users", response_model=UserRead)
@@ -33,13 +31,25 @@ async def user_read(user_id: int, session: Session = Depends(get_session)):
 
 
 @router.patch("/users/{user_id}", response_model=UserRead)
-async def user_update(user_id: int, user: UserUpdate, session: Session = Depends(get_session)):
+async def user_update(
+    user_id: int, 
+    user: UserUpdate,
+    session: Session = Depends(get_session),
+    _: None = Depends(verify_token),
+):
     return update_user(user_id, user, session)
 
 
 @router.delete("/users/{user_id}", response_model=UserRead)
 async def user_delete(user_id: int, session: Session = Depends(get_session)):
     return delete_user(user_id, session)
+
+
+@router.post("/token", response_model=Token)
+async def login(form_data: OAuth2PasswordRequestForm = Depends(), session: Session = Depends(get_session)):
+    user_id = int(form_data.username)
+    password = form_data.password
+    return login_for_token(user_id, password, session)
 
 
 # @router.post("/register")
