@@ -1,14 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Header
+from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from security import (
     Token,
-    login_for_token, 
-    verify_token, 
+    login_for_token,
+    get_current_user,
 )
-from models import UserCreate, UserRead, UserUpdate
-from sqlmodel import Session, select
+from models import UserCreate, UserRead, UserUpdate, User
+from sqlmodel import Session
 from database import get_session
-from passlib.context import CryptContext
 from controllers import register_user, get_users, get_user, update_user, delete_user
 
 
@@ -20,7 +19,7 @@ async def register(user: UserCreate, session: Session = Depends(get_session)):
     return register_user(user, session)
 
 
-@router.get("/users", response_model= list[UserRead])
+@router.get("/users", response_model=list[UserRead])
 async def users_read(session: Session = Depends(get_session)):
     return get_users(session)
 
@@ -32,24 +31,31 @@ async def user_read(user_id: int, session: Session = Depends(get_session)):
 
 @router.patch("/users/{user_id}", response_model=UserRead)
 async def user_update(
-    user_id: int, 
+    user_id: int,
     user: UserUpdate,
     session: Session = Depends(get_session),
-    _: None = Depends(verify_token),
+    current_user: User = Depends(get_current_user),
 ):
-    return update_user(user_id, user, session)
+    return update_user(user_id, user, session, current_user)
 
 
 @router.delete("/users/{user_id}", response_model=UserRead)
-async def user_delete(user_id: int, session: Session = Depends(get_session)):
-    return delete_user(user_id, session)
+async def user_delete(
+    user_id: int,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+):
+    return delete_user(user_id, session, current_user)
 
 
 @router.post("/token", response_model=Token)
-async def login(form_data: OAuth2PasswordRequestForm = Depends(), session: Session = Depends(get_session)):
-    user_id = int(form_data.username)
+async def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    session: Session = Depends(get_session),
+):
+    email = form_data.username
     password = form_data.password
-    return login_for_token(user_id, password, session)
+    return login_for_token(email, password, session)
 
 
 # @router.post("/register")
@@ -68,7 +74,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), session: Sessi
 #         )
 #     hashed_password = pwd_context.hash(user.password)
 #     user_to_insert = UserInDB(
-#         **user.dict(), 
+#         **user.dict(),
 #         hashed_password=hashed_password,
 #     )
 #     fake_db.update({user.username: user_to_insert.dict()})

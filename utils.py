@@ -3,7 +3,7 @@ from fastapi.templating import Jinja2Templates
 from passlib.context import CryptContext
 
 
-# Temporary helper function
+""" Temporary helper function """
 def random_color():
     colors = [
         "primary",
@@ -17,7 +17,7 @@ def random_color():
     ]
     return random.choice(colors)
 
-
+""" Setting temporary env variables for the templates """
 templates = Jinja2Templates(directory="templates")
 templates.env.filters["random_color"] = random_color
 

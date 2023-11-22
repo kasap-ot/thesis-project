@@ -1,4 +1,4 @@
-from models import UserCreate, User, UserRead, UserUpdate
+from models import UserCreate, User, UserUpdate
 from sqlmodel import Session, select
 from fastapi import HTTPException, status
 from utils import pwd_context
@@ -40,7 +40,25 @@ def get_user(user_id: int, session: Session) -> User:
     return user
 
 
-def update_user(user_id: int, update_user: UserUpdate, session: Session) -> User:
+def get_user_by_email(email: str, session: Session) -> User:
+    sql = select(User).where(User.email == email)
+    user = session.exec(sql).first()
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+    return user
+
+
+def update_user(
+    user_id: int, update_user: UserUpdate, session: Session, current_user: User
+) -> User:
+    if current_user.id != user_id:
+        raise HTTPException(
+            status.HTTP_403_FORBIDDEN,
+            "Action is not allowed",
+        )
     user = get_user(user_id, session)
     updated_fields = update_user.dict(exclude_unset=True)
     for key, value in updated_fields.items():
@@ -51,7 +69,12 @@ def update_user(user_id: int, update_user: UserUpdate, session: Session) -> User
     return user
 
 
-def delete_user(user_id: int, session: Session) -> User:
+def delete_user(user_id: int, session: Session, current_user: User) -> User:
+    if current_user.id != user_id:
+        raise HTTPException(
+            status.HTTP_403_FORBIDDEN,
+            "Action is not allowed",
+        )
     user = get_user(user_id, session)
     session.delete(user)
     session.commit()
