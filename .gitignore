@@ -4,3 +4,4 @@ commands.sh
 test.py
 test/
 templates/test.html
+database.db
