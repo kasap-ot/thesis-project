@@ -3,9 +3,9 @@ from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
-from passlib.context import CryptContext
 from schemas import UserInDB
 from database import fake_db, get_user
+from utils import pwd_context
 
 
 """ Constant variables used for generating JWT tokens """
@@ -19,9 +19,6 @@ from the 'Authorization' header. Will supply the
 token as a parameter in the dependable function.
 """
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-""" Used to access password hashing utilities. """
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class Token(BaseModel):
