@@ -28,7 +28,6 @@ class Token(BaseModel):
     A schema for the return type
     when generating the JWT token.
     """
-
     access_token: str
     token_type: str
 
@@ -38,7 +37,6 @@ class TokenData(BaseModel):
     A schema for what will be stored in the
     JWT token. Can be modified/expanded.
     """
-
     sub: str | None = None
     exp: datetime | None = None
 
