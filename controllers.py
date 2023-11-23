@@ -57,7 +57,7 @@ def update_user(
     if current_user.id != user_id:
         raise HTTPException(
             status.HTTP_403_FORBIDDEN,
-            "Action is not allowed",
+            "Action not allowed",
         )
     user = get_user(user_id, session)
     updated_fields = update_user.dict(exclude_unset=True)
@@ -73,7 +73,7 @@ def delete_user(user_id: int, session: Session, current_user: User) -> User:
     if current_user.id != user_id:
         raise HTTPException(
             status.HTTP_403_FORBIDDEN,
-            "Action is not allowed",
+            "Action not allowed",
         )
     user = get_user(user_id, session)
     session.delete(user)
