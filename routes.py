@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
 from security import (
     Token,
@@ -14,7 +14,7 @@ from controllers import register_user, get_users, get_user, update_user, delete_
 router = APIRouter()
 
 
-@router.post("/users", response_model=UserRead)
+@router.post("/users", response_model=UserRead, status_code=status.HTTP_201_CREATED)
 async def register(user: UserCreate, session: Session = Depends(get_session)):
     return register_user(user, session)
 
