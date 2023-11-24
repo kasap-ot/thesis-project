@@ -1,3 +1,4 @@
+from enums import UserType
 from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
 from security import (
@@ -5,106 +6,101 @@ from security import (
     login_for_token,
     get_current_user,
 )
-from models import UserCreate, UserRead, UserUpdate, User
+from models import (StudentCreate, StudentRead, StudentUpdate, Student,
+                    CompanyCreate, CompanyRead, CompanyUpdate, Company,)
 from sqlmodel import Session
 from database import get_session
-from controllers import register_user, get_users, get_user, update_user, delete_user
+from controllers import (register_student, get_students, get_student, update_student, delete_student,
+                         register_company, get_companies, get_company, update_company, delete_company)
 
 
 router = APIRouter()
 
 
-@router.post("/users", response_model=UserRead, status_code=status.HTTP_201_CREATED)
-async def register(user: UserCreate, session: Session = Depends(get_session)):
-    return register_user(user, session)
+""" Routes for STUDENTS """
+
+@router.post("/students", response_model=StudentRead, status_code=status.HTTP_201_CREATED, tags=["student"])
+async def student_create(student: StudentCreate, session: Session = Depends(get_session)):
+    return register_student(student, session)
 
 
-@router.get("/users", response_model=list[UserRead])
-async def users_read(session: Session = Depends(get_session)):
-    return get_users(session)
+@router.get("/students", response_model=list[StudentRead], tags=["student"])
+async def students_read(session: Session = Depends(get_session)):
+    return get_students(session)
 
 
-@router.get("/users/{user_id}", response_model=UserRead)
-async def user_read(user_id: int, session: Session = Depends(get_session)):
-    return get_user(user_id, session)
+@router.get("/students/{student_id}", response_model=StudentRead, tags=["student"])
+async def student_read(student_id: int, session: Session = Depends(get_session)):
+    return get_student(student_id, session)
 
 
-@router.patch("/users/{user_id}", response_model=UserRead)
-async def user_update(
-    user_id: int,
-    user: UserUpdate,
+@router.patch("/students/{student_id}", response_model=StudentRead, tags=["student"])
+async def student_update(
+    student_id: int,
+    student: StudentUpdate,
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_user),
+    current_student: Student = Depends(get_current_user),
 ):
-    return update_user(user_id, user, session, current_user)
+    return update_student(student_id, student, session, current_student)
 
 
-@router.delete("/users/{user_id}", response_model=UserRead)
-async def user_delete(
-    user_id: int,
+@router.delete("/students/{student_id}", response_model=StudentRead, tags=["student"])
+async def student_delete(
+    student_id: int,
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_user),
+    current_student: Student = Depends(get_current_user),
 ):
-    return delete_user(user_id, session, current_user)
+    return delete_student(student_id, session, current_student)
 
 
-@router.post("/token", response_model=Token)
+""" Route for security tokens """
+
+@router.post("/token/{user_type}", response_model=Token)
 async def login(
+    user_type: str,
     form_data: OAuth2PasswordRequestForm = Depends(),
     session: Session = Depends(get_session),
 ):
     email = form_data.username
     password = form_data.password
-    return login_for_token(email, password, session)
+    return login_for_token(email, password, session, user_type)
 
 
-# @router.post("/register")
-# async def register(user: UserCreate) -> UserRead:
-#     """
-#     Takes in the user information.
-#     Checks if the username already exists.
-#     Hashes the provided password.
-#     Stores the user info (with the hash) in the DB.
-#     """
-#     user_in_db = get_user(fake_db, user.username)
-#     if user_in_db is not None:
-#         raise HTTPException(
-#             status_code=status.HTTP_409_CONFLICT,
-#             detail="Username already exists",
-#         )
-#     hashed_password = pwd_context.hash(user.password)
-#     user_to_insert = UserInDB(
-#         **user.dict(),
-#         hashed_password=hashed_password,
-#     )
-#     fake_db.update({user.username: user_to_insert.dict()})
-#     return fake_db[user.username]
+""" Routes for COMPANIES """
 
 
-# @router.get("/users")
-# async def users_read() -> dict[str, UserRead]:
-#     return fake_db
+@router.post("/companies", response_model=CompanyRead, status_code=status.HTTP_201_CREATED, tags=["company"])
+async def company_create(company: CompanyCreate, session: Session = Depends(get_session)):
+    return register_company(company, session)
 
 
-# @router.get("/users/{username}")
-# async def user_read(username: str) -> UserRead:
-#     return fake_db[username]
+@router.get("/companies", response_model=list[CompanyRead], tags=["company"])
+async def companies_read(session: Session = Depends(get_session)):
+    return get_companies(session)
 
 
-# @router.put("/users/{username}", dependencies=[Depends(verify_token)])
-# async def user_update(username: str, user: UserUpdate) -> UserRead:
-#     fake_db[username] = user
-#     return fake_db[username]
+@router.get("/companies/{company_id}", response_model=CompanyRead, tags=["company"])
+async def company_read(company_id: int, session: Session = Depends(get_session)):
+    return get_company(company_id, session)
 
 
-# @router.delete("/users/{username}", dependencies=[Depends(verify_token)])
-# async def user_delete(username: str) -> UserRead:
-#     return fake_db.pop(username)
+@router.patch("/companies/{company_id}", response_model=CompanyRead, tags=["company"])
+async def company_update(
+    company_id: int,
+    company: CompanyUpdate,
+    session: Session = Depends(get_session),
+    current_company: Company = Depends(get_current_user),
+):
+    return update_company(company_id, company, session, current_company)
 
 
-# @router.post("/token", response_model=Token)
-# async def login(form_data: OAuth2PasswordRequestForm = Depends()):
-#     return login_for_token(form_data.username, form_data.password)
+# @router.delete("/students/{student_id}", response_model=StudentRead)
+# async def student_delete(
+#     student_id: int,
+#     session: Session = Depends(get_session),
+#     current_student: Student = Depends(get_current_student),
+# ):
+#     return delete_student(student_id, session, current_student)
 
 
 """

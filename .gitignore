@@ -5,3 +5,4 @@ test.py
 test/
 templates/test.html
 database.db
+notes.txt

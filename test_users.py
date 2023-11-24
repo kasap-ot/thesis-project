@@ -1,12 +1,14 @@
+from enums import UserType
 import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
 from sqlmodel import Session, SQLModel, create_engine
 from sqlmodel.pool import StaticPool
 from httpx import Response
-from models import User, UserCreate
+from models import Student, StudentCreate
 from main import app
 from database import get_session
+from utils import generate_student
 
 
 """
@@ -20,40 +22,44 @@ sending database requests.
 
 
 """
-To reduce code duplication, we define user that will be created 
+To reduce code duplication, we define student that will be created 
 (inserted) in the database.
 """
-TEST_CREATE_USER = UserCreate(
+TEST_CREATE_STUDENT = StudentCreate(
     email="john@doe.com",
     name="John Doe",
     password="john-secret",
     age=24,
+    university="Some University",
+    major="Electrical Engineering",
+    credits=150,
+    gpa=7.50,
 )
 
 """ To avoid hardcoding values and for code-readability. """
 FAKE_ID = -1
 
 
-def create_user_helper(client: TestClient) -> Response:
+def create_student_helper(client: TestClient) -> Response:
     """
     Helper function used when the goal is not to test the
-    create-user functionality, but rather, other functionalities
-    that depend on valid user creation via a POST request.
+    create-student functionality, but rather, other functionalities
+    that depend on valid student creation via a POST request.
     For code readability and potential code-reusability.
     """
-    return client.post("/users", json=TEST_CREATE_USER.dict())
+    return client.post("/students", json=TEST_CREATE_STUDENT.dict())
 
 
-def login_for_token_helper(client: TestClient) -> Response:
+def login_for_token_helper(client: TestClient, user_type: UserType) -> Response:
     """
     Helper function. To reduce code duplication and increase readability.
     """
     return client.post(
-        url="/token",
+        url=f"/token/{user_type.value}",
         headers={"Content Type": "application/json"},
         data={
-            "username": TEST_CREATE_USER.email,
-            "password": TEST_CREATE_USER.password,
+            "username": TEST_CREATE_STUDENT.email,
+            "password": TEST_CREATE_STUDENT.password,
         },
     )
 
@@ -85,116 +91,112 @@ def client_fixture(session: Session):
     app.dependency_overrides.clear()
 
 
-def test_get_users_empty(client: TestClient):
+def test_get_students_empty(client: TestClient):
     """
     Self-explanatory
     """
-    response = client.get("/users")
+    response = client.get("/students")
     data = response.json()
     assert len(data) == 0
     assert response.status_code == status.HTTP_200_OK
 
 
-def test_create_user(client: TestClient):
+def test_create_student(client: TestClient):
     """
     Self-explanatory
     """
-    response = client.post("/users", json=TEST_CREATE_USER.dict())
+    response = client.post("/students", json=TEST_CREATE_STUDENT.dict())
     data: dict = response.json()
 
     keys = data.keys()
-    assert data["email"] == TEST_CREATE_USER.email
-    assert data["name"] == TEST_CREATE_USER.name
-    assert data["age"] == TEST_CREATE_USER.age
+    assert data["email"] == TEST_CREATE_STUDENT.email
+    assert data["name"] == TEST_CREATE_STUDENT.name
+    assert data["age"] == TEST_CREATE_STUDENT.age
+    assert data["university"] == TEST_CREATE_STUDENT.university
+    assert data["major"] == TEST_CREATE_STUDENT.major
+    assert data["credits"] == TEST_CREATE_STUDENT.credits
+    assert data["gpa"] == TEST_CREATE_STUDENT.gpa
     assert "hashed_password" not in keys
     assert "password" not in keys
     assert "id" in keys
     assert response.status_code == status.HTTP_201_CREATED
 
 
-def test_get_users(client: TestClient, session: Session):
+def test_get_students(client: TestClient, session: Session):
     """
     Self-explanatory
     """
-    user_1 = User(
-        email="first@email.com",
-        name="First Name",
-        age=20,
-        hashed_password="first-secret",
-    )
-    user_2 = User(
-        email="second@email.com",
-        name="Second Name",
-        age=26,
-        hashed_password="second-secret",
-    )
-    session.add(user_1)
-    session.add(user_2)
+    student_1 = generate_student()
+    student_2 = generate_student()
+    session.add(student_1)
+    session.add(student_2)
     session.commit()
-    session.refresh(user_1)
-    session.refresh(user_2)
+    session.refresh(student_1)
+    session.refresh(student_2)
 
-    response = client.get("/users")
+    response = client.get("/students")
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == [
-        user_1.dict(exclude={"hashed_password"}),
-        user_2.dict(exclude={"hashed_password"}),
+        student_1.dict(exclude={"hashed_password"}), 
+        student_2.dict(exclude={"hashed_password"}),
     ]
 
 
-def test_create_invalid_user(client: TestClient):
+def test_create_invalid_student(client: TestClient):
     """
     Self-explanatory
     """
-    new_user = {
+    new_student = {
         "email": "some@email.com",
         "name": "Some Name",
         "age": 30,
         "invalid_field": "invalid",
     }
-    response = client.post("/users", json=new_user)
+    response = client.post("/students", json=new_student)
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
 
-def test_read_one_user(client: TestClient, session: Session):
+def test_read_one_student(client: TestClient, session: Session):
     """
     Self-explanatory
     """
-    user = User(
-        email="read@email.com", name="Some Name", age=42, hashed_password="some-hash"
-    )
-    session.add(user)
+    student = generate_student()
+    session.add(student)
     session.commit()
 
-    response = client.get(f"/users/{user.id}")
+    response = client.get(f"/students/{student.id}")
     data: dict = response.json()
 
-    assert data["email"] == user.email
-    assert data["name"] == user.name
-    assert data["age"] == user.age
-    assert data["id"] == user.id
+    assert data["email"] == student.email
+    assert data["name"] == student.name
+    assert data["age"] == student.age
+    assert data["id"] == student.id
+    assert data["university"] == student.university
+    assert data["major"] == student.major
+    assert data["credits"] == student.credits
+    assert data["gpa"] == student.gpa
     assert response.status_code == status.HTTP_200_OK
 
 
-def test_read_fake_user(client: TestClient):
+def test_read_fake_student(client: TestClient):
     """
     Self-explanatory
     """
-    response = client.get(f"/users/{FAKE_ID}")
+    response = client.get(f"/students/{FAKE_ID}")
     data: dict = response.json()
 
     assert data == {"detail": "User not found"}
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
-def test_get_token(client: TestClient):
+def test_get_token_student(client: TestClient):
     """
     Self-explanatory
     """
-    create_user_helper(client)
+    create_student_helper(client)
 
-    response = login_for_token_helper(client)
+    response = login_for_token_helper(client, UserType.STUDENT)
     data: dict = response.json()
 
     assert response.status_code == status.HTTP_200_OK
@@ -207,7 +209,7 @@ def test_get_invalid_token(client: TestClient):
     Self-explanatory
     """
     response = client.post(
-        url="/token",
+        url=f"/token/{UserType.STUDENT.value}",
         headers={"Content Type": "application/json"},
         data={"username": "fake@email.com", "password": "fake-secret"},
     )
@@ -216,109 +218,110 @@ def test_get_invalid_token(client: TestClient):
     assert data["detail"] == "User not found"
 
 
-def update_user_helper(
-    client: TestClient, user_id: int, token: str, updated_value: str
+def update_student_helper(
+    client: TestClient, student_id: int, token: str, updated_value: str
 ) -> Response:
     """
     Self-explanatory
     """
     return client.patch(
-        f"/users/{user_id}",
+        f"/students/{student_id}",
         headers={"Authorization": "Bearer " + token},
         json={"name": updated_value},
     )
 
 
-def test_update_user(client: TestClient):
+def test_update_student(client: TestClient):
     """
     Self-explanatory
     """
-    response = create_user_helper(client)
-    user_id = response.json()["id"]
+    response = create_student_helper(client)
+    student_id = response.json()["id"]
 
-    response = login_for_token_helper(client)
+    response = login_for_token_helper(client, UserType.STUDENT)
     data: dict = response.json()
     token: str = data["access_token"]
 
     updated_value = "Updated Value"
-    response = update_user_helper(client, user_id, token, updated_value)
+    response = update_student_helper(client, student_id, token, updated_value)
     data: dict = response.json()
 
     assert response.status_code == status.HTTP_200_OK
-    assert data["email"] == TEST_CREATE_USER.email
+    assert data["email"] == TEST_CREATE_STUDENT.email
     assert data["name"] == updated_value
-    assert data["age"] == TEST_CREATE_USER.age
-    assert data["id"] == user_id
+    assert data["age"] == TEST_CREATE_STUDENT.age
+    assert data["id"] == student_id
+    assert data["university"] == TEST_CREATE_STUDENT.university
+    assert data["major"] == TEST_CREATE_STUDENT.major
+    assert data["credits"] == TEST_CREATE_STUDENT.credits
+    assert data["gpa"] == TEST_CREATE_STUDENT.gpa
 
 
-def test_update_user_invalid_token(client: TestClient):
+def test_update_student_invalid_token(client: TestClient):
     """
     Self-explanatory
     """
-    response = create_user_helper(client)
-    user_id = response.json()["id"]
+    response = create_student_helper(client)
+    student_id = response.json()["id"]
 
     updated_value = "Updated Value"
-    response = update_user_helper(client, user_id, "Invalid token", updated_value)
+    response = update_student_helper(client, student_id, "Invalid token", updated_value)
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
     assert response.json() == {"detail": "Could not validate credentials"}
 
 
-def test_update_user_not_owner(client: TestClient):
+def test_update_student_not_owner(client: TestClient):
     """
     Self-explanatory
     """
-    response = create_user_helper(client)
-    user_id = response.json()["id"]
-    other_user_id = user_id + 1
+    response = create_student_helper(client)
+    student_id = response.json()["id"]
+    other_student_id = student_id + 1
 
     updated_value = "Updated Value"
-    response = login_for_token_helper(client)
+    response = login_for_token_helper(client, UserType.STUDENT)
     data: dict = response.json()
     token: str = data["access_token"]
 
-    response = update_user_helper(client, other_user_id, token, updated_value)
+    response = update_student_helper(client, other_student_id, token, updated_value)
 
     assert response.json() == {"detail": "Action not allowed"}
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
-def test_delete_user(client: TestClient):
+def test_delete_student(client: TestClient):
     """
     Self-explanatory
     """
-    response = create_user_helper(client)
-    user_id = response.json()["id"]
+    response = create_student_helper(client)
+    student_id = response.json()["id"]
 
-    response = login_for_token_helper(client)
+    response = login_for_token_helper(client, UserType.STUDENT)
     data: dict = response.json()
     token: str = data["access_token"]
 
     response = client.delete(
-        f"/users/{user_id}",
+        f"/students/{student_id}",
         headers={"Authorization": "Bearer " + token},
     )
     data: dict = response.json()
 
+    student_dict = TEST_CREATE_STUDENT.dict(exclude={"password"})
+    student_dict["id"] = student_id
+    assert data == student_dict
     assert response.status_code == status.HTTP_200_OK
-    assert data == {
-        "email": TEST_CREATE_USER.email,
-        "name": TEST_CREATE_USER.name,
-        "age": TEST_CREATE_USER.age,
-        "id": user_id,
-    }
 
 
-def test_delete_user_invalid_token(client: TestClient):
+def test_delete_student_invalid_token(client: TestClient):
     """
     Self-explanatory
     """
-    response = create_user_helper(client)
-    user_id = response.json()["id"]
+    response = create_student_helper(client)
+    student_id = response.json()["id"]
 
     response = client.delete(
-        f"/users/{user_id}",
+        f"/students/{student_id}",
         headers={"Authorization": "Bearer " + "INVALID TOKEN"},
     )
 
@@ -326,22 +329,57 @@ def test_delete_user_invalid_token(client: TestClient):
     assert response.json() == {"detail": "Could not validate credentials"}
 
 
-def test_delete_user_not_owner(client: TestClient):
+def test_delete_student_not_owner(client: TestClient):
     """
     Self-explanatory
     """
-    response = create_user_helper(client)
-    user_id = response.json()["id"]
-    other_user_id = user_id + 1
+    response = create_student_helper(client)
+    student_id = response.json()["id"]
+    other_student_id = student_id + 1
 
-    response = login_for_token_helper(client)
+    response = login_for_token_helper(client, UserType.STUDENT)
     data: dict = response.json()
     token: str = data["access_token"]
 
     response = client.delete(
-        f"/users/{other_user_id}",
+        f"/students/{other_student_id}",
         headers={"Authorization": "Bearer " + token},
     )
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
     assert response.json() == {"detail": "Action not allowed"}
+
+
+"""
+A type of integration test. May not be necessary anymore.
+"""
+
+"""
+def test_student_create_read_login_delete_read(client: TestClient):
+    response = create_student_helper(client)
+    student_id = response.json()["id"]
+
+    response = client.get(f"/students/{student_id}")
+    data: dict = response.json()
+
+    assert response.status_code == 200
+    assert data["name"] == TEST_CREATE_STUDENT.name
+
+    response = login_for_token_helper(client, UserType.STUDENT)
+    data: dict = response.json()
+    token: str = data["access_token"]
+
+    response = client.delete(
+        f"/students/{student_id}",
+        headers={"Authorization": "Bearer " + token},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["name"] == TEST_CREATE_STUDENT.name
+    
+    response = client.get(f"/students/{student_id}")
+    data: dict = response.json()
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "User not found"
+"""
