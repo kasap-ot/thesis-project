@@ -2,7 +2,7 @@ import string
 import random
 from fastapi.templating import Jinja2Templates
 from passlib.context import CryptContext
-from .models import Student
+from .models import Student, Company
 
 
 """ Temporary helper function """
@@ -44,4 +44,17 @@ def generate_student() -> Student:
         major=random_string(),
         credits=random.randint(0, 180),
         gpa=random.random() * 10,
+    )
+
+
+def generate_company() -> Company:
+    return Company(
+        email=random_string(),
+        name=random_string(),
+        age=random.randint(10, 80),
+        hashed_password=random_string(),
+        field=random_string(),
+        num_employees=random.randint(5, 500),
+        year_founded=random.randint(1980, 2023),
+        website=random_string(),
     )
