@@ -94,13 +94,13 @@ async def company_update(
     return update_company(company_id, company, session, current_company)
 
 
-# @router.delete("/students/{student_id}", response_model=StudentRead)
-# async def student_delete(
-#     student_id: int,
-#     session: Session = Depends(get_session),
-#     current_student: Student = Depends(get_current_student),
-# ):
-#     return delete_student(student_id, session, current_student)
+@router.delete("/companies/{company_id}", response_model=CompanyRead)
+async def company_delete(
+    company_id: int,
+    session: Session = Depends(get_session),
+    current_company: Company = Depends(get_current_user),
+):
+    return delete_company(company_id, session, current_company)
 
 
 """
