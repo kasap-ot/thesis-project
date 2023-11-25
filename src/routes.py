@@ -1,23 +1,30 @@
-from .enums import UserType
 from .security import (
     Token,
     login_for_token,
     get_current_user,
 )
-from .models import (StudentCreate, StudentRead, StudentUpdate, Student,
-                    CompanyCreate, CompanyRead, CompanyUpdate, Company,)
+from .models import (
+    StudentCreate, StudentRead, StudentUpdate, Student,
+    CompanyCreate, CompanyRead, CompanyUpdate, Company,
+    OfferCreate, OfferRead, OfferUpdate, OfferFilter, 
+)
 from .database import get_session
-from .controllers import (register_student, get_students, get_student, update_student, delete_student,
-                         register_company, get_companies, get_company, update_company, delete_company)
-from fastapi import APIRouter, Depends, status
+from .controllers import (
+    register_student, get_students, get_student, update_student, delete_student,
+    register_company, get_companies, get_company, update_company, delete_company,
+    create_offer, read_offer, update_offer, delete_offer, read_offers_by_company, read_offers_by_filter,
+)
+from fastapi import APIRouter, Depends, status, Query
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session
+from typing import Annotated
 
 
 router = APIRouter()
 
 
 """ Routes for STUDENTS """
+
 
 @router.post("/students", response_model=StudentRead, status_code=status.HTTP_201_CREATED, tags=["student"])
 async def student_create(student: StudentCreate, session: Session = Depends(get_session)):
@@ -55,7 +62,8 @@ async def student_delete(
 
 """ Route for security tokens """
 
-@router.post("/token/{user_type}", response_model=Token)
+
+@router.post("/token/{user_type}", response_model=Token, tags=["security"])
 async def login(
     user_type: str,
     form_data: OAuth2PasswordRequestForm = Depends(),
@@ -94,13 +102,48 @@ async def company_update(
     return update_company(company_id, company, session, current_company)
 
 
-@router.delete("/companies/{company_id}", response_model=CompanyRead)
+@router.delete("/companies/{company_id}", response_model=CompanyRead, tags=["company"])
 async def company_delete(
     company_id: int,
     session: Session = Depends(get_session),
     current_company: Company = Depends(get_current_user),
 ):
     return delete_company(company_id, session, current_company)
+
+
+""" Routes for offers """
+
+
+@router.put("/offers", response_model=OfferRead, tags=["offer"])
+async def offer_create(offer: OfferCreate, session: Session = Depends(get_session)):
+    return create_offer(offer, session)
+
+
+@router.get("/offers/{offer_id}", response_model=OfferRead, tags=["offer"])
+async def offer_read(offer_id: int, session: Session = Depends(get_session)):
+    return read_offer(offer_id, session)
+
+
+@router.patch("/offers/{offer_id}", response_model=OfferRead, tags=["offer"])
+async def offer_update(offer_id: int, offer: OfferUpdate, session: Session = Depends(get_session)):
+    # TODO: implement security - only offer owner can update their offers
+    return update_offer(offer_id, offer, session)
+
+
+@router.delete("/offers/{offer_id}", response_model=OfferRead, tags=["offer"])
+async def offer_delete(offer_id: int, session: Session = Depends(get_session)):
+    #  TODO: implement security - only offer owner can delete their offers
+    return delete_offer(offer_id, session)
+
+
+# @router.get("/offers/{company_id}", response_model=list[OfferRead], tags=["offer"])
+# async def offer_read_by_company(company_id: int, session: Session = Depends(get_session)):
+#     return read_offers_by_company()
+
+
+# @router.get("/offers", response_model=list[OfferRead], tags=["offer"])
+# async def offer_read_by_filter(filter: OfferFilter, session: Session = Depends(get_session)):
+#     return read_offers_by_filter()
 
 
 """
@@ -132,7 +175,6 @@ async def register_student_template(request: Request):
 
 @router.post("/register-student")
 async def register_student(request: Request) -> RedirectResponse:
-    # TODO: write student registration logic
     return RedirectResponse(url="/home-students")
 
 

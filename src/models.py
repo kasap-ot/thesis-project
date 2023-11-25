@@ -1,4 +1,7 @@
-from sqlmodel import (SQLModel, Field)
+from sqlmodel import SQLModel, Field
+from datetime import date
+from pydantic import BaseModel
+from fastapi import Query
 
 
 """ Models for USERS """
@@ -71,40 +74,50 @@ class CompanyUpdate(SQLModel):
     website: str | None = None
 
 
-"""
-from pydantic import BaseModel
-from datetime import date
-from enums import Status
+""" Models for OFFERS """
+
+class OfferBase(SQLModel):
+    salary: int
+    num_weeks: int
+    field: str
+    deadline: date
+    requirements: str
+    responsibilities: str
+
+    # company_id: int = Field(foreign_key="company.id")
+    # company: Company = Relationship(back_populates="offers")
 
 
-class Base(BaseModel):
+class Offer(OfferBase, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+
+
+class OfferCreate(OfferBase):
+    ...
+
+
+class OfferRead(OfferBase):
     id: int
 
 
-class Country(Base):
-    name: str
+class OfferUpdate(SQLModel):
+    salary: int | None = None
+    num_weeks: int | None = None
+    field: str | None = None
+    deadline: date | None = None
+    requirements: str | None = None
+    responsibilities: str | None = None
 
 
-class User(Base):
-    email: str
-    password: str
-    name: str
-    country_id: int
+class OfferFilter(BaseModel):
+    min_salary: int | None = Query(default=None, gt=0, alias="min-salary")
+    max_salary: int | None = Query(default=None, gt=0, alias="max-salary")
+    min_num_weeks: int | None = Query(default=None, gt=0, alias="min-num-weeks")
+    max_num_weeks: int | None = Query(default=None, gt=0, alias="max-num-weeks")
+    field: str | None = Query(default=None)
 
 
-class Company(User):
-    field: str
-    num_employees: int
-    year_founded: int
-    website: str
-
-
-class Student(User):
-    university: str
-    major: str
-    credits: int
-
-
+"""
 class Experience(Base):
     from_date: date
     to_date: date
@@ -114,13 +127,6 @@ class Experience(Base):
 
 class Offer(Base):
     country_id: int
-    salary: int
-    num_weeks: int
-    field: str
-    deadline: date
-    company_id: int
-    requirements: str
-    responsibilities: str
     # min_year: int (not necessary?)
 
 

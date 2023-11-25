@@ -1,5 +1,8 @@
-from .models import (StudentCreate, Student, StudentUpdate,
-                    CompanyCreate, Company, CompanyUpdate)
+from .models import (
+    StudentCreate, Student, StudentUpdate,
+    CompanyCreate, Company, CompanyUpdate,
+    OfferCreate, Offer, OfferUpdate,
+)
 from .utils import pwd_context
 from sqlmodel import Session, select
 from fastapi import HTTPException, status
@@ -163,3 +166,74 @@ def update_company(
 
 def delete_company(company_id: int, session: Session, current_user: Company) -> Company:
     return cast(Company, delete_user(company_id, session, current_user, Company))
+
+
+""" Controllers for OFFERS """
+
+def create_offer(offer: OfferCreate, session: Session) -> Offer:
+    """ 
+    Creates a new offer with given information.
+    Returns the newly created offer.
+    """
+    offer_to_insert = Offer(**offer.dict())
+    session.add(offer_to_insert)
+    session.commit()
+    session.refresh(offer_to_insert)
+
+    return offer_to_insert
+
+
+
+def read_offer(offer_id: int, session: Session) -> Offer:
+    """
+    Returns the offer with the given ID.
+    """
+    offer = session.get(Offer, offer_id)
+    if offer is None:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND,
+            "Offer not found",
+        )
+    return offer
+
+
+def update_offer(offer_id: int, fields_to_update: OfferUpdate, session: Session) -> Offer:
+    """
+    Updates an existing offer. Returns the newly created offer
+    """
+    offer = read_offer(offer_id, session)
+    updated_fields = fields_to_update.dict(exclude_unset=True)
+    for key, value in updated_fields.items():
+        setattr(offer, key, value)
+    session.add(offer)
+    session.commit()
+    session.refresh(offer)
+    
+    return offer
+
+
+def delete_offer(offer_id: int, session: Session):
+    """
+    Deletes an existing offer. Returns the deleted offer.
+    """
+    offer = read_offer(offer_id, session)
+    session.delete(offer)
+    session.commit()
+    
+    return offer
+
+
+def read_offers_by_company():
+    """
+    Returns all offers that are owned by a given company.
+    Implements pagination.
+    """
+    ...
+
+
+def read_offers_by_filter():
+    """
+    Returns a subset of all offers based on the given
+    filtering criteria. Implements pagination.
+    """
+    ...
