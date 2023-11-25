@@ -1,17 +1,17 @@
-from enums import UserType
-from fastapi import APIRouter, Depends, status
-from fastapi.security import OAuth2PasswordRequestForm
-from security import (
+from .enums import UserType
+from .security import (
     Token,
     login_for_token,
     get_current_user,
 )
-from models import (StudentCreate, StudentRead, StudentUpdate, Student,
+from .models import (StudentCreate, StudentRead, StudentUpdate, Student,
                     CompanyCreate, CompanyRead, CompanyUpdate, Company,)
-from sqlmodel import Session
-from database import get_session
-from controllers import (register_student, get_students, get_student, update_student, delete_student,
+from .database import get_session
+from .controllers import (register_student, get_students, get_student, update_student, delete_student,
                          register_company, get_companies, get_company, update_company, delete_company)
+from fastapi import APIRouter, Depends, status
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlmodel import Session
 
 
 router = APIRouter()

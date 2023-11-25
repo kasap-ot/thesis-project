@@ -1,9 +1,8 @@
-from models import (StudentCreate, Student, StudentUpdate,
+from .models import (StudentCreate, Student, StudentUpdate,
                     CompanyCreate, Company, CompanyUpdate)
+from .utils import pwd_context
 from sqlmodel import Session, select
 from fastapi import HTTPException, status
-from utils import pwd_context
-from sqlmodel import SQLModel
 from typing import cast
 
 

@@ -1,14 +1,14 @@
-from enums import UserType
+from ..src.enums import UserType
+from ..src.models import StudentCreate
+from ..src.main import app
+from ..src.database import get_session
+from ..src.utils import generate_student
 import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
 from sqlmodel import Session, SQLModel, create_engine
 from sqlmodel.pool import StaticPool
 from httpx import Response
-from models import Student, StudentCreate
-from main import app
-from database import get_session
-from utils import generate_student
 
 
 """

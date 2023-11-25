@@ -2,7 +2,7 @@ import string
 import random
 from fastapi.templating import Jinja2Templates
 from passlib.context import CryptContext
-from models import Student
+from .models import Student
 
 
 """ Temporary helper function """

@@ -1,14 +1,14 @@
+from .database import get_session
+from .utils import pwd_context
+from .controllers import get_user_by_email
+from .models import Student, Company
+from .enums import UserType
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
-from database import get_session
-from utils import pwd_context
-from controllers import get_user_by_email
 from sqlmodel import Session
-from models import Student, Company
-from enums import UserType
 
 
 """ Constant variables used for generating JWT tokens """
