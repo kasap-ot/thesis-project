@@ -1,6 +1,5 @@
 from ..src.enums import UserType
-from ..src.models import StudentCreate
-from ..src.utils import generate_student
+from ..src.models import StudentCreate, Student
 from .fixtures import session_fixture, client_fixture
 from fastapi import status
 from fastapi.testclient import TestClient
@@ -35,6 +34,28 @@ TEST_CREATE_STUDENT = StudentCreate(
 
 """ To avoid hardcoding values and for code-readability. """
 FAKE_ID = -1
+
+
+def generate_student(
+    email="generated@mail.com",
+    name="Generated Name",
+    age=30,
+    hashed_password="some-fake-hash",
+    university="Generated University",
+    major="Generated Major",
+    credits=120,
+    gpa=8.50,
+) -> "Student":
+    return Student(
+        email=email,
+        name=name,
+        age=age,
+        hashed_password=hashed_password,
+        university=university,
+        major=major,
+        credits=credits,
+        gpa=gpa,
+    )
 
 
 def create_student_helper(client: TestClient) -> Response:
@@ -96,8 +117,8 @@ def test_get_students(client: TestClient, session: Session):
     """
     Self-explanatory
     """
-    student_1 = generate_student()
-    student_2 = generate_student()
+    student_1 = generate_student(email="first@mail.com")
+    student_2 = generate_student(email="second@mail.com")
     session.add(student_1)
     session.add(student_2)
     session.commit()
@@ -108,7 +129,7 @@ def test_get_students(client: TestClient, session: Session):
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == [
-        student_1.dict(exclude={"hashed_password"}), 
+        student_1.dict(exclude={"hashed_password"}),
         student_2.dict(exclude={"hashed_password"}),
     ]
 

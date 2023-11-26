@@ -23,6 +23,7 @@ def client_fixture(session: Session):
     """
     A fixture (dependency) used by tests for sending HTTP requests.
     """
+
     def get_session_override():
         return session
 

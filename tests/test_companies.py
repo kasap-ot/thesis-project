@@ -1,6 +1,5 @@
 from ..src.enums import UserType
-from ..src.models import CompanyCreate
-from ..src.utils import generate_company
+from ..src.models import CompanyCreate, Company
 from .fixtures import session_fixture, client_fixture
 from fastapi import status
 from fastapi.testclient import TestClient
@@ -35,6 +34,28 @@ TEST_CREATE_COMPANY = CompanyCreate(
 
 """ To avoid hardcoding values and for code-readability. """
 FAKE_ID = -1
+
+
+def generate_company(
+    email="some@email.com",
+    name="Some Name",
+    age=40,
+    hashed_password="some-hash",
+    field="Some field",
+    num_employees=100,
+    year_founded=1999,
+    website="some.website.org",
+) -> Company:
+    return Company(
+        email=email,
+        name=name,
+        age=age,
+        hashed_password=hashed_password,
+        field=field,
+        num_employees=num_employees,
+        year_founded=year_founded,
+        website=website,
+    )
 
 
 def create_company_helper(client: TestClient) -> Response:
@@ -96,8 +117,8 @@ def test_get_companies(client: TestClient, session: Session):
     """
     Self-explanatory
     """
-    company_1 = generate_company()
-    company_2 = generate_company()
+    company_1 = generate_company(email="company1@mail.com")
+    company_2 = generate_company(email="company2@mail.com")
     session.add(company_1)
     session.add(company_2)
     session.commit()
@@ -108,7 +129,7 @@ def test_get_companies(client: TestClient, session: Session):
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == [
-        company_1.dict(exclude={"hashed_password"}), 
+        company_1.dict(exclude={"hashed_password"}),
         company_2.dict(exclude={"hashed_password"}),
     ]
 

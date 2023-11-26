@@ -1,4 +1,4 @@
-from sqlmodel import SQLModel, Field
+from sqlmodel import SQLModel, Field, Relationship
 from datetime import date
 from pydantic import BaseModel
 from fastapi import Query
@@ -18,7 +18,7 @@ class StudentBase(SQLModel):
 
 class Student(StudentBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    hashed_password: str
+    hashed_password: str    
     
 
 class StudentCreate(StudentBase):
@@ -55,6 +55,8 @@ class Company(CompanyBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     hashed_password: str
     
+    # offers: list["Offer"] = Relationship(back_populates="company")
+    
 
 class CompanyCreate(CompanyBase):
     password: str
@@ -84,12 +86,23 @@ class OfferBase(SQLModel):
     requirements: str
     responsibilities: str
 
+    def to_dict(self) -> dict:
+        return {
+            "salary": self.salary,
+            "num_weeks": self.num_weeks,
+            "field": self.field,
+            "deadline": self.deadline.isoformat(),
+            "requirements": self.requirements,
+            "responsibilities": self.responsibilities,
+        }
+
     # company_id: int = Field(foreign_key="company.id")
-    # company: Company = Relationship(back_populates="offers")
 
 
 class Offer(OfferBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
+    
+    # company: Company = Relationship(back_populates="offers")
 
 
 class OfferCreate(OfferBase):

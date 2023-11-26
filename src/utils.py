@@ -32,29 +32,3 @@ def random_string(length=10):
     characters = string.ascii_letters + string.digits
     random_string = ''.join(random.choice(characters) for _ in range(length))
     return random_string
-
-
-def generate_student() -> Student:
-    return Student(
-        email=random_string(),
-        name=random_string(),
-        age=random.randint(10, 80),
-        hashed_password=random_string(),
-        university=random_string(),
-        major=random_string(),
-        credits=random.randint(0, 180),
-        gpa=random.random() * 10,
-    )
-
-
-def generate_company() -> Company:
-    return Company(
-        email=random_string(),
-        name=random_string(),
-        age=random.randint(10, 80),
-        hashed_password=random_string(),
-        field=random_string(),
-        num_employees=random.randint(5, 500),
-        year_founded=random.randint(1980, 2023),
-        website=random_string(),
-    )

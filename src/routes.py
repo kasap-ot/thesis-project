@@ -114,7 +114,7 @@ async def company_delete(
 """ Routes for offers """
 
 
-@router.put("/offers", response_model=OfferRead, tags=["offer"])
+@router.post("/offers", response_model=OfferRead, tags=["offer"], status_code=status.HTTP_201_CREATED)
 async def offer_create(offer: OfferCreate, session: Session = Depends(get_session)):
     return create_offer(offer, session)
 
