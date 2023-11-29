@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS experiences (
     from_date DATE NOT NULL,
     to_date DATE NOT NULL,
     company VARCHAR(255) NOT NULL,
+    position VARCHAR(255) NOT NULL,
     description TEXT NOT NULL
     -- student_id [FOREIGN KEY]
 );

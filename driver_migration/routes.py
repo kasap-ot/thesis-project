@@ -3,6 +3,7 @@ from .schemas import (
     StudentCreate, StudentRead, StudentUpdate,
     CompanyCreate, CompanyRead, CompanyUpdate,
     OfferCreate, OfferRead, OfferUpdate,
+    ExperienceCreate, ExperienceRead, ExperienceUpdate,
 )
 from fastapi import APIRouter, status, HTTPException
 from psycopg.rows import class_row
@@ -147,60 +148,64 @@ async def offer_delete(offer_id: int):
         await conn.execute(sql, [offer_id])
 
 
+""" Routes for EXPERIENCES """
+
+# create experience
+# read experiences
+# read one experience
+# update experience
+# delete experience
 
 """
-class ToDo(BaseModel):
-    id: int | None
-    name: str
-    completed: bool
+from_date: date
+to_date: date
+company: str
+position: str
+description: str
+"""
 
-
-@router.post("")
-async def create_todo(todo: ToDo):
+@router.post("/experiences", status_code=status.HTTP_201_CREATED, tags=["experience"])
+async def experience_post(e: ExperienceCreate):
     async with pool.connection() as conn:
-        await conn.execute(
-            "insert into todos (name, completed) values (%s, %s)",
-            [todo.name, todo.completed],
-        )
+        sql = "INSERT INTO experiences                                                   \
+            (from_date, to_date, company, position, description)    \
+            VALUES (%s, %s, %s, %s, %s)"
+        await conn.execute(sql, params=[
+            e.from_date, e.to_date, e.company, e.position, e.description,
+        ])
 
 
-@router.get("")
-async def get_todos():
-    async with pool.connection() as conn, conn.cursor(
-        row_factory=class_row(ToDo)
-    ) as cur:
-        await cur.execute("select * from todos")
+@router.get("/experiences", response_model=list[ExperienceRead], tags=["experience"])
+async def experiences_get():
+    async with pool.connection() as conn, conn.cursor(row_factory=class_row(ExperienceRead)) as cur:
+        sql = "SELECT * FROM experiences;"
+        await cur.execute(sql)
         records = await cur.fetchall()
         return records
 
 
-@router.get("/{id}")
-async def get_todo(id: int):
-    async with pool.connection() as conn, conn.cursor(
-        row_factory=class_row(ToDo)
-    ) as cur:
-        await cur.execute("select * from todos where id=%s", [id])
+@router.get("/experiences/{experience_id}", response_model=ExperienceRead, tags=["experience"])
+async def experience_get(experience_id: int):
+    async with pool.connection() as conn, conn.cursor(row_factory=class_row(ExperienceRead)) as cur:
+        sql = "SELECT * FROM experiences WHERE id = %s;"
+        await cur.execute(sql, [experience_id])
         record = await cur.fetchone()
-        if not record:
+        if record is None:
             raise HTTPException(404)
         return record
 
 
-@router.put("/{id}")
-async def update_todo(id: int, todo: ToDo):
-    async with pool.connection() as conn, conn.cursor(
-        row_factory=class_row(ToDo)
-    ) as cur:
-        await cur.execute(
-            "update todos set name=%s, completed=%s where id=%s returning *",
-            [todo.name, todo.completed, id],
-        )
-        record = await cur.fetchone()
-        return record
-
-
-@router.delete("/{id}")
-async def delete_todo(id: int):
+@router.put("/experiences/{experience_id}", tags=["experience"])
+async def experience_patch(experience_id: int, s: ExperienceUpdate):
     async with pool.connection() as conn:
-        await conn.execute("delete from todos where id=%s", [id])
-"""
+        sql = "UPDATE experiences SET                                           \
+            from_date=%s, to_date=%s, company=%s, position=%s, description=%s   \
+            WHERE id=%s RETURNING *;"
+        await conn.execute(sql, [s.from_date, s.to_date, s.company, s.position, s.description, experience_id])
+    
+
+@router.delete("/experiences/{experience_id}", tags=["experience"])
+async def experience_delete(experience_id: int):
+    async with pool.connection() as conn:
+        sql = "DELETE FROM experiences WHERE id = %s"
+        await conn.execute(sql, [experience_id])

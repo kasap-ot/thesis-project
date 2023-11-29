@@ -91,7 +91,11 @@ class OfferUpdate(BaseModel):
 """ EXPERIENCE SCHEMAS """
 
 class ExperienceBase(BaseModel):
-    ...
+    from_date: date
+    to_date: date
+    company: str
+    position: str
+    description: str
 
 
 class ExperienceCreate(ExperienceBase):
@@ -99,8 +103,12 @@ class ExperienceCreate(ExperienceBase):
 
 
 class ExperienceRead(ExperienceBase):
-    ...
+    id: int
 
 
 class ExperienceUpdate(BaseModel):
-    ...
+    from_date: date | None = None
+    to_date: date | None = None
+    company: str | None = None
+    position: str | None = None
+    description: str | None = None
