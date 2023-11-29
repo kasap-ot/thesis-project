@@ -1,3 +1,4 @@
+from .enums import Status
 from pydantic import BaseModel, Field
 from datetime import date
 
@@ -69,6 +70,7 @@ class OfferBase(BaseModel):
     deadline: date
     requirements: str
     responsibilities: str
+    company_id: int
 
 
 class OfferCreate(OfferBase):
@@ -96,6 +98,7 @@ class ExperienceBase(BaseModel):
     company: str
     position: str
     description: str
+    student_id: int
 
 
 class ExperienceCreate(ExperienceBase):
@@ -112,3 +115,19 @@ class ExperienceUpdate(BaseModel):
     company: str | None = None
     position: str | None = None
     description: str | None = None
+
+
+""" APPLICATION SCHEMAS """
+
+class ApplicationBase(BaseModel):
+    student_id: int
+    offer_id: int
+    status: Status
+
+
+class ApplicationRead(ApplicationBase):
+    ...
+
+
+class ApplicationCreate(ApplicationBase):
+    ...

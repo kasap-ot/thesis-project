@@ -105,10 +105,10 @@ async def company_delete(company_id: int):
 async def offer_post(o: OfferCreate):
     async with pool.connection() as conn:
         sql = "INSERT INTO offers                                                   \
-            (salary, num_weeks, field, deadline, requirements, responsibilities)    \
-            VALUES (%s, %s, %s, %s, %s, %s)"
+            (salary, num_weeks, field, deadline, requirements, responsibilities, company_id)    \
+            VALUES (%s, %s, %s, %s, %s, %s, %s)"
         await conn.execute(sql, params=[
-            o.salary, o.num_weeks, o.field, o.deadline, o.requirements, o.responsibilities
+            o.salary, o.num_weeks, o.field, o.deadline, o.requirements, o.responsibilities, o.company_id
         ])
 
 
@@ -150,28 +150,14 @@ async def offer_delete(offer_id: int):
 
 """ Routes for EXPERIENCES """
 
-# create experience
-# read experiences
-# read one experience
-# update experience
-# delete experience
-
-"""
-from_date: date
-to_date: date
-company: str
-position: str
-description: str
-"""
-
 @router.post("/experiences", status_code=status.HTTP_201_CREATED, tags=["experience"])
 async def experience_post(e: ExperienceCreate):
     async with pool.connection() as conn:
         sql = "INSERT INTO experiences                                                   \
-            (from_date, to_date, company, position, description)    \
-            VALUES (%s, %s, %s, %s, %s)"
+            (from_date, to_date, company, position, description, student_id)    \
+            VALUES (%s, %s, %s, %s, %s, %s)"
         await conn.execute(sql, params=[
-            e.from_date, e.to_date, e.company, e.position, e.description,
+            e.from_date, e.to_date, e.company, e.position, e.description, e.student_id
         ])
 
 
@@ -209,3 +195,12 @@ async def experience_delete(experience_id: int):
     async with pool.connection() as conn:
         sql = "DELETE FROM experiences WHERE id = %s"
         await conn.execute(sql, [experience_id])
+
+
+""" Routes for APPLICATIONS """
+
+# create application - apply
+# read applications - my applications
+# read application - not needed?
+# delete application - cancel
+# update application - 

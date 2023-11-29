@@ -31,7 +31,6 @@ CREATE TABLE IF NOT EXISTS offers (
     deadline DATE NOT NULL,
     requirements TEXT NOT NULL,
     responsibilities TEXT NOT NULL
-    -- company_id [FOREIGN KEY]
 );
 
 
@@ -42,12 +41,15 @@ CREATE TABLE IF NOT EXISTS experiences (
     company VARCHAR(255) NOT NULL,
     position VARCHAR(255) NOT NULL,
     description TEXT NOT NULL
-    -- student_id [FOREIGN KEY]
 );
 
 
--- CREATE TABLE IF NOT EXISTS applications (
---     student_id,
---     offer_id,
---     status
--- );
+CREATE DOMAIN status INT CHECK (VALUE >= 0 AND VALUE <= 2);
+
+
+CREATE TABLE IF NOT EXISTS applications (
+    student_id INT REFERENCES students(id),
+    offer_id INT REFERENCES companies(id),
+    status status NOT NULL,
+    PRIMARY KEY (student_id, offer_id)
+);
