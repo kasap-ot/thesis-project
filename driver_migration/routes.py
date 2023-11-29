@@ -199,39 +199,25 @@ async def offer_post(o: OfferCreate):
 @router.get("/offers", response_model=list[OfferRead], tags=["offers"])
 async def offers_get(
     field: str | None = None,
-    min_num_weeks: int | None = None,
-    max_num_weeks: int | None = None,
-    min_salary: int | None = None,
-    max_salary: int | None = None,
+    min_num_weeks: int = 0,
+    max_num_weeks: int = 100,
+    min_salary: int = 0,
+    max_salary: int = 10_000,
 ):
     """ Returns all offers that satisfy the given query parameters """
     async with pool.connection() as conn, conn.cursor(
         row_factory=class_row(OfferRead)
     ) as cur:
-        sql = "SELECT * FROM offers WHERE 1=1"
-
-        parameters = []
-
-        """ 
-        Builds the SQL query based on the given parameters.
-        Also builds the list with the appropriate parameters.  
+        sql = """
+            SELECT * FROM offers
+            WHERE num_weeks >= %s AND num_weeks <= %s
+            AND salary >= %s AND salary <= %s
         """
+        parameters: list = [min_num_weeks, max_num_weeks, min_salary, max_salary]
 
         if field is not None:
             sql += " AND field = %s"
             parameters.append(field)
-        elif min_num_weeks is not None:
-            sql += " AND min_num_weeks >= %s"
-            parameters.append(min_num_weeks)
-        elif max_num_weeks is not None:
-            sql += " AND max_num_weeks <= %s"
-            parameters.append(max_num_weeks)
-        elif min_salary is not None:
-            sql += " AND min_salary = %s"
-            parameters.append(min_salary)
-        elif max_salary is not None:
-            sql += " AND max_salary = %s"
-            parameters.append(max_salary)
 
         await cur.execute(sql, parameters)
         records = await cur.fetchall()
