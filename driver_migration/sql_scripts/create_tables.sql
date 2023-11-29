@@ -49,7 +49,7 @@ CREATE DOMAIN status INT CHECK (VALUE >= 0 AND VALUE <= 2);
 
 CREATE TABLE IF NOT EXISTS applications (
     student_id INT REFERENCES students(id),
-    offer_id INT REFERENCES companies(id),
+    offer_id INT REFERENCES offers(id),
     status status NOT NULL,
     PRIMARY KEY (student_id, offer_id)
 );

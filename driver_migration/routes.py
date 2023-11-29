@@ -1,10 +1,11 @@
+from .enums import Status
 from .database import get_async_pool
 from .schemas import (
     StudentCreate, StudentRead, StudentUpdate,
     CompanyCreate, CompanyRead, CompanyUpdate,
     OfferCreate, OfferRead, OfferUpdate,
     ExperienceCreate, ExperienceRead, ExperienceUpdate,
-    StudentProfile,
+    StudentProfile, ApplicationRead,
 )
 from fastapi import APIRouter, status, HTTPException
 from psycopg.rows import class_row, dict_row
@@ -13,7 +14,7 @@ from psycopg.rows import class_row, dict_row
 router = APIRouter()
 pool = get_async_pool()
 
-@router.post("/students", status_code=status.HTTP_201_CREATED, tags=["student"])
+@router.post("/students", status_code=status.HTTP_201_CREATED, tags=["students"])
 async def student_post(s: StudentCreate):
     async with pool.connection() as conn:
         sql = "INSERT INTO students                                                 \
@@ -24,7 +25,7 @@ async def student_post(s: StudentCreate):
         ])
 
 
-@router.get("/students", response_model=list[StudentRead], tags=["student"])
+@router.get("/students", response_model=list[StudentRead], tags=["students"])
 async def students_get():
     async with pool.connection() as conn, conn.cursor(row_factory=class_row(StudentRead)) as cur:
         sql = "SELECT * FROM students;"
@@ -33,7 +34,7 @@ async def students_get():
         return records
 
 
-@router.get("/students/{student_id}", response_model=StudentRead, tags=["student"])
+@router.get("/students/{student_id}", response_model=StudentRead, tags=["students"])
 async def student_get(student_id: int):
     async with pool.connection() as conn, conn.cursor(row_factory=class_row(StudentRead)) as cur:
         sql = "SELECT * FROM students WHERE id = %s;"
@@ -44,7 +45,7 @@ async def student_get(student_id: int):
         return record
 
 
-@router.put("/students/{student_id}", tags=["student"])
+@router.put("/students/{student_id}", tags=["students"])
 async def student_patch(student_id: int, s: StudentUpdate):
     async with pool.connection() as conn:
         sql = "UPDATE students SET                                              \
@@ -53,7 +54,7 @@ async def student_patch(student_id: int, s: StudentUpdate):
         await conn.execute(sql, [s.email, s.name, s.age, s.university, s.major, s.credits, s.gpa, student_id])
     
 
-@router.delete("/students/{student_id}", tags=["student"])
+@router.delete("/students/{student_id}", tags=["students"])
 async def student_delete(student_id: int):
     async with pool.connection() as conn:
         sql = "DELETE FROM students WHERE id = %s"
@@ -62,7 +63,7 @@ async def student_delete(student_id: int):
 
 """ Routes for STUDENT PROFILES """
 
-@router.get("/student-profile/{student_id}", response_model=StudentProfile, tags=["student"])
+@router.get("/student-profile/{student_id}", response_model=StudentProfile, tags=["students"])
 async def student_profile_get(student_id: int):
     async with pool.connection() as conn, conn.cursor(row_factory=dict_row) as cur:
         sql = "SELECT * FROM students WHERE id = %s;"
@@ -83,7 +84,7 @@ async def student_profile_get(student_id: int):
 
 """ Routes for COMPANIES """
 
-@router.post("/companies", status_code=status.HTTP_201_CREATED, tags=["company"])
+@router.post("/companies", status_code=status.HTTP_201_CREATED, tags=["companies"])
 async def company_post(c: CompanyCreate):
     async with pool.connection() as conn:
         sql = "INSERT INTO companies                                                    \
@@ -94,7 +95,7 @@ async def company_post(c: CompanyCreate):
         ])
 
 
-@router.get("/companies/{company_id}", response_model=CompanyRead, tags=["company"])
+@router.get("/companies/{company_id}", response_model=CompanyRead, tags=["companies"])
 async def company_get(company_id: int):
     async with pool.connection() as conn, conn.cursor(row_factory=class_row(CompanyRead)) as cur:
         sql = "SELECT * FROM companies WHERE id = %s;"
@@ -105,7 +106,7 @@ async def company_get(company_id: int):
         return record
 
 
-@router.put("/companies/{company_id}", tags=["company"])
+@router.put("/companies/{company_id}", tags=["companies"])
 async def company_patch(company_id: int, c: CompanyUpdate):
     async with pool.connection() as conn:
         sql = "UPDATE companies SET                                                 \
@@ -114,7 +115,7 @@ async def company_patch(company_id: int, c: CompanyUpdate):
         await conn.execute(sql, [c.email, c.name, c.field, c.num_employees, c.year_founded, c.website, company_id])
 
 
-@router.delete("/companies/{company_id}", tags=["company"])
+@router.delete("/companies/{company_id}", tags=["companies"])
 async def company_delete(company_id: int):
     async with pool.connection() as conn:
         sql = "DELETE FROM companies WHERE id = %s"
@@ -123,7 +124,7 @@ async def company_delete(company_id: int):
 
 """ Routes for OFFERS """
 
-@router.post("/offers", status_code=status.HTTP_201_CREATED, tags=["offer"])
+@router.post("/offers", status_code=status.HTTP_201_CREATED, tags=["offers"])
 async def offer_post(o: OfferCreate):
     async with pool.connection() as conn:
         sql = "INSERT INTO offers                                                   \
@@ -134,7 +135,7 @@ async def offer_post(o: OfferCreate):
         ])
 
 
-@router.get("/offers", response_model=list[OfferRead], tags=["offer"])
+@router.get("/offers", response_model=list[OfferRead], tags=["offers"])
 async def offers_get():
     async with pool.connection() as conn, conn.cursor(row_factory=class_row(OfferRead)) as cur:
         sql = "SELECT * FROM offers;"
@@ -143,7 +144,7 @@ async def offers_get():
         return records
 
 
-@router.get("/offers/{offer_id}", response_model=OfferRead, tags=["offer"])
+@router.get("/offers/{offer_id}", response_model=OfferRead, tags=["offers"])
 async def offer_get(offer_id: int):
     async with pool.connection() as conn, conn.cursor(row_factory=class_row(OfferRead)) as cur:
         sql = "SELECT * FROM offers WHERE id = %s;"
@@ -154,7 +155,7 @@ async def offer_get(offer_id: int):
         return record
 
 
-@router.put("/offers/{offer_id}", tags=["offer"])
+@router.put("/offers/{offer_id}", tags=["offers"])
 async def offer_patch(offer_id: int, s: OfferUpdate):
     async with pool.connection() as conn:
         sql = "UPDATE offers SET                                                                    \
@@ -163,7 +164,7 @@ async def offer_patch(offer_id: int, s: OfferUpdate):
         await conn.execute(sql, [s.salary, s.num_weeks, s.field, s.deadline, s.requirements, s.responsibilities, offer_id])
     
 
-@router.delete("/offers/{offer_id}", tags=["offer"])
+@router.delete("/offers/{offer_id}", tags=["offers"])
 async def offer_delete(offer_id: int):
     async with pool.connection() as conn:
         sql = "DELETE FROM offers WHERE id = %s"
@@ -172,7 +173,7 @@ async def offer_delete(offer_id: int):
 
 """ Routes for EXPERIENCES """
 
-@router.post("/experiences", status_code=status.HTTP_201_CREATED, tags=["experience"])
+@router.post("/experiences", status_code=status.HTTP_201_CREATED, tags=["experiences"])
 async def experience_post(e: ExperienceCreate):
     async with pool.connection() as conn:
         sql = "INSERT INTO experiences                                                   \
@@ -183,7 +184,7 @@ async def experience_post(e: ExperienceCreate):
         ])
 
 
-@router.get("/experiences", response_model=list[ExperienceRead], tags=["experience"])
+@router.get("/experiences", response_model=list[ExperienceRead], tags=["experiences"])
 async def experiences_get():
     async with pool.connection() as conn, conn.cursor(row_factory=class_row(ExperienceRead)) as cur:
         sql = "SELECT * FROM experiences;"
@@ -192,7 +193,7 @@ async def experiences_get():
         return records
 
 
-@router.get("/experiences/{experience_id}", response_model=ExperienceRead, tags=["experience"])
+@router.get("/experiences/{experience_id}", response_model=ExperienceRead, tags=["experiences"])
 async def experience_get(experience_id: int):
     async with pool.connection() as conn, conn.cursor(row_factory=class_row(ExperienceRead)) as cur:
         sql = "SELECT * FROM experiences WHERE id = %s;"
@@ -203,7 +204,7 @@ async def experience_get(experience_id: int):
         return record
 
 
-@router.put("/experiences/{experience_id}", tags=["experience"])
+@router.put("/experiences/{experience_id}", tags=["experiences"])
 async def experience_patch(experience_id: int, s: ExperienceUpdate):
     async with pool.connection() as conn:
         sql = "UPDATE experiences SET                                           \
@@ -212,7 +213,7 @@ async def experience_patch(experience_id: int, s: ExperienceUpdate):
         await conn.execute(sql, [s.from_date, s.to_date, s.company, s.position, s.description, experience_id])
     
 
-@router.delete("/experiences/{experience_id}", tags=["experience"])
+@router.delete("/experiences/{experience_id}", tags=["experiences"])
 async def experience_delete(experience_id: int):
     async with pool.connection() as conn:
         sql = "DELETE FROM experiences WHERE id = %s"
@@ -221,8 +222,49 @@ async def experience_delete(experience_id: int):
 
 """ Routes for APPLICATIONS """
 
-# create application - apply
-# read applications - my applications
-# read application - not needed?
-# delete application - cancel
-# update application - 
+@router.post("/applications/apply/{student_id}/{offer_id}", tags=["applications"])
+async def application_post(student_id: int, offer_id: int):
+    async with pool.connection() as conn:
+        sql = "INSERT INTO applications (student_id, offer_id, status) VALUES (%s, %s, %s)"
+        await conn.execute(sql, [student_id, offer_id, Status.WAITING.value])
+
+
+@router.get("/applications/view/{student_id}", response_model=list[ApplicationRead], tags=["applications"])
+async def applications_get(student_id: int):
+    async with pool.connection() as conn, conn.cursor(row_factory=class_row(ApplicationRead)) as cur:
+        sql = "SELECT student_id, offer_id, status FROM applications WHERE student_id = %s;"
+        await cur.execute(sql, [student_id])
+        records = await cur.fetchall()
+        return records
+   
+
+""" Possibly unnecessary? """
+# @router.delete("/applications/{student_id}/{offer_id}", tags=["applications"])
+# async def application_delete(student_id: int, offer_id: int):
+#     async with pool.connection() as conn:
+#         sql = "DELETE FROM applications WHERE student_id=%s AND offer_id=%s;"
+#         await conn.execute(sql, [student_id, offer_id])
+
+
+@router.patch("/applications/accept/{student_id}/{offer_id}", tags=["applications"])
+async def application_accept(student_id: int, offer_id: int):
+    """
+    If a student has status - waiting for a given application,
+    set his his status to - accepted. Change all other applications
+    to status - rejected.
+    """
+    async with pool.connection() as conn:
+        sql = "CALL accept_student(%s, %s);"
+        await conn.execute(sql, [student_id, offer_id])
+
+
+@router.delete("/applications/cancel/{student_id}/{offer_id}", tags=["applications"])
+async def application_cancel(student_id: int, offer_id: int):
+    """
+    If a student is still waiting for his application, simply delete his application.
+    If the student's application has been accepted, then delete his application and
+    reset all other applications (for the same offer) to status - waiting.
+    """
+    async with pool.connection() as conn:
+        sql = "CALL cancel_application(%s, %s);"
+        await conn.execute(sql, [student_id, offer_id])
