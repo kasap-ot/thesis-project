@@ -131,3 +131,9 @@ class ApplicationRead(ApplicationBase):
 
 class ApplicationCreate(ApplicationBase):
     ...
+
+
+""" STUDENT PROFILE SCHEMAS """
+
+class StudentProfile(StudentRead):
+    experiences: list[ExperienceRead]

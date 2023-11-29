@@ -4,9 +4,10 @@ from .schemas import (
     CompanyCreate, CompanyRead, CompanyUpdate,
     OfferCreate, OfferRead, OfferUpdate,
     ExperienceCreate, ExperienceRead, ExperienceUpdate,
+    StudentProfile,
 )
 from fastapi import APIRouter, status, HTTPException
-from psycopg.rows import class_row
+from psycopg.rows import class_row, dict_row
 
 
 router = APIRouter()
@@ -58,6 +59,27 @@ async def student_delete(student_id: int):
         sql = "DELETE FROM students WHERE id = %s"
         await conn.execute(sql, [student_id])
 
+
+""" Routes for STUDENT PROFILES """
+
+@router.get("/student-profile/{student_id}", response_model=StudentProfile, tags=["student"])
+async def student_profile_get(student_id: int):
+    async with pool.connection() as conn, conn.cursor(row_factory=dict_row) as cur:
+        sql = "SELECT * FROM students WHERE id = %s;"
+        await cur.execute(sql, [student_id])
+        record = await cur.fetchone()
+        if record is None:
+            raise HTTPException(404)
+        student = StudentRead(**record)
+
+        sql = "SELECT * FROM experiences WHERE student_id = %s;"
+        await cur.execute(sql, [student_id])
+        experiences: list = await cur.fetchall()
+        
+        student_profile = StudentProfile(experiences=experiences, **student.dict())
+
+        return student_profile
+        
 
 """ Routes for COMPANIES """
 
