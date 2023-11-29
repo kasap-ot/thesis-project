@@ -5,6 +5,7 @@ from datetime import date
 
 """ STUDENT SCHEMAS """
 
+
 class StudentBase(BaseModel):
     email: str
     name: str
@@ -35,6 +36,7 @@ class StudentUpdate(BaseModel):
 
 """ COMPANY SCHEMAS """
 
+
 class CompanyBase(BaseModel):
     email: str
     name: str
@@ -62,6 +64,7 @@ class CompanyUpdate(BaseModel):
 
 
 """ OFFER SCHEMAS """
+
 
 class OfferBase(BaseModel):
     salary: int
@@ -92,6 +95,7 @@ class OfferUpdate(BaseModel):
 
 """ EXPERIENCE SCHEMAS """
 
+
 class ExperienceBase(BaseModel):
     from_date: date
     to_date: date
@@ -119,6 +123,7 @@ class ExperienceUpdate(BaseModel):
 
 """ APPLICATION SCHEMAS """
 
+
 class ApplicationBase(BaseModel):
     student_id: int
     offer_id: int
@@ -134,6 +139,7 @@ class ApplicationCreate(ApplicationBase):
 
 
 """ STUDENT PROFILE SCHEMAS """
+
 
 class StudentProfile(StudentRead):
     experiences: list[ExperienceRead]
