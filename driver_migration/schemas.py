@@ -86,3 +86,21 @@ class OfferUpdate(BaseModel):
     deadline: date | None = None
     requirements: str | None = None
     responsibilities: str | None = None
+
+
+""" EXPERIENCE SCHEMAS """
+
+class ExperienceBase(BaseModel):
+    ...
+
+
+class ExperienceCreate(ExperienceBase):
+    ...
+
+
+class ExperienceRead(ExperienceBase):
+    ...
+
+
+class ExperienceUpdate(BaseModel):
+    ...
