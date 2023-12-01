@@ -1,3 +1,5 @@
+from .enums import UserType
+from .security import get_current_user, Token, login_for_token
 from .utils import pwd_context
 from .enums import Status
 from .database import get_async_pool
@@ -16,12 +18,21 @@ from .schemas import (
     StudentProfile,
     ApplicationRead,
 )
-from fastapi import APIRouter, status, HTTPException, Query
+from fastapi import APIRouter, status, HTTPException, Depends
+from fastapi.security import OAuth2PasswordRequestForm
 from psycopg.rows import class_row, dict_row
 
 
 router = APIRouter()
 pool = get_async_pool()
+
+
+@router.post("/token", response_model=Token, tags=["security"])
+async def token(user_type_query_param: str, form_data: OAuth2PasswordRequestForm = Depends()):
+    email = form_data.username
+    password = form_data.password
+    user_type = UserType(user_type_query_param)
+    return login_for_token(email, password, user_type)
 
 
 @router.post("/students", status_code=status.HTTP_201_CREATED, tags=["students"])
@@ -48,7 +59,10 @@ async def student_post(s: StudentCreate):
 
 
 @router.put("/students/{student_id}", tags=["students"])
-async def student_patch(student_id: int, s: StudentUpdate):
+async def student_patch(student_id: int, s: StudentUpdate, current_user = Depends(get_current_user)):
+    if current_user.id != student_id:
+        raise HTTPException(403)
+    
     async with pool.connection() as conn:
         sql = "UPDATE students SET                                              \
             email=%s, name=%s, age=%s, university=%s, major=%s, credits=%s, gpa=%s   \
@@ -69,7 +83,10 @@ async def student_patch(student_id: int, s: StudentUpdate):
 
 
 @router.delete("/students/{student_id}", tags=["students"])
-async def student_delete(student_id: int):
+async def student_delete(student_id: int, current_user = Depends(get_current_user)):
+    if current_user.id != student_id:
+        raise HTTPException(403)
+    
     async with pool.connection() as conn:
         sql = "DELETE FROM students WHERE id = %s"
         await conn.execute(sql, [student_id])
@@ -145,7 +162,10 @@ async def company_offers_get(company_id: int):
 
 
 @router.put("/companies/{company_id}", tags=["companies"])
-async def company_patch(company_id: int, c: CompanyUpdate):
+async def company_patch(company_id: int, c: CompanyUpdate, current_user = Depends(get_current_user)):
+    if current_user.id != company_id:
+        raise HTTPException(403)
+    
     async with pool.connection() as conn:
         sql = """UPDATE companies SET                                                 
             email=%s, name=%s, field=%s, num_employees=%s, year_founded=%s, website=%s
@@ -165,7 +185,10 @@ async def company_patch(company_id: int, c: CompanyUpdate):
 
 
 @router.delete("/companies/{company_id}", tags=["companies"])
-async def company_delete(company_id: int):
+async def company_delete(company_id: int, current_user = Depends(get_current_user)):
+    if current_user.id != company_id:
+        raise HTTPException(403)
+    
     async with pool.connection() as conn:
         sql = "DELETE FROM companies WHERE id = %s"
         await conn.execute(sql, [company_id])
@@ -236,7 +259,9 @@ async def offer_get(offer_id: int):
 
 
 @router.put("/offers/{offer_id}", tags=["offers"])
-async def offer_put(offer_id: int, s: OfferUpdate):
+async def offer_put(offer_id: int, o: OfferUpdate):
+    # TODO: Implement security
+
     async with pool.connection() as conn:
         sql = "UPDATE offers SET                                                                    \
             salary=%s, num_weeks=%s, field=%s, deadline=%s, requirements=%s, responsibilities=%s    \
@@ -244,12 +269,12 @@ async def offer_put(offer_id: int, s: OfferUpdate):
         await conn.execute(
             sql,
             [
-                s.salary,
-                s.num_weeks,
-                s.field,
-                s.deadline,
-                s.requirements,
-                s.responsibilities,
+                o.salary,
+                o.num_weeks,
+                o.field,
+                o.deadline,
+                o.requirements,
+                o.responsibilities,
                 offer_id,
             ],
         )
@@ -257,6 +282,8 @@ async def offer_put(offer_id: int, s: OfferUpdate):
 
 @router.delete("/offers/{offer_id}", tags=["offers"])
 async def offer_delete(offer_id: int):
+    # TODO: Implement security
+
     async with pool.connection() as conn:
         sql = "DELETE FROM offers WHERE id = %s"
         await conn.execute(sql, [offer_id])
@@ -286,6 +313,8 @@ async def experience_post(e: ExperienceCreate):
 
 @router.put("/experiences/{experience_id}", tags=["experiences"])
 async def experience_patch(experience_id: int, s: ExperienceUpdate):
+    # TODO: Implement security
+
     async with pool.connection() as conn:
         sql = "UPDATE experiences SET                                           \
             from_date=%s, to_date=%s, company=%s, position=%s, description=%s   \
@@ -305,6 +334,8 @@ async def experience_patch(experience_id: int, s: ExperienceUpdate):
 
 @router.delete("/experiences/{experience_id}", tags=["experiences"])
 async def experience_delete(experience_id: int):
+    # TODO: Implement security
+
     async with pool.connection() as conn:
         sql = "DELETE FROM experiences WHERE id = %s"
         await conn.execute(sql, [experience_id])
@@ -342,6 +373,8 @@ async def application_accept(student_id: int, offer_id: int):
     set his his status to - accepted. Change all other applications
     to status - rejected.
     """
+    # TODO: Implement security
+
     async with pool.connection() as conn:
         sql = "CALL accept_student(%s, %s);"
         await conn.execute(sql, [student_id, offer_id])
@@ -349,6 +382,8 @@ async def application_accept(student_id: int, offer_id: int):
 
 @router.delete("/applications/cancel/{student_id}/{offer_id}", tags=["applications"])
 async def application_cancel(student_id: int, offer_id: int):
+    # TODO: Implement security
+
     """
     If a student is still waiting for his application, simply delete his application.
     If the student's application has been accepted, then delete his application and

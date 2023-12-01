@@ -34,6 +34,11 @@ class StudentUpdate(BaseModel):
     gpa: float | None = None
 
 
+class StudentInDB(StudentBase):
+    id: int
+    hashed_password: str
+
+
 """ COMPANY SCHEMAS """
 
 
@@ -61,6 +66,11 @@ class CompanyUpdate(BaseModel):
     num_employees: int | None = None
     year_founded: int | None = None
     website: str | None = None
+
+
+class CompanyInDB(CompanyBase):
+    id: int
+    hashed_password: str
 
 
 """ OFFER SCHEMAS """
