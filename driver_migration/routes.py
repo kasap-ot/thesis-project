@@ -12,14 +12,12 @@ from .schemas import (
     OfferRead,
     OfferUpdate,
     ExperienceCreate,
-    ExperienceRead,
     ExperienceUpdate,
     StudentProfile,
     ApplicationRead,
 )
 from fastapi import APIRouter, status, HTTPException, Query
 from psycopg.rows import class_row, dict_row
-from typing import Annotated
 
 
 router = APIRouter()

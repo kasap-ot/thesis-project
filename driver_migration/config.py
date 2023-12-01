@@ -1,24 +1,26 @@
 from functools import lru_cache
+from pydantic_settings import BaseSettings, SettingsConfigDict
+import logging
 
-from pydantic import BaseSettings
 
-# uncomment to see psycopg.pool logs
-# import logging
-# logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-# logging.getLogger("psycopg.pool").setLevel(logging.INFO)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+logging.getLogger("psycopg.pool").setLevel(logging.INFO)
 
 
 class Settings(BaseSettings):
-    db_user: str = "diplomska-user"
-    db_password: str = "diplomska-password"
-    db_host: str = "localhost"
-    db_port: str = "5432"
-    db_name: str = "diplomska-db"
+    db_user: str
+    db_password: str
+    db_host: str
+    db_port: str
+    db_name: str
 
-    class Config:
-        env_file = ".env"
+    model_config = SettingsConfigDict(
+        env_file=".env", 
+        env_file_encoding="utf-8"
+    )
 
 
 @lru_cache()
 def get_settings():
-    return Settings()
+    # arguments automatically loaded from .env
+    return Settings() # type: ignore 
