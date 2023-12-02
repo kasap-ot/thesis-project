@@ -1,18 +1,18 @@
-from sqlmodel import create_engine, SQLModel, Session
+from .config import get_settings
+from functools import lru_cache
+from psycopg_pool import AsyncConnectionPool
+
+settings = get_settings()
+
+conn_str = f"                       \
+    user={settings.db_user}         \
+    password={settings.db_password} \
+    host={settings.db_host}         \
+    port={settings.db_port}         \
+    dbname={settings.db_name}       \
+"
 
 
-# sqlite_file_name = "database.db"
-# sqlite_url = f"sqlite:///{sqlite_file_name}"
-sqlite_url = f"sqlite://"
-
-connect_args = {"check_same_thread": False}
-engine = create_engine(sqlite_url, echo=True, connect_args=connect_args)
-
-
-def create_db_and_tables() -> None:
-    SQLModel.metadata.create_all(engine)
-
-
-def get_session():
-    with Session(engine) as session:
-        yield session
+@lru_cache()
+def get_async_pool():
+    return AsyncConnectionPool(conninfo=conn_str)

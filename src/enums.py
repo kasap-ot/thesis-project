@@ -2,9 +2,9 @@ from enum import Enum
 
 
 class Status(Enum):
-    WAITING = 1
-    ACCEPTED = 2
-    REJECTED = 3
+    WAITING = 0
+    ACCEPTED = 1
+    REJECTED = 2
 
 
 class UserType(Enum):

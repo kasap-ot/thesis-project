@@ -1,13 +1,14 @@
-from .enums import UserType
-from .database import get_async_pool
+from .database import get_session
 from .utils import pwd_context
-from .schemas import StudentInDB, CompanyInDB
-from jose import JWTError, jwt
+from .controllers import get_user_by_email
+from .models import Student, Company
+from .enums import UserType
 from datetime import datetime, timedelta
+from jose import JWTError, jwt
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
-from fastapi.security import OAuth2PasswordBearer
-from fastapi import HTTPException, status, Depends
-from psycopg.rows import class_row
+from sqlmodel import Session
 
 
 """ Constant variables used for generating JWT tokens """
@@ -49,36 +50,17 @@ def create_token(data: TokenData, expires_delta: timedelta) -> str:
     """
     expiration_time = datetime.utcnow() + expires_delta
     data.exp = expiration_time
-    data_dict = data.model_dump()
+    data_dict = data.dict()
     encoded_jwt = jwt.encode(data_dict, SECRET_KEY, ALGORITHM)
     return encoded_jwt
 
 
-async def get_user_by_email(email: str, user_type: UserType) -> StudentInDB | CompanyInDB | None:
-    if user_type == UserType.STUDENT:
-        table_name = "students"
-        schema = StudentInDB
-    elif user_type == UserType.COMPANY:
-        table_name = "companies"
-        schema = CompanyInDB
-
-    pool = get_async_pool()
-    
-    async with pool.connection() as conn, conn.cursor(row_factory=class_row(schema)) as cur:
-        sql = f"SELECT * FROM {table_name} WHERE email = %s"
-        await cur.execute(sql, [email])
-        user_in_db = await cur.fetchone()
-        return user_in_db
-
-
-async def authenticate_user(email: str, password: str, user_type: UserType) -> StudentInDB | CompanyInDB | None:
+def authenticate_user(email: str, password: str, session: Session, Model) -> Student | Company | None:
     """
     Helper function. Checks if the user exists and
     if the password matches the one in the database.
-    If no errors encountered, returns the user, else
-    returns None value.
     """
-    user_in_db = await get_user_by_email(email, user_type)
+    user_in_db = get_user_by_email(email, session, Model)
 
     if not user_in_db:
         return None
@@ -88,13 +70,20 @@ async def authenticate_user(email: str, password: str, user_type: UserType) -> S
     return user_in_db
 
 
-def get_token(email: str, password: str, user_type: UserType) -> Token:
+def login_for_token(email: str, password: str, session: Session, user_type: str) -> Token:
     """
     Main function. Authenticates the login request.
     Creates a JWT token that will be later used by
     the client for further authorization.
     """
-    user_in_db = authenticate_user(email, password, user_type)
+    if user_type == UserType.STUDENT.value:
+        Model = Student
+    elif user_type == UserType.COMPANY.value:
+        Model = Company
+    else:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Path does not exist")
+
+    user_in_db = authenticate_user(email, password, session, Model)
 
     if user_in_db is None:
         raise HTTPException(
@@ -106,7 +95,7 @@ def get_token(email: str, password: str, user_type: UserType) -> Token:
     token_expiration_delta = timedelta(minutes=TOKEN_EXPIRE_MINUTES)
 
     token = create_token(
-        data=TokenData(sub=email, type=user_type.value),
+        data=TokenData(sub=email, type=user_type),
         expires_delta=token_expiration_delta,
     )
 
@@ -121,7 +110,27 @@ credentials_exception = HTTPException(
 )
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)) -> StudentInDB | CompanyInDB:
+async def verify_token(token: str = Depends(oauth2_scheme)) -> None:
+    """
+    Used as a dependency. Requires a valid JWT token in
+    the 'Authorization' header. Simply checks validity of
+    the token. If token is valid, returns None. Otherwise,
+    raises exception.
+    """
+    try:
+        payload = jwt.decode(token, SECRET_KEY, [ALGORITHM])
+        email: str | None = payload.get("sub")
+        if email is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+
+    return None
+
+
+async def get_current_user(
+    token: str = Depends(oauth2_scheme), session: Session = Depends(get_session)
+) -> Student | Company:
     """
     Used as a dependency. Requires a valid JWT token
     in the 'Authorization' header. Checks token validity.
@@ -138,8 +147,14 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> StudentInDB |
     except JWTError:
         raise credentials_exception
 
-    user_type = UserType(user_type)
-    user_in_db = await get_user_by_email(email, user_type)
+    if user_type == UserType.STUDENT.value:
+        Model = Student
+    elif user_type == UserType.COMPANY.value:
+        Model = Company
+    else:
+        raise credentials_exception
+
+    user_in_db = get_user_by_email(email, session, Model)
 
     if user_in_db is None:
         raise credentials_exception
