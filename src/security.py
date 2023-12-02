@@ -79,7 +79,7 @@ async def authenticate_user(email: str, password: str, user_type: UserType) -> S
     returns None value.
     """
     user_in_db = await get_user_by_email(email, user_type)
-
+    
     if not user_in_db:
         return None
     if not pwd_context.verify(password, user_in_db.hashed_password):
@@ -88,14 +88,14 @@ async def authenticate_user(email: str, password: str, user_type: UserType) -> S
     return user_in_db
 
 
-def get_token(email: str, password: str, user_type: UserType) -> Token:
+async def get_token(email: str, password: str, user_type: UserType) -> Token:
     """
     Main function. Authenticates the login request.
     Creates a JWT token that will be later used by
     the client for further authorization.
     """
-    user_in_db = authenticate_user(email, password, user_type)
-
+    user_in_db = await authenticate_user(email, password, user_type)
+    
     if user_in_db is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -145,3 +145,14 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> StudentInDB |
         raise credentials_exception
 
     return user_in_db
+
+
+def authorize_user(user_id: int, current_user: StudentInDB | CompanyInDB, Schema) -> None:
+    """ 
+    Checks if the given user-id matches the provided user 
+    and if the user if of correct type. If not, raises a 403 exception. 
+    """
+    is_invalid_user = current_user.id != user_id
+    is_invalid_user_type = type(current_user) is not Schema
+    if is_invalid_user_type or is_invalid_user:
+        raise HTTPException(403)

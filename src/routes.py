@@ -1,5 +1,5 @@
 from .enums import UserType
-from .security import get_current_user, Token, get_token
+from .security import get_current_user, Token, get_token, authorize_user
 from .utils import pwd_context
 from .enums import Status
 from .database import get_async_pool
@@ -7,9 +7,11 @@ from .schemas import (
     StudentCreate,
     StudentRead,
     StudentUpdate,
+    StudentInDB,
     CompanyCreate,
     CompanyRead,
     CompanyUpdate,
+    CompanyInDB,
     OfferCreate,
     OfferRead,
     OfferUpdate,
@@ -32,7 +34,7 @@ async def token(user_type_query_param: str, form_data: OAuth2PasswordRequestForm
     email = form_data.username
     password = form_data.password
     user_type = UserType(user_type_query_param)
-    return get_token(email, password, user_type)
+    return await get_token(email, password, user_type)
 
 
 @router.post("/students", status_code=status.HTTP_201_CREATED, tags=["students"])
@@ -59,9 +61,11 @@ async def student_post(s: StudentCreate):
 
 
 @router.put("/students/{student_id}", tags=["students"])
-async def student_patch(student_id: int, s: StudentUpdate, current_user = Depends(get_current_user)):
-    if current_user.id != student_id:
-        raise HTTPException(403)
+async def student_patch(
+    student_id: int, s: StudentUpdate, 
+    current_user = Depends(get_current_user),
+):
+    authorize_user(student_id, current_user, StudentInDB)
     
     async with pool.connection() as conn:
         sql = "UPDATE students SET                                              \
@@ -84,8 +88,7 @@ async def student_patch(student_id: int, s: StudentUpdate, current_user = Depend
 
 @router.delete("/students/{student_id}", tags=["students"])
 async def student_delete(student_id: int, current_user = Depends(get_current_user)):
-    if current_user.id != student_id:
-        raise HTTPException(403)
+    authorize_user(student_id, current_user, StudentInDB)
     
     async with pool.connection() as conn:
         sql = "DELETE FROM students WHERE id = %s"
@@ -163,8 +166,7 @@ async def company_offers_get(company_id: int):
 
 @router.put("/companies/{company_id}", tags=["companies"])
 async def company_patch(company_id: int, c: CompanyUpdate, current_user = Depends(get_current_user)):
-    if current_user.id != company_id:
-        raise HTTPException(403)
+    authorize_user(company_id, current_user, CompanyInDB)
     
     async with pool.connection() as conn:
         sql = """UPDATE companies SET                                                 
@@ -186,8 +188,7 @@ async def company_patch(company_id: int, c: CompanyUpdate, current_user = Depend
 
 @router.delete("/companies/{company_id}", tags=["companies"])
 async def company_delete(company_id: int, current_user = Depends(get_current_user)):
-    if current_user.id != company_id:
-        raise HTTPException(403)
+    authorize_user(company_id, current_user, CompanyInDB)
     
     async with pool.connection() as conn:
         sql = "DELETE FROM companies WHERE id = %s"
@@ -198,7 +199,12 @@ async def company_delete(company_id: int, current_user = Depends(get_current_use
 
 
 @router.post("/offers", status_code=status.HTTP_201_CREATED, tags=["offers"])
-async def offer_post(o: OfferCreate):
+async def offer_post(o: OfferCreate, current_user = Depends(get_current_user)):
+    """
+    Create a new offer. Companies can create offers only for themselves.
+    """
+    authorize_user(o.company_id, current_user, CompanyInDB)
+
     async with pool.connection() as conn:
         sql = "INSERT INTO offers                                                   \
             (salary, num_weeks, field, deadline, requirements, responsibilities, company_id)    \
@@ -225,7 +231,9 @@ async def offers_get(
     min_salary: int = 0,
     max_salary: int = 10_000,
 ):
-    """ Returns all offers that satisfy the given query parameters """
+    """ 
+    Returns all offers that satisfy the given query parameters 
+    """
     async with pool.connection() as conn, conn.cursor(
         row_factory=class_row(OfferRead)
     ) as cur:
@@ -247,6 +255,9 @@ async def offers_get(
 
 @router.get("/offers/{offer_id}", response_model=OfferRead, tags=["offers"])
 async def offer_get(offer_id: int):
+    """
+    Get a given offer. Anyone can view the offer.
+    """
     async with pool.connection() as conn, conn.cursor(
         row_factory=class_row(OfferRead)
     ) as cur:
@@ -260,6 +271,9 @@ async def offer_get(offer_id: int):
 
 @router.put("/offers/{offer_id}", tags=["offers"])
 async def offer_put(offer_id: int, o: OfferUpdate, current_user = Depends(get_current_user)):
+    """
+    Update a given offer. Only offer-owners are authorized.
+    """
     async with pool.connection() as conn, conn.cursor(row_factory=dict_row) as cur:
         sql = "SELECT company_id FROM offers WHERE id = %s;"
         await cur.execute(sql, [offer_id])
@@ -267,9 +281,8 @@ async def offer_put(offer_id: int, o: OfferUpdate, current_user = Depends(get_cu
         
         if record is None:
             raise HTTPException(404)
-        
-        if record["company_id"] != current_user.id:
-            raise HTTPException(403)
+
+        authorize_user(record["company_id"], current_user, CompanyInDB)
         
         sql = "UPDATE offers SET salary=%s, num_weeks=%s, field=%s, deadline=%s, \
             requirements=%s, responsibilities=%s WHERE id=%s RETURNING *;"
@@ -288,6 +301,9 @@ async def offer_put(offer_id: int, o: OfferUpdate, current_user = Depends(get_cu
 
 @router.delete("/offers/{offer_id}", tags=["offers"])
 async def offer_delete(offer_id: int, current_user = Depends(get_current_user)):
+    """
+    Delete a given offer. Only offer-owners are authorized.
+    """
     async with pool.connection() as conn, conn.cursor(row_factory=dict_row) as cur:
         sql = "SELECT company_id FROM offers WHERE id = %s;"
         await cur.execute(sql, [offer_id])
@@ -296,8 +312,7 @@ async def offer_delete(offer_id: int, current_user = Depends(get_current_user)):
         if record is None:
             raise HTTPException(404)
         
-        if record["company_id"] != current_user.id:
-            raise HTTPException(403)
+        authorize_user(record["company_id"], current_user, CompanyInDB)
         
         sql = "DELETE FROM offers WHERE id = %s"
         await conn.execute(sql, [offer_id])
@@ -307,7 +322,13 @@ async def offer_delete(offer_id: int, current_user = Depends(get_current_user)):
 
 
 @router.post("/experiences", status_code=status.HTTP_201_CREATED, tags=["experiences"])
-async def experience_post(e: ExperienceCreate):
+async def experience_post(e: ExperienceCreate, current_user = Depends(get_current_user)):
+    """ 
+    Create a new experience item. Students can 
+    only create experience items for themselves. 
+    """
+    authorize_user(e.student_id, current_user, StudentInDB)
+
     async with pool.connection() as conn:
         sql = "INSERT INTO experiences                                                   \
             (from_date, to_date, company, position, description, student_id)    \
@@ -327,6 +348,9 @@ async def experience_post(e: ExperienceCreate):
 
 @router.put("/experiences/{experience_id}", tags=["experiences"])
 async def experience_patch(experience_id: int, s: ExperienceUpdate, current_user = Depends(get_current_user)):
+    """
+    Update a given experience item. Only student-owners of the experience are allowed.
+    """
     async with pool.connection() as conn, conn.cursor(row_factory=dict_row) as cur:
         sql = "SELECT student_id FROM experiences WHERE id = %s"
         await cur.execute(sql, [experience_id])
@@ -335,8 +359,7 @@ async def experience_patch(experience_id: int, s: ExperienceUpdate, current_user
         if record is None:
             raise HTTPException(404)
         
-        if record["student_id"] != current_user.id:
-            raise HTTPException(403)
+        authorize_user(record["student_id"], current_user, StudentInDB)
 
         sql = "UPDATE experiences SET                                           \
             from_date=%s, to_date=%s, company=%s, position=%s, description=%s   \
@@ -356,6 +379,9 @@ async def experience_patch(experience_id: int, s: ExperienceUpdate, current_user
 
 @router.delete("/experiences/{experience_id}", tags=["experiences"])
 async def experience_delete(experience_id: int, current_user = Depends(get_current_user)):
+    """
+    Delete a give experience item. Only student-owners of the experience are allowed.
+    """
     async with pool.connection() as conn, conn.cursor(row_factory=dict_row) as cur:
         sql = "SELECT student_id FROM experiences WHERE id = %s"
         await cur.execute(sql, [experience_id])
@@ -364,8 +390,7 @@ async def experience_delete(experience_id: int, current_user = Depends(get_curre
         if record is None:
             raise HTTPException(404)
         
-        if record["student_id"] != current_user.id:
-            raise HTTPException(403)
+        authorize_user(record["student_id"], current_user, StudentInDB)
 
         sql = "DELETE FROM experiences WHERE id = %s"
         await conn.execute(sql, [experience_id])
@@ -375,7 +400,15 @@ async def experience_delete(experience_id: int, current_user = Depends(get_curre
 
 
 @router.post("/applications/apply/{student_id}/{offer_id}", tags=["applications"])
-async def application_post(student_id: int, offer_id: int):
+async def application_post(student_id: int, offer_id: int, current_user = Depends(get_current_user)):
+    """
+    Add an application from the student for the given offer. Students 
+    will be authorized to create applications for themselves only.
+    """
+    authorize_user(student_id, current_user, StudentInDB)
+    
+    # TODO: Fix error-500 for invalid offer_id?
+
     async with pool.connection() as conn:
         sql = "INSERT INTO applications (student_id, offer_id, status) VALUES (%s, %s, %s)"
         await conn.execute(sql, [student_id, offer_id, Status.WAITING.value])
@@ -386,7 +419,13 @@ async def application_post(student_id: int, offer_id: int):
     response_model=list[ApplicationRead],
     tags=["applications"],
 )
-async def applications_get(student_id: int):
+async def applications_get(student_id: int, current_user = Depends(get_current_user)):
+    """
+    Get all applications of a given student. Only the 
+    student-owner can access his applications.
+    """
+    authorize_user(student_id, current_user, StudentInDB)
+
     async with pool.connection() as conn, conn.cursor(
         row_factory=class_row(ApplicationRead)
     ) as cur:
@@ -397,41 +436,63 @@ async def applications_get(student_id: int):
 
 
 @router.patch("/applications/accept/{student_id}/{offer_id}", tags=["applications"])
-async def application_accept(student_id: int, offer_id: int):
+async def application_accept(student_id: int, offer_id: int, current_user = Depends(get_current_user)):
     """
     If a student has status - waiting for a given application,
     set his his status to - accepted. Change all other applications
     to status - rejected.
     """
-    # TODO: Implement security
+    async with pool.connection() as conn, conn.cursor(row_factory=dict_row) as cur:
+        sql = "SELECT company_id FROM offers WHERE id = %s"
+        await cur.execute(sql, [offer_id])
+        record = await cur.fetchone()
+        
+        if record is None:
+            raise HTTPException(404)
+        
+        authorize_user(record["company_id"], current_user, CompanyInDB)
 
-    async with pool.connection() as conn:
         sql = "CALL accept_student(%s, %s);"
         await conn.execute(sql, [student_id, offer_id])
 
 
 @router.delete("/applications/cancel/{student_id}/{offer_id}", tags=["applications"])
-async def application_cancel(student_id: int, offer_id: int):
-    # TODO: Implement security
-
+async def application_cancel(student_id: int, offer_id: int, current_user = Depends(get_current_user)):
     """
     If a student is still waiting for his application, simply delete his application.
     If the student's application has been accepted, then delete his application and
     reset all other applications (for the same offer) to status - waiting.
     """
+    authorize_user(student_id, current_user, StudentInDB)
+
     async with pool.connection() as conn:
         sql = "CALL cancel_application(%s, %s);"
         await conn.execute(sql, [student_id, offer_id])
 
 
 @router.get("/applications/applicants/{offer_id}", tags=["applications"])
-async def applicants_get(offer_id: int):
-    """Get all student-applicants that have applied for the given offer."""
-    async with pool.connection() as conn, conn.cursor(
-        row_factory=class_row(StudentRead)
-    ) as cur:
+async def applicants_get(offer_id: int, current_user = Depends(get_current_user)):
+    """
+    Get all student-applicants that have applied for the given offer.
+    """
+    # TODO: Should also return application-status for each applicant. 
+    # Implement this
+
+    async with pool.connection() as conn:
+        student_cur = conn.cursor(row_factory=class_row(StudentRead))
+        dict_cur = conn.cursor(row_factory=dict_row)
+        
+        sql = "SELECT company_id FROM offers WHERE id = %s"
+        await dict_cur.execute(sql, [offer_id])
+        record = await dict_cur.fetchone()
+
+        if record is None:
+            raise HTTPException(404)
+        
+        authorize_user(record["company_id"], current_user, CompanyInDB)
+
         sql = "SELECT * FROM applicants(%s)"
-        await cur.execute(sql, [offer_id])
-        records = await cur.fetchall()
+        await student_cur.execute(sql, [offer_id])
+        records = await student_cur.fetchall()
         return records
     

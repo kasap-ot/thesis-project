@@ -1,10 +1,10 @@
 from functools import lru_cache
 from pydantic_settings import BaseSettings, SettingsConfigDict
-import logging
+# import logging
 
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-logging.getLogger("psycopg.pool").setLevel(logging.INFO)
+# logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+# logging.getLogger("psycopg.pool").setLevel(logging.DEBUG)
 
 
 class Settings(BaseSettings):
