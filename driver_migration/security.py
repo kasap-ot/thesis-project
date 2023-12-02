@@ -88,7 +88,7 @@ async def authenticate_user(email: str, password: str, user_type: UserType) -> S
     return user_in_db
 
 
-def login_for_token(email: str, password: str, user_type: UserType) -> Token:
+def get_token(email: str, password: str, user_type: UserType) -> Token:
     """
     Main function. Authenticates the login request.
     Creates a JWT token that will be later used by
@@ -119,24 +119,6 @@ credentials_exception = HTTPException(
     detail="Could not validate credentials",
     headers={"WWW-Authenticated": "Bearer"},
 )
-
-
-async def verify_token(token: str = Depends(oauth2_scheme)) -> None:
-    """
-    Used as a dependency. Requires a valid JWT token in
-    the 'Authorization' header. Simply checks validity of
-    the token. If token is valid, returns None. Otherwise,
-    raises exception.
-    """
-    try:
-        payload = jwt.decode(token, SECRET_KEY, [ALGORITHM])
-        email: str | None = payload.get("sub")
-        if email is None:
-            raise credentials_exception
-    except JWTError:
-        raise credentials_exception
-
-    return None
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> StudentInDB | CompanyInDB:
