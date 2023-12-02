@@ -1,5 +1,5 @@
 from .enums import UserType
-from .security import get_current_user, Token, login_for_token
+from .security import get_current_user, Token, get_token
 from .utils import pwd_context
 from .enums import Status
 from .database import get_async_pool
@@ -32,7 +32,7 @@ async def token(user_type_query_param: str, form_data: OAuth2PasswordRequestForm
     email = form_data.username
     password = form_data.password
     user_type = UserType(user_type_query_param)
-    return login_for_token(email, password, user_type)
+    return get_token(email, password, user_type)
 
 
 @router.post("/students", status_code=status.HTTP_201_CREATED, tags=["students"])
@@ -259,16 +259,22 @@ async def offer_get(offer_id: int):
 
 
 @router.put("/offers/{offer_id}", tags=["offers"])
-async def offer_put(offer_id: int, o: OfferUpdate):
-    # TODO: Implement security
-
-    async with pool.connection() as conn:
-        sql = "UPDATE offers SET                                                                    \
-            salary=%s, num_weeks=%s, field=%s, deadline=%s, requirements=%s, responsibilities=%s    \
-            WHERE id=%s RETURNING *;"
-        await conn.execute(
-            sql,
-            [
+async def offer_put(offer_id: int, o: OfferUpdate, current_user = Depends(get_current_user)):
+    async with pool.connection() as conn, conn.cursor(row_factory=dict_row) as cur:
+        sql = "SELECT company_id FROM offers WHERE id = %s;"
+        await cur.execute(sql, [offer_id])
+        record = await cur.fetchone()
+        
+        if record is None:
+            raise HTTPException(404)
+        
+        if record["company_id"] != current_user.id:
+            raise HTTPException(403)
+        
+        sql = "UPDATE offers SET salary=%s, num_weeks=%s, field=%s, deadline=%s, \
+            requirements=%s, responsibilities=%s WHERE id=%s RETURNING *;"
+        
+        await conn.execute(sql, [
                 o.salary,
                 o.num_weeks,
                 o.field,
@@ -281,10 +287,18 @@ async def offer_put(offer_id: int, o: OfferUpdate):
 
 
 @router.delete("/offers/{offer_id}", tags=["offers"])
-async def offer_delete(offer_id: int):
-    # TODO: Implement security
+async def offer_delete(offer_id: int, current_user = Depends(get_current_user)):
+    async with pool.connection() as conn, conn.cursor(row_factory=dict_row) as cur:
+        sql = "SELECT company_id FROM offers WHERE id = %s;"
+        await cur.execute(sql, [offer_id])
+        record = await cur.fetchone()
 
-    async with pool.connection() as conn:
+        if record is None:
+            raise HTTPException(404)
+        
+        if record["company_id"] != current_user.id:
+            raise HTTPException(403)
+        
         sql = "DELETE FROM offers WHERE id = %s"
         await conn.execute(sql, [offer_id])
 
@@ -312,10 +326,18 @@ async def experience_post(e: ExperienceCreate):
 
 
 @router.put("/experiences/{experience_id}", tags=["experiences"])
-async def experience_patch(experience_id: int, s: ExperienceUpdate):
-    # TODO: Implement security
+async def experience_patch(experience_id: int, s: ExperienceUpdate, current_user = Depends(get_current_user)):
+    async with pool.connection() as conn, conn.cursor(row_factory=dict_row) as cur:
+        sql = "SELECT student_id FROM experiences WHERE id = %s"
+        await cur.execute(sql, [experience_id])
+        record = await cur.fetchone()
 
-    async with pool.connection() as conn:
+        if record is None:
+            raise HTTPException(404)
+        
+        if record["student_id"] != current_user.id:
+            raise HTTPException(403)
+
         sql = "UPDATE experiences SET                                           \
             from_date=%s, to_date=%s, company=%s, position=%s, description=%s   \
             WHERE id=%s RETURNING *;"
@@ -333,10 +355,18 @@ async def experience_patch(experience_id: int, s: ExperienceUpdate):
 
 
 @router.delete("/experiences/{experience_id}", tags=["experiences"])
-async def experience_delete(experience_id: int):
-    # TODO: Implement security
+async def experience_delete(experience_id: int, current_user = Depends(get_current_user)):
+    async with pool.connection() as conn, conn.cursor(row_factory=dict_row) as cur:
+        sql = "SELECT student_id FROM experiences WHERE id = %s"
+        await cur.execute(sql, [experience_id])
+        record = await cur.fetchone()
+        
+        if record is None:
+            raise HTTPException(404)
+        
+        if record["student_id"] != current_user.id:
+            raise HTTPException(403)
 
-    async with pool.connection() as conn:
         sql = "DELETE FROM experiences WHERE id = %s"
         await conn.execute(sql, [experience_id])
 
