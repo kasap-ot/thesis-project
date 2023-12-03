@@ -40,17 +40,25 @@ from .schemas import (
     StudentProfile,
     ApplicationRead,
 )
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, status, Depends, Request
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
 
 
 router = APIRouter()
-pool = get_async_pool()
+templates = Jinja2Templates(directory="templates")
+
+
+""" Routes for TOKENS """
 
 
 @router.post("/token", response_model=Token, tags=["security"])
 async def token(user_type_param: str, form_data: OAuth2PasswordRequestForm = Depends()):
     return await token_controller(user_type_param, form_data)
+
+
+""" Routes for STUDENTS """
 
 
 @router.post("/students", status_code=status.HTTP_201_CREATED, tags=["students"])
@@ -84,9 +92,10 @@ async def company_post(c: CompanyCreate):
     await company_post_controller(c)
 
 
-@router.get("/companies/{company_id}", response_model=CompanyRead, tags=["companies"])
-async def company_get(company_id: int):
-    return await company_get_controller(company_id)
+@router.get("/companies/{company_id}", response_class=HTMLResponse, tags=["companies"])
+async def company_get(request: Request, company_id: int):
+    company = await company_get_controller(company_id)
+    return templates.TemplateResponse("company-profile.html", {"request":  request, "company": company})
 
 
 
@@ -118,8 +127,9 @@ async def offer_post(o: OfferCreate, current_user = Depends(get_current_user)):
     await offer_post_controller(o, current_user)
 
 
-@router.get("/offers", response_model=list[OfferRead], tags=["offers"])
+@router.get("/offers", response_class=HTMLResponse, tags=["offers"])
 async def offers_get(
+    request: Request,
     field: str | None = None,
     min_num_weeks: int = 0,
     max_num_weeks: int = 100,
@@ -129,21 +139,23 @@ async def offers_get(
     """ 
     Returns all offers that satisfy the given query parameters 
     """
-    return await offers_get_controller(
+    offers = await offers_get_controller(
         field, 
         min_num_weeks, 
         max_num_weeks, 
         min_salary, 
         max_salary
     )
+    return templates.TemplateResponse("offers.html", {"request": request, "offers": offers})
 
 
-@router.get("/offers/{offer_id}", response_model=OfferRead, tags=["offers"])
-async def offer_get(offer_id: int):
+@router.get("/offers/{offer_id}", response_class=HTMLResponse, tags=["offers"])
+async def offer_get(request: Request, offer_id: int):
     """
     Get a given offer. Anyone can view the offer.
     """
-    return await offer_get_controller(offer_id)
+    offer = await offer_get_controller(offer_id)
+    return templates.TemplateResponse("offer.html", {"request": request, "offer": offer})
 
 
 @router.put("/offers/{offer_id}", tags=["offers"])
@@ -242,3 +254,40 @@ async def applicants_get(offer_id: int, current_user = Depends(get_current_user)
     """
     return await applicants_get_controller(offer_id, current_user)
     
+
+""" Routes for STATIC TEMPLATES """
+
+
+@router.get("/", response_class=HTMLResponse, tags=["static-templates"])
+async def welcome_get(request: Request):
+    return templates.TemplateResponse("welcome.html", {"request": request})
+
+
+@router.get("/register", response_class=HTMLResponse, tags=["static-templates"])
+async def register_get(request: Request):
+    return templates.TemplateResponse("register.html", {"request": request})
+
+
+@router.get("/register-student", response_class=HTMLResponse, tags=["static-templates"])
+async def register_student_get(request: Request):
+    return templates.TemplateResponse("register-student.html", {"request": request})
+
+
+@router.get("/register-company", response_class=HTMLResponse, tags=["static-templates"])
+async def register_company_get(request: Request):
+    return templates.TemplateResponse("register-company.html", {"request": request})
+
+
+@router.get("/log-in", response_class=HTMLResponse, tags=["static-templates"])
+async def log_in_get(request: Request):
+    return templates.TemplateResponse("log-in.html", {"request": request})
+
+
+@router.get("/students-home", response_class=HTMLResponse, tags=["static-templates"])
+async def students_home_get(request: Request):
+    return templates.TemplateResponse("student-home.html", {"request": request})
+
+
+@router.get("/companies-home", response_class=HTMLResponse, tags=["static-templates"])
+async def companies_home_get(request: Request):
+    return templates.TemplateResponse("company-home.html", {"request": request})

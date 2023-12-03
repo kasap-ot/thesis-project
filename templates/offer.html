@@ -5,36 +5,32 @@
   <div class="card w-100 shadow">
     <div class="card-body">
       <div class="ms-2 mt-3">
-        <h5 class="card-title">Mechanical Engineering</h5>
+        <h5 class="card-title">{{ offer.field }}</h5>
+        <!-- TODO: Add countries to offers and to whole app in general -->
         <h6 class="card-subtitle mb-4 text-body-secondary">Brazil, Rio de Janeiro</h6>
       </div>
 
       <div class="container text-center my-5">
         <div class="row column-gap-5 fs-5">
           <div class="col bg-primary-subtle rounded-pill p-2 shadow">
-            <strong>Salary:</strong> <br> 1500 EUR
+            <strong>Salary:</strong> <br> {{ offer.salary }}
           </div>
           <div class="col bg-primary-subtle rounded-pill p-2 shadow">
-            <strong>Length:</strong> <br> 26-52 weeks
+            <strong>Length:</strong> <br> {{ offer.num_weeks }}
           </div>
           <div class="col bg-primary-subtle rounded-pill p-2 shadow">
-            <strong>Deadline:</strong> <br> 31 December
+            <strong>Deadline:</strong> <br> {{ offer.deadline }}
           </div>
         </div>
       </div>
 
       <p class="lead mt-4">Requirements</p>
-      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Debitis pariatur officiis, veritatis sapiente nam
-        beatae incidunt perspiciatis illum assumenda temporibus soluta necessitatibus odit delectus explicabo quisquam
-        earum rerum sit itaque autem placeat ex dolorem at repellendus! Expedita, fuga amet, quam libero perspiciatis
-        corrupti maiores debitis temporibus, in quas quia corporis?</p>
+      <p>{{ offer.requirements }}</p>
 
       <p class="lead mt-4">Responsibilities</p>
-      <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Libero, officia facere hic nihil velit similique ab
-        quasi doloribus nam quia eligendi iste assumenda eos aperiam reiciendis odit suscipit quam ut. Possimus id fuga
-        debitis cumque, incidunt esse voluptatibus doloremque non quod aliquam dolorum provident assumenda, reiciendis
-        eveniet quos in quaerat.</p>
+      <p>{{ offer.responsibilities }}</p>
 
+      <!-- TODO: Connect offer-views to company-owners -->
       <p class="lead mb-1 mt-4">Offer provided by:</p>
       <span>Fire Engine Inc.</span>
     </div>
@@ -49,7 +45,7 @@
       <a href="/applicants" class="btn btn-primary">
         <i class="bi bi-eye-fill"></i> Applicants
       </a>
-      <a href="/company-profile" class="btn btn-warning">
+      <a href="/companies/{{offer.company_id}}" class="btn btn-warning">
         <i class="bi bi-eye-fill"></i> Company
       </a>
       <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#myModal">

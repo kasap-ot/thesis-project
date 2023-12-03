@@ -2,6 +2,7 @@ from .routes import router
 from .database import get_async_pool
 import asyncio
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 
 async_pool = get_async_pool()
@@ -22,8 +23,4 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(router)
-
-
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
+app.mount("/static", StaticFiles(directory="static"), name="static")

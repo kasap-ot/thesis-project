@@ -6,7 +6,8 @@
         <div class="card-body">
             <div class="row">
                 <div class="col">
-                    <h1>Volvo Cars Corp.</h1>
+                    <h1>{{ company.name }}</h1>
+                    <!-- TODO: implement country -->
                     <h3 class="mb-4 text-body-secondary">Sweden</h3>
                 </div>
                 <div class="col d-flex align-items-center justify-content-end me-3">
@@ -18,59 +19,34 @@
 
             <div class="row text-center column-gap-5 m-3 fs-5">
                 <div class="col bg-primary-subtle text-dark shadow rounded-pill p-2">
-                    <strong>Field:</strong><br>Electric vehicles
+                    <strong>Field:</strong><br>{{ company.field }}
                 </div>
                 <div class="col bg-primary-subtle text-dark shadow rounded-pill p-2">
-                    <strong>Number of employees:</strong><br>60
+                    <strong>Number of employees:</strong><br>{{ company.num_employees }}
                 </div>
                 <div class="col bg-primary-subtle text-dark shadow rounded-pill p-2">
-                    <strong>Founding year:</strong><br>2008
+                    <strong>Founding year:</strong><br>{{ company.year_founded }}
                 </div>
             </div>
 
             <hr>
 
             <h5 class="my-4">Description</h5>
-
+            <!-- TODO: Add description-field to database and everywhere else. -->
             <p>
-                Lorem ipsum dolor sit, amet consectetur adipisicing elit. Alias nesciunt enim veritatis architecto incidunt laborum error delectus a excepturi. Magni sequi saepe ut! Nihil expedita, accusantium tenetur repellat, doloribus culpa fugit, odit iste est consequatur nesciunt aliquam. Aut, facilis deleniti. Non quam, iusto architecto libero vero pariatur quia voluptatibus molestiae provident, qui sequi laboriosam, doloremque explicabo quasi possimus expedita est tempora distinctio porro facere neque accusamus laudantium accusantium magni. Ipsum sunt totam nam blanditiis doloribus voluptatem mollitia nostrum vero odit omnis obcaecati corporis reprehenderit autem perferendis magnam atque ipsa a consectetur ratione ab, error, perspiciatis quidem nisi debitis? Neque, totam?
+                TODO - IMPLEMENT DESCRIPTION
             </p>
 
             <h5 class="mt-4">Website</h5>
 
-            <a href="https://www.wikipedia.org/">www.my-website.world.com</a>
+            <a href="https://www.wikipedia.org/">{{ company.website }}</a>
         </div>
     </div>
 
     <div class="row">
         <div class="col">
+            <!-- TODO: make this work -->
             <a href="/offer" class="btn btn-secondary mt-2"><i class="bi bi-arrow-left"></i> Back to offer</a>
-        </div>
-
-        <!-- <div class="col text-end">
-            <button type="button" class="btn btn-success mt-2" data-bs-toggle="modal" data-bs-target="#myModal">
-                <i class="bi bi-check-circle-fill"></i> Accept candidate</i>
-            </button>
-        </div> -->
-    </div>
-
-    <!-- Modal -->
-    <div class="modal fade" id="myModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="myModalLabel">Modal title</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    Are you sure? <br>
-                    The student will be added to your 'applicanst' list.
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                    <a href="/applicants" class="btn btn-success">I'm sure</a>
-                </div>
-            </div>
         </div>
     </div>
 </div>
