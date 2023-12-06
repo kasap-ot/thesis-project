@@ -216,15 +216,20 @@ async def application_post(student_id: int, offer_id: int, current_user = Depend
 
 @router.get(
     "/applications/view/{student_id}",
-    response_model=list[ApplicationRead],
+    response_class=HTMLResponse,
     tags=["applications"],
 )
-async def applications_get(student_id: int, current_user = Depends(get_current_user)):
+async def applications_get(request: Request, student_id: int, current_user = Depends(get_current_user)):
     """
     Get all applications of a given student. Only the 
     student-owner can access his applications.
     """
-    return await applications_get_controller(student_id, current_user)
+    applications = await applications_get_controller(student_id, current_user)
+    return templates.TemplateResponse(
+        name = "applications.html", 
+        context = {"request": request, "applications": applications}, 
+        headers = {"Content-Type": "text/html"},
+    )
 
 
 @router.patch("/applications/accept/{student_id}/{offer_id}", tags=["applications"])
