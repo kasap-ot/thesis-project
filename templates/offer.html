@@ -1,4 +1,9 @@
 {% extends 'base.html' %}
+
+{% block script %}
+<script src="{{ url_for('static', path='js/access.js') }}"></script>
+{% endblock %}
+
 {% block content %}
 
 <div class="container w-75">
@@ -35,42 +40,68 @@
       <span>Fire Engine Inc.</span>
     </div>
   </div>
-  
+
   <div class="row">
     <div class="col">
       <a href="/offers" class="btn btn-secondary mt-2"><i class="bi bi-arrow-left"></i> Offers</a>
     </div>
-    
+
     <div class="col text-end mt-2">
-      <a href="/applicants" class="btn btn-primary">
+
+      <!-- This checks if the user is a student-user -->
+      {% if current_user.field %}
+      <button class="btn btn-primary" id="applicants-btn">
         <i class="bi bi-eye-fill"></i> Applicants
-      </a>
-      <a href="/companies/{{offer.company_id}}" class="btn btn-warning">
+      </button>
+
+      <script>
+        document.getElementById('applicants-btn').addEventListener('click', () => {
+          access('/applications/applicants/{{offer.id}}', 'GET');
+        });
+      </script>
+
+      <!-- This checks if the user is a company-user -->
+      {% elif current_user.university %}
+      <button class="btn btn-warning" id="company-btn">
         <i class="bi bi-eye-fill"></i> Company
-      </a>
-      <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#myModal">
+      </button>
+      <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#myModal" id="modal-btn">
         <i class="bi bi-check-circle-fill"></i> Apply
       </button>
-    </div>
-  </div>
 
-  <!-- Modal -->
-  <div class="modal fade" id="myModal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="myModalLabel">Modal title</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          Are you sure? <br>
-          This offer will be added to your 'applications' list
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-          <a href="/applications" class="btn btn-success">I'm sure</a>
+      <!-- Modal -->
+      <div class="modal fade" id="myModal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="myModalLabel">Modal title</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              Are you sure? <br>
+              This offer will be added to your 'applications' list
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+              <!-- <a href="/applications" class="btn btn-success">I'm sure</a> -->
+              <button class="btn btn-success" id="apply-btn">I'm sure</button>
+            </div>
+          </div>
         </div>
       </div>
+
+      <script>
+        document.getElementById('company-btn').addEventListener('click', () => {
+          console.log('another TEST HERE!')
+          access('/companies/{{offer.company_id}}', 'GET')
+        });
+
+        document.getElementById('apply-btn').addEventListener('click', () => {
+          console.log('TEST HERE!')
+          access('/applications/apply/{{current_user.id}}/{{offer.id}}', 'POST');
+        });
+      </script>
+      {% endif %}
     </div>
   </div>
 </div>

@@ -38,39 +38,3 @@ async function login(url, username, password) {
       return false;
     }
   }
-
-
-async function access(url, method, data) {
-    /**
-     * Sends the given data object to the specified URL
-     * along with the token stored in session-storage
-     */
-    const token = sessionStorage.getItem('token');
-
-    if (!token) {
-        console.error('JWT token not found. Please log in first.');
-        return;
-    }
-
-    try {
-        const response = await fetch(
-            url,
-            {
-                method: method,
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            }
-        );
-
-        let responseText = await response.text();
-        document.write(responseText);
-        history.pushState(null, null, url);
-        console.log('Response: ', responseText);
-    }
-    catch (error) {
-        console.error('Error accessing authenticated route:', error.message);
-    }
-}

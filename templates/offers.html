@@ -1,7 +1,11 @@
 {% extends 'base.html' %}
+
+{% block script %}
+<script src="{{ url_for('static', path='js/access.js') }}"></script>
+{% endblock%}
+
 {% block content %}
 
-<!-- <h1> {{ offers[0] }} </h1> -->
 
 <ul class="list-group">
   <li class="list-group-item bg-primary text-light fw-bold">
@@ -30,7 +34,7 @@
         <div class="col">Elephant Inc.</div>
         <!-- <div class="col">2 year</div> -->
         <div class="col">
-          <a href="/offers/{{offer.id}}" class="btn btn-success btn-sm w-75 rounded-pill py-2">View</a>
+          <button class="offer-btn btn btn-success btn-sm w-75 rounded-pill py-2" id="offer-{{offer.id}}-btn">View</button>
         </div>
       </div>
     </div>
@@ -45,5 +49,16 @@
     <li class="page-item"><a class="page-link" href="#">Next</a></li>
   </ul>
 </ul>
+
+<script async>
+  const buttons = document.querySelectorAll('.offer-btn');
+  buttons.forEach(button => {
+    button.addEventListener('click', () => {
+      const buttonIdParts = button.id.split('-');
+      const offerId = buttonIdParts[1];
+      access(`/offers/${offerId}`, 'GET');
+    });
+  });
+</script>
 
 {% endblock %}

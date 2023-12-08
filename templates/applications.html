@@ -26,8 +26,8 @@
                     <div class="col">Offer num.</div>
                     <div class="col">Field</div>
                     <div class="col">Country</div>
-                    <div class="col">Company</div>
-                    <div class="col">Status</div>
+                    <!-- <div class="col">Company</div> -->
+                    <!-- <div class="col">Status</div> -->
                     <div class="col">Action</div>
                 </div>
             </div>
@@ -35,15 +35,17 @@
 
         <div class="tab-content" id="myTabContent">
             <div class="tab-pane fade show active" id="waiting-tab-pane" role="tabpanel" tabindex="0">
-                {% for _ in range(5) %}
+                {% for application in applications %}
                 <li class="list-group-item list-group-item-action list-group-item-warning">
                     <div class="container text-center">
                         <div class="row py-2 align-items-center">
-                            <div class="col">BRA-2024-15</div>
-                            <div class="col">Industrial Marketing</div>
-                            <div class="col">Brazil</div>
-                            <div class="col">Amazon Corp.</div>
-                            <div class="col">Column</div>
+                            <!-- <div class="col">BRA-2024-15</div> -->
+                            <div class="col">{{ application.student_id }}</div>
+                            <div class="col">{{ application.offer_id }}</div>
+                            <div class="col">{{ application.status }}</div>
+                            <!-- <div class="col">Brazil</div> -->
+                            <!-- <div class="col">Amazon Corp.</div> -->
+                            <!-- <div class="col">Column</div> -->
                             <div class="col">
                                 <a href="#" class="btn btn-danger btn-sm w-75 rounded-pill py-2">Cancel</a>
                             </div>

@@ -1,4 +1,9 @@
 {% extends 'base.html' %}
+
+{% block script%}
+<script src="{{ url_for('static', path='js/access.js') }}"></script>
+{% endblock%}
+
 {% block content %}
 
 <div class="row">
@@ -23,7 +28,7 @@
                     <h5 class="card-title">My applications</h5>
                     <p class="card-text">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Minima nisi,
                         architecto ipsum fugit alias libero voluptatum molestiae ipsam itaque cupiditate.</p>
-                    <a href="/applications" class="btn btn-primary">View</a>
+                    <button class="btn btn-primary" id="applications-btn">View</button>
                 </div>
             </div>
         </div>
@@ -36,7 +41,7 @@
                     <h5 class="card-title">My profile</h5>
                     <p class="card-text">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Minima nisi,
                         architecto ipsum fugit alias libero voluptatum molestiae ipsam itaque cupiditate.</p>
-                    <a href="/student-profile-edit" class="btn btn-primary">View</a>
+                    <button class="btn btn-primary" id="profile-btn">View</button>
                 </div>
             </div>
         </div>
@@ -51,5 +56,20 @@
     </div>
     <div class="col-4 text-center text-primary"><i class="bi bi-globe-americas" style="font-size: 10rem;"></i></div>
 </div>
+
+<script async>
+    document.getElementById('applications-btn').addEventListener('click', async function (event) {
+        event.preventDefault();
+        let studentId = "{{ current_user.id }}";
+        console.log('test - student home script');
+        await access(`/applications/view/${studentId}`, 'GET');
+    });
+
+    document.getElementById('profile-btn').addEventListener('click', async function (event) {
+        event.preventDefault();
+        let = studentId = "{{ current_user.id }}";
+        await access(`/students/profile/${studentId}`, 'GET');
+    });
+</script>
 
 {% endblock %}
