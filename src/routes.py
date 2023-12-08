@@ -29,7 +29,6 @@ from .schemas import (
     StudentRead,
     StudentUpdate,
     CompanyCreate,
-    CompanyRead,
     CompanyUpdate,
     OfferCreate,
     OfferRead,
@@ -37,12 +36,11 @@ from .schemas import (
     ExperienceCreate,
     ExperienceUpdate,
     StudentProfile,
-    ApplicationRead,
 )
 from fastapi import APIRouter, status, Depends, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse
 
 
 router = APIRouter()
@@ -63,22 +61,19 @@ async def token(user_type_param: str, form_data: OAuth2PasswordRequestForm = Dep
 @router.post("/students", status_code=status.HTTP_201_CREATED, tags=["students"])
 async def student_post(s: StudentCreate):
     await student_post_controller(s)
-    return RedirectResponse("/students-home")
 
 
-@router.put("/students/{student_id}", response_class=RedirectResponse, tags=["students"])
+@router.put("/students/{student_id}", tags=["students"])
 async def student_patch(
     student_id: int, s: StudentUpdate, 
     current_user = Depends(get_current_user),
 ):
     await student_patch_controller(student_id, s, current_user)
-    return RedirectResponse(f"/students/profile/{student_id}")
 
 
-@router.delete("/students/{student_id}", response_class=RedirectResponse, tags=["students"])
+@router.delete("/students/{student_id}", tags=["students"])
 async def student_delete(student_id: int, current_user = Depends(get_current_user)):
     await student_delete_controller(student_id, current_user)
-    return RedirectResponse("/")
 
 
 @router.get("/students/profile/{student_id}", response_model=StudentProfile, tags=["students"])
@@ -97,7 +92,6 @@ async def student_profile_get(request: Request, student_id: int):
 @router.post("/companies", status_code=status.HTTP_201_CREATED, tags=["companies"])
 async def company_post(c: CompanyCreate):
     await company_post_controller(c)
-    return RedirectResponse("/companies-home")
 
 
 @router.get("/companies/{company_id}", response_class=HTMLResponse, tags=["companies"])
@@ -123,13 +117,11 @@ async def company_offers_get(request: Request, company_id: int):
 @router.put("/companies/{company_id}", tags=["companies"])
 async def company_patch(company_id: int, c: CompanyUpdate, current_user = Depends(get_current_user)):
     await company_patch_controller(company_id, c, current_user)
-    return RedirectResponse(f"/companies/{company_id}/offers")
 
 
 @router.delete("/companies/{company_id}", tags=["companies"])
 async def company_delete(company_id: int, current_user = Depends(get_current_user)):
     await company_delete_controller(company_id, current_user)
-    return RedirectResponse(f"/companies/{company_id}/offers")
 
 
 """ Routes for OFFERS """
@@ -141,7 +133,6 @@ async def offer_post(o: OfferCreate, current_user = Depends(get_current_user)):
     Create a new offer. Companies can create offers only for themselves.
     """
     await offer_post_controller(o, current_user)
-    return RedirectResponse(f"/companies/{o.company_id}/offers")
 
 
 @router.get("/offers", response_class=HTMLResponse, tags=["offers"])
@@ -184,7 +175,6 @@ async def offer_put(offer_id: int, o: OfferUpdate, current_user = Depends(get_cu
     Update a given offer. Only offer-owners are authorized.
     """
     await offer_put_controller(offer_id, o, current_user)
-    return RedirectResponse(f"/offers/{offer_id}")
 
 
 @router.delete("/offers/{offer_id}", tags=["offers"])
@@ -193,7 +183,6 @@ async def offer_delete(offer_id: int, current_user = Depends(get_current_user)):
     Delete a given offer. Only offer-owners are authorized.
     """
     await offer_delete_controller(offer_id, current_user)
-    return RedirectResponse(f"/companies/{current_user.id}/offers")
 
 
 """ Routes for EXPERIENCES """
@@ -206,7 +195,6 @@ async def experience_post(e: ExperienceCreate, current_user = Depends(get_curren
     only create experience items for themselves. 
     """
     await experience_post_controller(e, current_user)
-    return RedirectResponse(f"/students/profile/{e.student_id}")
 
 
 @router.put("/experiences/{experience_id}", tags=["experiences"])
@@ -215,7 +203,6 @@ async def experience_patch(experience_id: int, s: ExperienceUpdate, current_user
     Update a given experience item. Only student-owners of the experience are allowed.
     """
     await experience_patch_controller(experience_id, s, current_user)
-    return RedirectResponse(f"/students/profile/{current_user.id}")
 
 
 @router.delete("/experiences/{experience_id}", tags=["experiences"])
@@ -224,7 +211,6 @@ async def experience_delete(experience_id: int, current_user = Depends(get_curre
     Delete a give experience item. Only student-owners of the experience are allowed.
     """
     await experience_delete_controller(experience_id, current_user)
-    return RedirectResponse(f"/students/profile/{current_user.id}")
 
 
 """ Routes for APPLICATIONS """
@@ -237,7 +223,6 @@ async def application_post(student_id: int, offer_id: int, current_user = Depend
     will be authorized to create applications for themselves only.
     """
     await application_post_controller(student_id, offer_id, current_user)
-    return RedirectResponse(f"/applications/view/{student_id}")
 
 
 @router.get(
@@ -266,7 +251,6 @@ async def application_accept(student_id: int, offer_id: int, current_user = Depe
     to status - rejected.
     """
     await application_accept_controller(student_id, offer_id, current_user)
-    return RedirectResponse(f"/applications/applicants/{offer_id}")
 
 
 @router.delete("/applications/cancel/{student_id}/{offer_id}", tags=["applications"])
@@ -277,7 +261,6 @@ async def application_cancel(student_id: int, offer_id: int, current_user = Depe
     reset all other applications (for the same offer) to status - waiting.
     """
     await application_cancel_controller(student_id, offer_id, current_user)
-    return RedirectResponse(f"/applications/view/{student_id}")
 
 
 @router.get("/applications/applicants/{offer_id}", tags=["applications"], response_model=list[StudentRead])
