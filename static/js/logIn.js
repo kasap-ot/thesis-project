@@ -1,9 +1,5 @@
-async function login(url, username, password) {
-    /**
-     * Accesses the given URL with the given credential.
-     * If successful, saves the returned JWT token to session-storage.
-     * Otherwise, raises errors.
-     */
+async function login(url, username, password) 
+{
     const loginUrl = url;
     const credentials = new URLSearchParams();
     credentials.append('username', username);

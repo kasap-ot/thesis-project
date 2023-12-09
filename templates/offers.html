@@ -34,29 +34,51 @@
         <div class="col">Elephant Inc.</div>
         <!-- <div class="col">2 year</div> -->
         <div class="col">
-          <button class="offer-btn btn btn-success btn-sm w-75 rounded-pill py-2" id="offer-{{offer.id}}-btn">View</button>
+          <button class="offer-btn btn btn-success btn-sm w-75 rounded-pill py-2"
+            id="offer-{{offer.id}}-btn">View</button>
         </div>
       </div>
     </div>
   </li>
   {% endfor %}
+</ul>
+
+<div class="d-flex justify-content-between">
+
+  <button class="btn btn-secondary my-3" id="home-btn">
+    <i class="bi bi-arrow-left"></i> Home
+  </button>
+
+  {% if current_user.university %}
+  <script async>
+    document.getElementById('home-btn')
+      .addEventListener('click', async () => {
+        await access('/students-home', 'GET')
+      })
+  </script>
+  {% elif current_user.num_employees %}
+  <script async>
+    document.getElementById('home-btn')
+      .addEventListener('click', async () => {
+        await access('/companies-home', 'GET')
+      })
+  </script>
+  {% endif %}
 
   <ul class="pagination mt-3 justify-content-end">
     <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-    <li class="page-item"><a class="page-link" href="#">1</a></li>
-    <li class="page-item"><a class="page-link" href="#">2</a></li>
-    <li class="page-item"><a class="page-link" href="#">3</a></li>
     <li class="page-item"><a class="page-link" href="#">Next</a></li>
   </ul>
-</ul>
+</div>
 
-<script async>
-  const buttons = document.querySelectorAll('.offer-btn');
-  buttons.forEach(button => {
-    button.addEventListener('click', () => {
+<script>
+  console.log('old - declaration of "buttons" variable')
+  document.querySelectorAll('.offer-btn').forEach(button => {
+    button.addEventListener('click', async () => {
+      console.log('offer one - test')
       const buttonIdParts = button.id.split('-');
       const offerId = buttonIdParts[1];
-      access(`/offers/${offerId}`, 'GET');
+      await access(`/offers/${offerId}`, 'GET');
     });
   });
 </script>

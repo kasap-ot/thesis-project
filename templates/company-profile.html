@@ -46,9 +46,19 @@
     <div class="row">
         <div class="col">
             <!-- TODO: make this work -->
-            <a href="/offer" class="btn btn-secondary mt-2"><i class="bi bi-arrow-left"></i> Back to offer</a>
+            <button class="btn btn-secondary mt-2" id="offer-btn">
+                <i class="bi bi-arrow-left"></i> Back to offer
+            </button>
         </div>
     </div>
 </div>
+
+<script>
+    document.getElementById('offer-btn')
+        .addEventListener('click', async () => {
+            let offerId = sessionStorage.getItem('offerId')
+            await access(`/offers/${offerId}`, 'GET')
+        })
+</script>
 
 {% endblock %}

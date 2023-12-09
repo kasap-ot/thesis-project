@@ -15,6 +15,7 @@ class StudentBase(BaseModel):
     major: str
     credits: int
     gpa: float
+    # TODO: implement user profile photos
 
 
 class StudentCreate(StudentBase):
@@ -67,6 +68,7 @@ class CompanyBase(BaseModel):
     num_employees: int
     year_founded: int
     website: str
+    # TODO: implement user profile photos
 
 
 class CompanyCreate(CompanyBase):

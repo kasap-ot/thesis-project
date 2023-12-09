@@ -43,25 +43,30 @@
 
   <div class="row">
     <div class="col">
-      <a href="/offers" class="btn btn-secondary mt-2"><i class="bi bi-arrow-left"></i> Offers</a>
+      <!-- <a href="/offers" class="btn btn-secondary mt-2"><i class="bi bi-arrow-left"></i> Offers</a> -->
+      <button class="btn btn-secondary mt-2" id="offers-btn">
+        <i class="bi bi-arrow-left"></i> Offers
+      </button>
     </div>
 
     <div class="col text-end mt-2">
 
-      <!-- This checks if the user is a student-user -->
-      {% if current_user.field %}
+      <!-- This checks if the user is a company-user -->
+      {% if current_user.num_employees %}
+
       <button class="btn btn-primary" id="applicants-btn">
         <i class="bi bi-eye-fill"></i> Applicants
       </button>
 
       <script>
-        document.getElementById('applicants-btn').addEventListener('click', () => {
-          access('/applications/applicants/{{offer.id}}', 'GET');
+        document.getElementById('applicants-btn').addEventListener('click', async () => {
+          await access('/applications/applicants/{{offer.id}}', 'GET');
         });
       </script>
 
-      <!-- This checks if the user is a company-user -->
+      <!-- This checks if the user is a student-user -->
       {% elif current_user.university %}
+
       <button class="btn btn-warning" id="company-btn">
         <i class="bi bi-eye-fill"></i> Company
       </button>
@@ -83,7 +88,6 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-              <!-- <a href="/applications" class="btn btn-success">I'm sure</a> -->
               <button class="btn btn-success" id="apply-btn">I'm sure</button>
             </div>
           </div>
@@ -91,16 +95,21 @@
       </div>
 
       <script>
-        document.getElementById('company-btn').addEventListener('click', () => {
-          console.log('another TEST HERE!')
-          access('/companies/{{offer.company_id}}', 'GET')
+        document.getElementById('company-btn').addEventListener('click', async () => {
+          sessionStorage.setItem('offerId', '{{offer.id}}')
+          await access('/companies/{{offer.company_id}}', 'GET')
         });
 
-        document.getElementById('apply-btn').addEventListener('click', () => {
-          console.log('TEST HERE!')
-          access('/applications/apply/{{current_user.id}}/{{offer.id}}', 'POST');
+        document.getElementById('apply-btn').addEventListener('click', async () => {
+          await access('/applications/apply/{{current_user.id}}/{{offer.id}}', 'POST');
+          await access('/applications/view/{{current_user.id}}', 'GET');
         });
+
+        document.getElementById('offers-btn').addEventListener('click', async () => {
+          await access('/offers', 'GET')
+        })
       </script>
+
       {% endif %}
     </div>
   </div>

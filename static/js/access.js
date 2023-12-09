@@ -1,11 +1,5 @@
-async function access(url, method, data) {
-    /**
-     * Sends the given data object to the specified URL
-     * along with the token stored in session-storage.
-     * Receives an HTML response and writes it on the
-     * document. Adds the url to history, for a better
-     * user experience.
-     */
+async function access(url, method, data) 
+{
     const token = sessionStorage.getItem('token');
 
     if (!token) {
@@ -30,7 +24,7 @@ async function access(url, method, data) {
             }
         );
 
-        console.log('here is the test');
+        if (method != 'GET') return;
 
         let responseText = await response.text();
         document.write(responseText);

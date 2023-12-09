@@ -77,11 +77,11 @@ async def student_delete(student_id: int, current_user = Depends(get_current_use
 
 
 @router.get("/students/profile/{student_id}", response_model=StudentProfile, tags=["students"])
-async def student_profile_get(request: Request, student_id: int):
+async def student_profile_get(request: Request, student_id: int, current_user = Depends(get_current_user)):
     student = await student_profile_get_controller(student_id)
     return templates.TemplateResponse(
         name = "student-profile.html",
-        context = {"request": request, "student": student},
+        context = {"request": request, "student": student, "current_user": current_user},
         headers = {"Content-Type": "text/html"}, # Might be redundant?
     )
 
@@ -143,6 +143,7 @@ async def offers_get(
     max_num_weeks: int = 100,
     min_salary: int = 0,
     max_salary: int = 10_000,
+    current_user = Depends(get_current_user)
 ):
     """ 
     Returns all offers that satisfy the given query parameters 
@@ -152,9 +153,16 @@ async def offers_get(
         min_num_weeks, 
         max_num_weeks, 
         min_salary, 
-        max_salary
+        max_salary,
     )
-    return templates.TemplateResponse("offers.html", {"request": request, "offers": offers})
+    return templates.TemplateResponse(
+        name = "offers.html", 
+        context = {
+            "request": request, 
+            "offers": offers, 
+            "current_user": current_user,
+        },
+    )
 
 
 @router.get("/offers/{offer_id}", response_class=HTMLResponse, tags=["offers"])
@@ -307,6 +315,19 @@ async def log_in_get(request: Request):
 @router.get("/students-home", response_class=HTMLResponse, tags=["static-templates"])
 async def students_home_get(request: Request, current_user = Depends(get_current_user)):
     return templates.TemplateResponse("student-home.html", {"request": request, "current_user": current_user})
+
+
+@router.get("/students/profile/{student_id}/edit", response_class=HTMLResponse, tags=["students"])
+async def student_profile_edit_get(
+    request: Request, 
+    student_id: int, 
+    current_user = Depends(get_current_user)
+):
+    student_profile = await student_profile_get_controller(student_id)
+    return templates.TemplateResponse(
+        name = "student-profile-edit.html", 
+        context = {"request": request, "student_profile": student_profile}
+    )
 
 
 @router.get("/companies-home", response_class=HTMLResponse, tags=["static-templates"])

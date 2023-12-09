@@ -1,4 +1,9 @@
 {% extends 'base.html' %}
+
+{% block script %}
+<script async src="{{ url_for('static', path='js/access.js') }}"></script>
+{% endblock %}
+
 {% block content %}
 
 <div class="container w-75">
@@ -41,16 +46,24 @@
 
     <div class="row">
         <div class="col">
-            <a href="/applicants" class="btn btn-secondary mt-2"><i class="bi bi-arrow-left"></i> Applicants</a>
+            <button class="btn btn-secondary mt-2" id="home-btn">
+                <i class="bi bi-arrow-left"></i> Home
+            </button>
         </div>
-
+       
         <div class="col text-end mt-2">
+            {% if current_user.university %}
+            <button class="btn btn-success" id="edit-btn">
+                <i class="bi bi-pencil-square"></i> Edit
+            </button>
+            {% elif current_user.num_employees %}
             <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal">
                 <i class="bi bi-x-circle-fill"></i> Reject
             </button>
             <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#acceptModal">
                 <i class="bi bi-check-circle-fill"></i> Accept
             </button>
+            {% endif %}
         </div>
     </div>
 
@@ -92,5 +105,17 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.getElementById('home-btn')
+    .addEventListener('click', async () => {
+        await access('/students-home', 'GET')
+    })
+
+    document.getElementById('edit-btn')
+    .addEventListener('click', async () => {
+        await access('/students/profile/{{student.id}}/edit', 'GET')
+    })
+</script>
 
 {% endblock %}
