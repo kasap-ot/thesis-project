@@ -31,3 +31,15 @@ ADD CONSTRAINT students_unique_email_constraint UNIQUE (email);
 
 ALTER TABLE companies
 ADD CONSTRAINT companies_unique_email_constraint UNIQUE (email);
+
+
+-- Change "age" to "date_of_birth" for studends
+
+ALTER TABLE students
+DROP COLUMN age;
+
+ALTER TABLE students
+ADD COLUMN date_of_birth DATE NOT NULL DEFAULT '2020-01-01';
+
+ALTER TABLE students
+ALTER COLUMN date_of_birth DROP DEFAULT;
