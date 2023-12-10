@@ -143,6 +143,15 @@ class OfferUpdate(OfferBase):
     # responsibilities: str | None = None
 
 
+class OfferBriefRead(BaseModel):
+    id: int
+    salary: int
+    num_weeks: int
+    field: str
+    deadline: date
+    company_name: str
+
+
 """ EXPERIENCE SCHEMAS """
 
 

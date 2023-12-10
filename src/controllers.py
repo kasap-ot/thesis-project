@@ -14,6 +14,7 @@ from .schemas import (
     CompanyInDB,
     OfferRead,
     OfferCreate,
+    OfferBriefRead,
 )
 from .enums import Status, UserType
 from .security import Token, get_token, pwd_context, authorize_user
@@ -188,14 +189,21 @@ async def offers_get_controller(
     max_num_weeks: int,
     min_salary: int,
     max_salary: int,
-) -> list[OfferRead]:
+) -> list[OfferBriefRead]:
     async with get_async_pool().connection() as conn, conn.cursor(
-        row_factory=class_row(OfferRead)
+        row_factory=class_row(OfferBriefRead)
     ) as cur:
+        # sql = """
+        #     SELECT * FROM offers
+        #     WHERE num_weeks >= %s AND num_weeks <= %s
+        #     AND salary >= %s AND salary <= %s
+        # """
         sql = """
-            SELECT * FROM offers
-            WHERE num_weeks >= %s AND num_weeks <= %s
-            AND salary >= %s AND salary <= %s
+            SELECT o.id, o.salary, o.num_weeks, o.field, o.deadline, c.name AS company_name
+            FROM offers AS o
+            JOIN companies AS c ON o.company_id = c.id
+            WHERE o.num_weeks >= %s AND o.num_weeks <= %s
+            AND o.salary >= %s AND o.salary <= %s
         """
         parameters: list = [min_num_weeks, max_num_weeks, min_salary, max_salary]
 
