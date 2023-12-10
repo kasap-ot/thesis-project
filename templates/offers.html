@@ -72,10 +72,8 @@
 </div>
 
 <script>
-  console.log('old - declaration of "buttons" variable')
   document.querySelectorAll('.offer-btn').forEach(button => {
     button.addEventListener('click', async () => {
-      console.log('offer one - test')
       const buttonIdParts = button.id.split('-');
       const offerId = buttonIdParts[1];
       await access(`/offers/${offerId}`, 'GET');

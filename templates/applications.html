@@ -1,97 +1,52 @@
 {% extends 'base.html' %}
 {% block content %}
 
+<!-- TODO: Add color-coding based on application status-types -->
+
 <div class="container w-75">
     <h2>My applications</h2>
 
     <ul class="list-group">
-        <ul class="nav nav-tabs mt-2" id="myTab" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active text-dark" id="waiting-tab" data-bs-toggle="tab" data-bs-target="#waiting-tab-pane"
-                    type="button" role="tab">Waiting</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link text-dark" id="accepted-tab" data-bs-toggle="tab" data-bs-target="#accepted-tab-pane"
-                    type="button" role="tab">Accepted</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link text-dark" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected-tab-pane"
-                    type="button" role="tab">Rejected</button>
-            </li>
-        </ul>
-
         <li class="list-group-item bg-primary text-light fw-bold">
             <div class="container text-center">
                 <div class="row py-2">
-                    <div class="col">Offer num.</div>
-                    <div class="col">Field</div>
-                    <div class="col">Country</div>
-                    <!-- <div class="col">Company</div> -->
-                    <!-- <div class="col">Status</div> -->
+                    <div class="col">Student ID</div>
+                    <div class="col">Offer ID</div>
+                    <!-- TODO - country functionality -->
+                    <!-- TODO - display brief offer info (company, field, etc.) -->
+                    <div class="col">Status</div>
                     <div class="col">Action</div>
                 </div>
             </div>
         </li>
+        {% for application in applications %}
+        <li class="list-group-item list-group-item-action">
+            <div class="container text-center">
+                <div class="row py-2 align-items-center">
+                    <div class="col">{{application.student_id}}</div>
+                    <div class="col">{{application.offer_id}}</div>
+                    <div class="col">{{application.status}}</div>
+                    <div class="col">
+                        {% set status = application.status.value %}
 
-        <div class="tab-content" id="myTabContent">
-            <div class="tab-pane fade show active" id="waiting-tab-pane" role="tabpanel" tabindex="0">
-                {% for application in applications %}
-                <li class="list-group-item list-group-item-action list-group-item-warning">
-                    <div class="container text-center">
-                        <div class="row py-2 align-items-center">
-                            <!-- <div class="col">BRA-2024-15</div> -->
-                            <div class="col">{{ application.student_id }}</div>
-                            <div class="col">{{ application.offer_id }}</div>
-                            <div class="col">{{ application.status }}</div>
-                            <!-- <div class="col">Brazil</div> -->
-                            <!-- <div class="col">Amazon Corp.</div> -->
-                            <!-- <div class="col">Column</div> -->
-                            <div class="col">
-                                <a href="#" class="btn btn-danger btn-sm w-75 rounded-pill py-2">Cancel</a>
-                            </div>
-                        </div>
+                        <!-- * If status is 'waiiting' or 'accepted' -->
+                        {% if status == 0 or status == 1 %}
+                        <button class="btn btn-danger"
+                            id="cancel-btn-{{application.student_id}}-{{application.offer_id}}">
+                            Cancel
+                        </button>
+
+                        <!-- * If status is 'rejected' -->
+                        {% elif status == 2 %}
+                        <button class="btn btn-secondary">None</button>
+                        {% endif %}
                     </div>
-                </li>
-                {% endfor %}
+                </div>
             </div>
-            <div class="tab-pane fade" id="accepted-tab-pane" role="tabpanel" tabindex="0">
-                {% for _ in range(3) %}
-                <li class="list-group-item list-group-item-action list-group-item-success">
-                    <div class="container text-center">
-                        <div class="row py-2 align-items-center">
-                            <div class="col">BRA-2024-15</div>
-                            <div class="col">Industrial Marketing</div>
-                            <div class="col">Brazil</div>
-                            <div class="col">Amazon Corp.</div>
-                            <div class="col">Column</div>
-                            <div class="col">
-                                <a href="#" class="btn btn-secondary btn-sm w-75 rounded-pill py-2">None</a>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-                {% endfor %}
-            </div>
-            <div class="tab-pane fade" id="rejected-tab-pane" role="tabpanel" tabindex="0">
-                {% for _ in range(4) %}
-                <li class="list-group-item list-group-item-action list-group-item-danger">
-                    <div class="container text-center">
-                        <div class="row py-2 align-items-center">
-                            <div class="col">BRA-2024-15</div>
-                            <div class="col">Industrial Marketing</div>
-                            <div class="col">Brazil</div>
-                            <div class="col">Amazon Corp.</div>
-                            <div class="col">Column</div>
-                            <div class="col">
-                                <a href="#" class="btn btn-secondary btn-sm w-75 rounded-pill py-2">None</a>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-                {% endfor %}
-            </div>
-        </div>
+        </li>
+        {% endfor %}
     </ul>
+
     <!-- <a href="/offers" class="btn btn-secondary mt-2"><i class="bi bi-arrow-left"></i> Offers</a> -->
     <button class="btn btn-secondary mt-2" id="home-btn">
         <i class="bi bi-arrow-left"></i> Home
@@ -100,8 +55,20 @@
 
 <script>
     document.getElementById('home-btn')
-    .addEventListener('click', async () => {
-        access('/students-home', 'GET')
+        .addEventListener('click', async () => {
+            await access('/students-home', 'GET')
+        })
+
+    document.querySelectorAll('.btn-danger').forEach(button => {
+        button.addEventListener('click', async () => {
+            const buttonIdParts = button.id.split('-')
+            console.log(buttonIdParts)
+            /* ID format: cancel-btn-[student_id]-[offer_id] */
+            const student_id = buttonIdParts[2]
+            const offer_id = buttonIdParts[3]
+            await access(`/applications/cancel/${student_id}/${offer_id}`, 'DELETE')
+            await access(`/applications/view/${student_id}`, 'GET')
+        })
     })
 </script>
 
