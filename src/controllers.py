@@ -6,7 +6,7 @@ from .schemas import (
     StudentCreate, 
     StudentUpdate, 
     StudentInDB, 
-    StudentProfile, 
+    StudentProfileRead, 
     StudentRead,
     CompanyCreate,
     CompanyRead,
@@ -35,13 +35,13 @@ async def student_post_controller(s: StudentCreate) -> None:
     
     async with get_async_pool().connection() as conn:
         sql = """INSERT INTO students 
-                 (email, hashed_password, name, age, university, major, credits, gpa) 
+                 (email, hashed_password, name, date_of_birth, university, major, credits, gpa) 
                  VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"""
         await conn.execute(sql, params=[
             s.email, 
             hashed_password, 
             s.name, 
-            s.age, 
+            s.date_of_birth, 
             s.university, 
             s.major, 
             s.credits, 
@@ -49,18 +49,18 @@ async def student_post_controller(s: StudentCreate) -> None:
         ])
 
 
-async def student_patch_controller(student_id: int, s: StudentUpdate, current_user) -> None:
+async def student_put_controller(student_id: int, s: StudentUpdate, current_user) -> None:
     authorize_user(student_id, current_user, StudentInDB)
     
     async with get_async_pool().connection() as conn:
         sql = """UPDATE students SET 
-                email=%s, name=%s, age=%s, university=%s, 
+                email=%s, name=%s, date_of_birth=%s, university=%s, 
                 major=%s, credits=%s, gpa=%s WHERE id=%s 
                 RETURNING *;"""
         await conn.execute(sql, [
                 s.email,
                 s.name,
-                s.age,
+                s.date_of_birth,
                 s.university,
                 s.major,
                 s.credits,
@@ -77,7 +77,7 @@ async def student_delete_controller(student_id: int, current_user) -> None:
         await conn.execute(sql, [student_id])
 
 
-async def student_profile_get_controller(student_id: int) -> StudentProfile:
+async def student_profile_get_controller(student_id: int) -> StudentProfileRead:
     async with get_async_pool().connection() as conn:
         cur = conn.cursor(row_factory=dict_row)
         
@@ -94,7 +94,7 @@ async def student_profile_get_controller(student_id: int) -> StudentProfile:
         await cur.execute(sql, [student_id])
         experiences: list = await cur.fetchall()
 
-        student_profile = StudentProfile(experiences=experiences, **student.model_dump())
+        student_profile = StudentProfileRead(experiences=experiences, **student.model_dump())
 
         return student_profile
     

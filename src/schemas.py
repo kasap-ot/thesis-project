@@ -10,7 +10,7 @@ from datetime import date
 class StudentBase(BaseModel):
     email: str
     name: str
-    age: int
+    date_of_birth: date
     university: str
     major: str
     credits: int
@@ -27,7 +27,7 @@ class StudentCreate(StudentBase):
                 {
                     "email": random_string(),
                     "name": "Some Name",
-                    "age": 18,
+                    "date": "2018-01-01",
                     "university": "Some University",
                     "major" : "Some Major",
                     "credits": 150,
@@ -43,14 +43,15 @@ class StudentRead(StudentBase):
     id: int
 
 
-class StudentUpdate(BaseModel):
-    email: str | None = None
-    name: str | None = None
-    age: int | None = None
-    university: str | None = None
-    major: str | None = None
-    credits: int | None = None
-    gpa: float | None = None
+class StudentUpdate(StudentBase):
+    ...
+    # email: str | None = None
+    # name: str | None = None
+    # date_of_birth: int | None = None
+    # university: str | None = None
+    # major: str | None = None
+    # credits: int | None = None
+    # gpa: float | None = None
 
 
 class StudentInDB(StudentBase):
@@ -95,13 +96,14 @@ class CompanyRead(CompanyBase):
     id: int
 
 
-class CompanyUpdate(BaseModel):
-    email: str | None = None
-    name: str | None = None
-    field: str | None = None
-    num_employees: int | None = None
-    year_founded: int | None = None
-    website: str | None = None
+class CompanyUpdate(CompanyBase):
+    ...
+    # email: str | None = None
+    # name: str | None = None
+    # field: str | None = None
+    # num_employees: int | None = None
+    # year_founded: int | None = None
+    # website: str | None = None
 
 
 class CompanyInDB(CompanyBase):
@@ -119,24 +121,26 @@ class OfferBase(BaseModel):
     deadline: date
     requirements: str
     responsibilities: str
-    company_id: int
+    # company_id: int
 
 
 class OfferCreate(OfferBase):
-    ...
+    company_id: int
 
 
 class OfferRead(OfferBase):
     id: int
+    company_id: int
 
 
-class OfferUpdate(BaseModel):
-    salary: int | None = None
-    num_weeks: int | None = None
-    field: str | None = None
-    deadline: date | None = None
-    requirements: str | None = None
-    responsibilities: str | None = None
+class OfferUpdate(OfferBase):
+    ...
+    # salary: int | None = None
+    # num_weeks: int | None = None
+    # field: str | None = None
+    # deadline: date | None = None
+    # requirements: str | None = None
+    # responsibilities: str | None = None
 
 
 """ EXPERIENCE SCHEMAS """
@@ -148,23 +152,25 @@ class ExperienceBase(BaseModel):
     company: str
     position: str
     description: str
-    student_id: int
+    # student_id: int
 
 
 class ExperienceCreate(ExperienceBase):
-    ...
+    student_id: int
 
 
 class ExperienceRead(ExperienceBase):
     id: int
+    student_id: int
 
 
-class ExperienceUpdate(BaseModel):
-    from_date: date | None = None
-    to_date: date | None = None
-    company: str | None = None
-    position: str | None = None
-    description: str | None = None
+class ExperienceUpdate(ExperienceBase):
+    ...
+    # from_date: date | None = None
+    # to_date: date | None = None
+    # company: str | None = None
+    # position: str | None = None
+    # description: str | None = None
 
 
 """ APPLICATION SCHEMAS """
@@ -187,5 +193,9 @@ class ApplicationCreate(ApplicationBase):
 """ STUDENT PROFILE SCHEMAS """
 
 
-class StudentProfile(StudentRead):
+class StudentProfileRead(StudentRead):
     experiences: list[ExperienceRead]
+
+
+class StudentProfileUpdate(StudentUpdate):
+    experiences: list[ExperienceUpdate]

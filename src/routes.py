@@ -11,7 +11,7 @@ from .controllers import (
     offer_put_controller,
     token_controller,
     student_post_controller,
-    student_patch_controller,
+    student_put_controller,
     student_delete_controller,
     student_profile_get_controller,
     company_post_controller,
@@ -35,7 +35,7 @@ from .schemas import (
     OfferUpdate,
     ExperienceCreate,
     ExperienceUpdate,
-    StudentProfile,
+    StudentProfileRead,
 )
 from fastapi import APIRouter, status, Depends, Request
 from fastapi.security import OAuth2PasswordRequestForm
@@ -64,11 +64,11 @@ async def student_post(s: StudentCreate):
 
 
 @router.put("/students/{student_id}", tags=["students"])
-async def student_patch(
+async def student_put(
     student_id: int, s: StudentUpdate, 
     current_user = Depends(get_current_user),
 ):
-    await student_patch_controller(student_id, s, current_user)
+    await student_put_controller(student_id, s, current_user)
 
 
 @router.delete("/students/{student_id}", tags=["students"])
@@ -76,13 +76,13 @@ async def student_delete(student_id: int, current_user = Depends(get_current_use
     await student_delete_controller(student_id, current_user)
 
 
-@router.get("/students/profile/{student_id}", response_model=StudentProfile, tags=["students"])
+@router.get("/students/profile/{student_id}", response_model=StudentProfileRead, tags=["students"])
 async def student_profile_get(request: Request, student_id: int, current_user = Depends(get_current_user)):
     student = await student_profile_get_controller(student_id)
     return templates.TemplateResponse(
         name = "student-profile.html",
         context = {"request": request, "student": student, "current_user": current_user},
-        headers = {"Content-Type": "text/html"}, # Might be redundant?
+        # headers = {"Content-Type": "text/html"}, # ? Might be redundant
     )
 
 
