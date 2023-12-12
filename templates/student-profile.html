@@ -44,10 +44,11 @@
 
             <hr class="mt-4">
 
-            <h5 class="my-4">Experiences</h5>
+            <h5 class="my-4 fs-4">EXPERIENCES</h5>
 
             {% for experience in student.experiences %}
-                <p class="lead">{{experience.position}}</p>
+                <p class="lead">{{experience.position}}, {{experience.company}}</p>
+                <p class="fst-italic">({{experience.from_date}} to {{experience.to_date}})</p>
                 <p>{{experience.description}}</p>
             {% endfor %}
         </div>
