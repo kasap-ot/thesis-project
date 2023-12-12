@@ -24,3 +24,5 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 app.include_router(router)
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# TODO: change types input tags where necessary (e.g. from text to date)

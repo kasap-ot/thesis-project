@@ -321,7 +321,7 @@ async def students_home_get(request: Request, current_user = Depends(get_current
 async def student_profile_edit_get(
     request: Request, 
     student_id: int, 
-    current_user = Depends(get_current_user)
+    _ = Depends(get_current_user)
 ):
     student_profile = await student_profile_get_controller(student_id)
     return templates.TemplateResponse(

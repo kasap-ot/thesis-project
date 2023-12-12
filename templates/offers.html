@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block script %}
-<script src="{{ url_for('static', path='js/access.js') }}"></script>
+<script async src="{{ url_for('static', path='js/access.js') }}"></script>
 {% endblock%}
 
 {% block content %}
@@ -70,7 +70,7 @@
 </div>
 
 <script>
-  document.querySelectorAll('.offer-btn').forEach(button => {
+  document.querySelectorAll('.offer-btn').forEach(async button => {
     button.addEventListener('click', async () => {
       const buttonIdParts = button.id.split('-');
       const offerId = buttonIdParts[1];
