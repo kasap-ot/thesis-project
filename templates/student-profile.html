@@ -13,6 +13,8 @@
                 <div class="col d-flex flex-column justify-content-center">
                     <h1>{{student.name}}</h1>
                     <h3 class="mb-4 text-body-secondary">TODO: COUNTRY HERE</h3>
+                    <p class="fs-5">{{student.date_of_birth}}</p>
+                    <p class="fs-5">{{student.email}}</p>
                 </div>
                 <div class="col d-flex align-items-center justify-content-end me-2 mt-2">
                     <img src="{{ url_for('static', path='img/person.png') }}" alt="Some image" height="180rem">
@@ -22,13 +24,20 @@
             <hr class="mb-4">
 
             <div class="row text-center column-gap-5 m-3 fs-5">
-                <div class="col bg-primary-subtle shadow rounded-pill p-2">
+                <div class="col bg-primary-subtle shadow rounded-pill px-2 py-4 mx-5 border border-primary border-3">
                     <strong>University:</strong><br>{{student.university}}
                 </div>
-                <div class="col bg-primary-subtle shadow rounded-pill p-2">
+                <div class="col bg-primary-subtle shadow rounded-pill px-2 py-4 mx-5 border border-primary border-3">
                     <strong>Major:</strong><br>{{student.major}}
                 </div>
-                <div class="col bg-primary-subtle shadow rounded-pill p-2">
+                
+            </div>
+
+            <div class="row text-center column-gap-5 mt-4 mb-3 mx-3 fs-5">
+                <div class="col bg-primary-subtle shadow rounded-pill px-2 py-4 mx-5 border border-primary border-3">
+                    <strong>Credits:</strong><br>{{student.credits}}
+                </div>
+                <div class="col bg-primary-subtle shadow rounded-pill px-2 py-4 mx-5 border border-primary border-3">
                     <strong>Credits:</strong><br>{{student.credits}}
                 </div>
             </div>

@@ -1,61 +1,54 @@
 {% extends 'base.html' %}
+
+{% block script %}
+<script async src="{{ url_for('static', path='js/access.js') }}"></script>
+{% endblock %}
+
 {% block content %}
+
+<button class="btn btn-secondary mb-2" id="back-btn">
+    <i class="bi bi-arrow-left"></i> Back
+</button>
 
 <h3>Edit your profile</h3>
 
-<div class="row mt-4">
+<div class="row mt-1">
     <div class="col-5">
         <p class="fs-5 ">General information</p>
 
-        <form class="bg-primary-subtle px-4 pt-3 rounded border border-4 border-light"
-            style="padding-bottom: 3.4rem;">
-            <label class="form-label">Name</label>
-            <input type="text" id="name" class="form-control shadow" value="{{student_profile.name}}">
+        <div class="bg-primary-subtle px-4 pt-3 rounded border border-4 border-light">
+            <form>
+                <label class="form-label">Name</label>
+                <input type="text" id="name" class="form-control shadow" value="{{student_profile.name}}">
 
-            <label class="form-label mt-4">Country</label>
-            <input type="text" id="country" class="form-control shadow" value="TODO: COUNTRIES">
+                <label class="form-label mt-3">Country</label>
+                <input type="text" id="country" class="form-control shadow" value="TODO: COUNTRIES">
 
-            <label class="form-label mt-4">Email</label>
-            <input type="text" id="email" class="form-control shadow" value="{{student_profile.email}}">
+                <label class="form-label mt-3">Date of birth</label>
+                <input type="text" id="date-of-birth" class="form-control shadow"
+                    value="{{student_profile.date_of_birth}}">
 
-            <label class="form-label mt-4">University</label>
-            <input type="text" id="university" class="form-control shadow" value="{{student_profile.university}}">
+                <label class="form-label mt-3">Email</label>
+                <input type="text" id="email" class="form-control shadow" value="{{student_profile.email}}">
 
-            <label class="form-label mt-4">Major</label>
-            <input type="text" id="major" class="form-control shadow" value="{{student_profile.major}}">
+                <label class="form-label mt-3">University</label>
+                <input type="text" id="university" class="form-control shadow" value="{{student_profile.university}}">
 
-            <label class="form-label mt-4">Credits</label>
-            <input type="text" id="credits" class="form-control shadow" value="{{student_profile.credits}}">
+                <label class="form-label mt-3">Major</label>
+                <input type="text" id="major" class="form-control shadow" value="{{student_profile.major}}">
 
-            <label class="form-label mt-4">GPA</label>
-            <input type="text" id="gpa" class="form-control shadow" value="{{student_profile.gpa}}">
-        </form>
+                <label class="form-label mt-3">Credits</label>
+                <input type="text" id="credits" class="form-control shadow" value="{{student_profile.credits}}">
 
-        <button class="btn btn-secondary mt-2" id="cancel-btn"><i class="bi bi-x-circle"> Cancel</i></button>
-        <!-- <button class="btn btn-danger mt-2"><i class="bi bi-check-circle-fill"> Confirm</i></button> -->
+                <label class="form-label mt-3">GPA</label>
+                <input type="text" id="gpa" class="form-control shadow" value="{{student_profile.gpa}}">
+            </form>
 
-        <!-- Button trigger modal -->
-        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#exampleModal">
-            <i class="bi bi-check-circle-fill"> Confirm</i>
-        </button>
-
-        <!-- Modal -->
-        <div class="modal fade" id="exampleModal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">Are you sure?</div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" id="save-btn">Save changes</button>
-                    </div>
-                </div>
-            </div>
+            <!-- Button trigger modal -->
+            <button type="button" class="btn btn-primary mb-3 mt-4" data-bs-toggle="modal" data-bs-target="#mainModal">
+                <i class="bi bi-check-circle-fill"> Confirm</i>
+            </button>
         </div>
-
     </div>
     <div class="col-5">
         <p class="fs-5 ">Experiences</p>
@@ -72,22 +65,40 @@
                     data-bs-parent="#accordionExample">
                     <div class="accordion-body">
                         <label class="form-label">Experience Title</label>
-                        <input type="text" class="form-control shadow" value="{{experience.position}}">
+                        <input id="position-{{experience.id}}" type="text" class="form-control shadow" value="{{experience.position}}">
+
+                        <label class="form-label mt-2">Company</label>
+                        <input id="company-{{experience.id}}" type="text" class="form-control shadow" value="{{experience.company}}">
 
                         <label class="form-label mt-2">From</label>
-                        <input type="text" class="form-control shadow" value="{{experience.from_date}}">
+                        <input id="from-date-{{experience.id}}" type="text" class="form-control shadow" value="{{experience.from_date}}">
 
                         <label class="form-label mt-2">To</label>
-                        <input type="text" class="form-control shadow" value="{{experience.to_date}}">
+                        <input id="to-date-{{experience.id}}" type="text" class="form-control shadow" value="{{experience.to_date}}">
 
                         <label class="form-label mt-2">Description</label>
-                        <textarea name="" class="form-control shadow"
+                        <textarea id="description-{{experience.id}}" name="" class="form-control shadow"
                             style="height: 10rem;">{{experience.description}}</textarea>
+
+                        <div class="d-flex justify-content-between mt-3">
+                            <button class="delete-experience-btn btn btn-danger"
+                                id="delete-experience-{{experience.id}}-btn">
+                                <i class="bi bi-trash3-fill"></i> Delete
+                            </button>
+                            <button class="confirm-experience-btn btn btn-primary"
+                                id="confirm-experience-{{experience.id}}-btn">
+                                <i class="bi bi-check-circle-fill"></i> Confirm
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
             {% endfor %}
         </div>
+
+        <button class="btn btn-light mt-2" data-bs-toggle="modal" data-bs-target="#addExperienceModal">
+            <strong>+</strong> Add experience
+        </button>
     </div>
     <div class="col-2">
         <p class="fs-5">Edit profile photo</p>
@@ -95,17 +106,123 @@
             class="img-fluid shadow rounded mb-2">
         <input type="file" class="form-control shadow">
     </div>
+
+    <!-- Main Modal -->
+    <div class="modal fade" id="mainModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5">Update profile info</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">Are you sure?</div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="main-save-btn" data-bs-toggle="modal"
+                        data-bs-target="#mainModal">
+                        Save changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add-experience modal -->
+    <div class="modal fade" id="addExperienceModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5">Add new experience</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <label class="form-label">Position</label>
+                        <input type="text" id="newPosition" class="form-control shadow">
+
+                        <label class="form-label mt-2">Company</label>
+                        <input type="text" id="newCompany" class="form-control shadow">
+
+                        <label class="form-label mt-2">From</label>
+                        <input type="date" id="newFromDate" class="form-control shadow">
+
+                        <label class="form-label mt-2">To</label>
+                        <input type="date" id="newToDate" class="form-control shadow">
+
+                        <label class="form-label mt-2">Description</label>
+                        <textarea id="newDescription" rows="7" class="form-control shadow"></textarea>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button class="btn btn-primary" id="add-experience-btn" data-bs-toggle="modal"
+                        data-bs-target="#addExperienceModal">
+                        Add experience
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
-    document.getElementById('cancel-btn').addEventListener('click', async () => {
-        await access('/students-home', 'GET')
+    document.getElementById('back-btn').addEventListener('click', async (e) => {
+        await access('/students/profile/{{student_profile.id}}', 'GET')
     })
 
-    document.getElementById('save-btn').addEventListener('click', async () => {
-        // collect the updated student-profile data
-        // send put request for updating the student profile
-        // send get request to the get-student-profile route
+    document.getElementById('main-save-btn').addEventListener('click', async () => {
+        updatedStudent = {
+            name: document.getElementById('name').value,
+            date_of_birth: document.getElementById('date-of-birth').value,
+            email: document.getElementById('email').value,
+            university: document.getElementById('university').value,
+            major: document.getElementById('major').value,
+            credits: document.getElementById('credits').value,
+            gpa: document.getElementById('gpa').value,
+        }
+        await access('/students/{{student_profile.id}}', 'PUT', updatedStudent)
+        await access('/students/profile/{{student_profile.id}}', 'GET')
+    })
+
+    document.querySelectorAll('.delete-experience-btn').forEach(async button => {
+        button.addEventListener('click', async () => {
+            const btnIdParts = button.id.split('-')
+            const experienceId = btnIdParts[2]
+            await access(`/experiences/${experienceId}`, 'DELETE')
+            await access(`/students/profile/{{student_profile.id}}/edit`, 'GET')
+        })
+    })
+
+    document.querySelectorAll('.confirm-experience-btn').forEach(async button => {
+        button.addEventListener('click', async () => {
+            const btnIdParts = button.id.split('-')
+            const experienceId = btnIdParts[2]
+            console.log(btnIdParts)
+            console.log(experienceId)
+            updatedExperience = {
+                from_date: document.getElementById(`from-date-${experienceId}`).value,
+                to_date: document.getElementById(`to-date-${experienceId}`).value,
+                company: document.getElementById(`company-${experienceId}`).value,
+                position: document.getElementById(`position-${experienceId}`).value,
+                description: document.getElementById(`description-${experienceId}`).value,
+            }
+            console.log(updatedExperience)
+            await access(`/experiences/${experienceId}`, 'PUT', updatedExperience)
+            await access('/students/profile/{{student_profile.id}}/edit', 'GET')
+        })
+    })
+
+    document.getElementById('add-experience-btn').addEventListener('click', async () => {
+        const newExperience = {
+            position: document.getElementById('newPosition').value,
+            company: document.getElementById('newCompany').value,
+            from_date: document.getElementById('newFromDate').value,
+            to_date: document.getElementById('newToDate').value,
+            description: document.getElementById('newDescription').value,
+            student_id: '{{student_profile.id}}',
+        }
+        await access('/experiences', 'POST', newExperience)
+        await access('/students/profile/{{student_profile.id}}/edit', 'GET')
     })
 </script>
 
