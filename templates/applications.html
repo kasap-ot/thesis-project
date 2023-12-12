@@ -1,8 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<!-- TODO: Add color-coding based on application status-types -->
-
 <div class="container w-75">
     <h2>My applications</h2>
 
@@ -20,26 +18,41 @@
             </div>
         </li>
         {% for application in applications %}
-        <li class="list-group-item list-group-item-action">
+        {% set status = application.status.value %}
+        <!-- 
+            * status == 0 - status is 'waiting'
+            * status == 1 - status is 'accepted'
+            * status == 2 - status is 'rejected'
+         -->
+        {% if status == 0 %}
+            {% set list_item_color = "warning" %}
+            {% set button_styles = "btn btn-danger cancel-btn" %}
+            {% set button_id = "cancel-btn-" ~ application.student_id ~ "-" ~ application.offer_id %}
+            {% set button_text = "Cancel" %}
+            {% set status_text = "Waiting" %}
+        {% elif status == 1 %}
+            {% set list_item_color = "success" %}
+            {% set button_styles = "btn btn-danger cancel-btn" %}
+            {% set button_id = "cancel-btn-" ~ application.student_id ~ "-" ~ application.offer_id %}
+            {% set button_text = "Cancel" %}
+            {% set status_text = "Accepted" %}
+        {% else %}
+            {% set list_item_color = "danger" %}
+            {% set button_id = "none-btn-" ~ application.student_id ~ "-" ~ application.offer_id %}
+            {% set button_styles = "btn btn-secondary" %}
+            {% set button_text = "None" %}
+            {% set status_text = "Rejected" %}
+        {% endif %}
+        <li class="list-group-item list-group-item-action list-group-item-{{list_item_color}}">
             <div class="container text-center">
                 <div class="row py-2 align-items-center">
                     <div class="col">{{application.student_id}}</div>
                     <div class="col">{{application.offer_id}}</div>
-                    <div class="col">{{application.status}}</div>
+                    <div class="col">{{status_text}}</div>
                     <div class="col">
-                        {% set status = application.status.value %}
-
-                        <!-- * If status is 'waiiting' or 'accepted' -->
-                        {% if status == 0 or status == 1 %}
-                        <button class="btn btn-danger"
-                            id="cancel-btn-{{application.student_id}}-{{application.offer_id}}">
-                            Cancel
+                        <button class="{{button_styles}}" id="{{button_id}}">
+                            {{button_text}}
                         </button>
-
-                        <!-- * If status is 'rejected' -->
-                        {% elif status == 2 %}
-                        <button class="btn btn-secondary">None</button>
-                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -59,7 +72,7 @@
             await access('/students-home', 'GET')
         })
 
-    document.querySelectorAll('.btn-danger').forEach(button => {
+    document.querySelectorAll('.cancel-btn').forEach(async button => {
         button.addEventListener('click', async () => {
             const buttonIdParts = button.id.split('-')
             console.log(buttonIdParts)
