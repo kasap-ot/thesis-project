@@ -9,23 +9,27 @@
 
         <form action="/" class="bg-primary-subtle px-4 pt-3 rounded border border-4 border-light"
             style="padding-bottom: 3.4rem;">
-            <label for="" class="form-label">Field</label>
-            <input type="text" class="form-control shadow" value="This is some text" id="">
+            <label class="form-label">Field</label>
+            <input type="text" class="form-control shadow" id="fieldInput">
 
-            <label for="" class="form-label mt-4">Country</label>
-            <input type="text" class="form-control shadow" value="This is some text" id="">
+            <!-- TODO: Country features -->
+            <label class="form-label mt-4">Country</label>
+            <input type="text" class="form-control shadow" id="countryInput">
 
-            <label for="" class="form-label mt-4">Salary</label>
-            <input type="text" class="form-control shadow" value="This is some text" id="">
+            <label class="form-label mt-4">Salary</label>
+            <input type="text" class="form-control shadow" id="salaryInput">
 
-            <label for="" class="form-label mt-4">Length</label>
-            <input type="text" class="form-control shadow" value="This is some text" id="">
+            <label class="form-label mt-4">Length</label>
+            <input type="text" class="form-control shadow" id="numWeeksInput">
 
-            <label for="" class="form-label mt-4">Deadline</label>
-            <input type="text" class="form-control shadow" value="This is some text" id="">
+            <label class="form-label mt-4">Deadline</label>
+            <input type="text" class="form-control shadow" id="deadlineInput">
 
-            <label for="" class="form-label mt-4">Company</label>
-            <input type="text" class="form-control shadow" value="This is some text" id="">
+            <label class="form-label mt-4">Requirements</label>
+            <input type="text" class="form-control shadow" id="requirementsInput">
+
+            <label class="form-label mt-4">Responsibilities</label>
+            <input type="text" class="form-control shadow" id="responsibilitiesInput">
         </form>
 
         <a href="/offer" class="btn btn-secondary mt-2"><i class="bi bi-x-circle"> Cancel</i></a>
@@ -54,5 +58,15 @@
         </ul>
     </div>
 </div>
+
+<script>
+    const offer = JSON.parse(sessionStorage.getItem("offer"))
+    document.getElementById("salaryInput").value = offer.
+    document.getElementById("fieldInput").value = offer.
+    document.getElementById("numWeeksInput").value = offer.
+    document.getElementById("deadlineInput").value = offer.
+    document.getElementById("Input").value = offer.
+    document.getElementById("Input").value = offer.
+</script>
 
 {% endblock %}
