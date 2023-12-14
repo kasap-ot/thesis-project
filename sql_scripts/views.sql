@@ -7,13 +7,14 @@ RETURNS TABLE (
     university VARCHAR(255),
     major VARCHAR(255),
     credits INT,
-    gpa FLOAT
+    gpa FLOAT,
+    status status
 )
 LANGUAGE plpgsql
 AS $$
 BEGIN
     RETURN QUERY
-    SELECT s.id, s.email, s.name, s.date_of_birth, s.university, s.major, s.credits, s.gpa
+    SELECT s.id, s.email, s.name, s.date_of_birth, s.university, s.major, s.credits, s.gpa, a.status
     FROM students s
     JOIN applications a ON s.id = a.student_id
     WHERE a.offer_id = offer_id_v;

@@ -15,6 +15,7 @@ from .schemas import (
     OfferRead,
     OfferCreate,
     OfferBriefRead,
+    ApplicantRead,
 )
 from .enums import Status, UserType
 from .security import Token, get_token, pwd_context, authorize_user
@@ -193,11 +194,6 @@ async def offers_get_controller(
     async with get_async_pool().connection() as conn, conn.cursor(
         row_factory=class_row(OfferBriefRead)
     ) as cur:
-        # sql = """
-        #     SELECT * FROM offers
-        #     WHERE num_weeks >= %s AND num_weeks <= %s
-        #     AND salary >= %s AND salary <= %s
-        # """
         sql = """
             SELECT o.id, o.salary, o.num_weeks, o.field, o.deadline, c.name AS company_name
             FROM offers AS o
@@ -377,11 +373,9 @@ async def application_cancel_controller(student_id: int, offer_id: int, current_
         await conn.execute(sql, [student_id, offer_id])
 
 
-async def applicants_get_controller(offer_id: int, current_user) -> list[StudentRead]:
-    # TODO: Should also return application-status for each applicant. 
-    # Implement this
+async def applicants_get_controller(offer_id: int, current_user) -> list[ApplicantRead]:
     async with get_async_pool().connection() as conn:
-        student_cur = conn.cursor(row_factory=class_row(StudentRead))
+        applicant_cur = conn.cursor(row_factory=class_row(ApplicantRead))
         dict_cur = conn.cursor(row_factory=dict_row)
         
         sql = "SELECT company_id FROM offers WHERE id = %s"
@@ -394,6 +388,6 @@ async def applicants_get_controller(offer_id: int, current_user) -> list[Student
         authorize_user(record["company_id"], current_user, CompanyInDB)
 
         sql = "SELECT * FROM applicants(%s)"
-        await student_cur.execute(sql, [offer_id])
-        records = await student_cur.fetchall()
+        await applicant_cur.execute(sql, [offer_id])
+        records = await applicant_cur.fetchall()
         return records

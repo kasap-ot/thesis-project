@@ -18,14 +18,32 @@
         </li>
 
         {% for student in students %}
-        <li class="list-group-item list-group-item-action list-group-item-{{color}}">
+        {% set status = student.status.value %}
+        <!-- 
+            * Status types:
+            * status == 0 - status is 'waiting'
+            * status == 1 - status is 'accepted'
+            * status == 2 - status is 'rejected'
+         -->
+        {% if status == 0 %}
+            {% set list_item_color = 'warning' %}
+            {% set status_text = 'Waiting' %}
+        {% elif status == 1 %}
+            {% set list_item_color = 'success' %}
+            {% set status_text = 'Accepted' %}
+        {% elif status == 2 %}
+            {% set list_item_color = 'danger' %}
+            {% set status_text = 'Rejected' %}
+        {% endif %}
+        
+        <li class="list-group-item list-group-item-action list-group-item-{{list_item_color}}">
             <div class="row text-center align-items-center">
                 <div class="col">{{student.name}}</div>
                 <div class="col">TODO: Country</div>
                 <div class="col">{{student.university}}</div>
                 <div class="col">{{student.major}}</div>
                 <div class="col">{{student.credits}}</div>
-                <div class="col">TODO: Status and color</div>
+                <div class="col">{{status_text}}</div>
                 <div class="col">
                     <button class="student-btn btn btn-success btn-sm w-75 rounded-pill py-2" id="studentBtn-{{student.id}}">
                         View
@@ -41,18 +59,13 @@
 
     <script>
         document.getElementById("backBtn").addEventListener("click", async () => {
-            const url = window.location.href
-            const offerId = url.split('/').pop()
+            const offerId = sessionStorage.getItem("offerId")
             await access(`/offers/${offerId}`, "GET")
         })
 
-        document.querySelectorAll(".student-btn").forEach(button => {
-            const url = window.location.href
-            const offerId = url.split('/').pop()
-            sessionStorage.setItem("offerId", offerId)
-            console.log("url: ", url, "| offer id: ", offerId)
-            const studentId = button.id.split("-")[1]
+        document.querySelectorAll(".student-btn").forEach(button => {            
             button.addEventListener("click", async () => {
+                const studentId = button.id.split("-")[1]
                 await access(`/students/profile/${studentId}`, "GET")
             })
         })

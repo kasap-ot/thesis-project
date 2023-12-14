@@ -1,6 +1,6 @@
 from .utils import random_string
 from .enums import Status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from datetime import date
 
 
@@ -208,3 +208,7 @@ class StudentProfileRead(StudentRead):
 
 class StudentProfileUpdate(StudentUpdate):
     experiences: list[ExperienceUpdate]
+
+
+class ApplicantRead(StudentRead):
+    status: Status
