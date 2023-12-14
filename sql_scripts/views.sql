@@ -19,3 +19,5 @@ BEGIN
     WHERE a.offer_id = offer_id_v;
 END;
 $$;
+
+DROP FUNCTION applicants(offer_id_v INT);
