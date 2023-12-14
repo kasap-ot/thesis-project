@@ -82,7 +82,6 @@ async def student_profile_get(request: Request, student_id: int, current_user = 
     return templates.TemplateResponse(
         name = "student-profile.html",
         context = {"request": request, "student": student, "current_user": current_user},
-        # headers = {"Content-Type": "text/html"}, # ? Might be redundant
     )
 
 

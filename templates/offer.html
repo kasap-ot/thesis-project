@@ -54,7 +54,6 @@
 
     <script>
       document.getElementById("myOffersBtn").addEventListener("click", async () => {
-        console.log('pineapple')
         await access("/companies/{{current_user.id}}/offers", "GET")
       })
 
@@ -106,7 +105,7 @@
       })
 
       document.getElementById("viewCompanyBtn").addEventListener("click", async () => {
-        sessionStorage.setItem("offerId", "{{offer.id}}")
+        console.log("save offer id to session storage: {{offer.id}}")
         await access("/companies/{{offer.company_id}}", "GET")
       })
 
@@ -118,74 +117,6 @@
 
     {% endif %}
 
-    <!-- <div class="col">
-      <button class="btn btn-secondary mt-2" id="offers-btn">
-        <i class="bi bi-arrow-left"></i> Offers
-      </button>
-    </div>
-
-    <div class="col text-end mt-2"> -->
-
-    <!-- This checks if the user is a company-user -->
-    <!-- {% if current_user.num_employees %}
-
-      <button class="btn btn-primary" id="applicants-btn">
-        <i class="bi bi-eye-fill"></i> Applicants
-      </button>
-
-      <script>
-        document.getElementById('applicants-btn').addEventListener('click', async () => {
-          await access('/applications/applicants/{{offer.id}}', 'GET');
-        });
-      </script> -->
-
-    <!-- This checks if the user is a student-user -->
-    <!-- {% elif current_user.university %}
-
-      <button class="btn btn-success" id="company-btn">
-        <i class="bi bi-eye-fill"></i> Company
-      </button>
-      <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#myModal" id="modal-btn">
-        <i class="bi bi-check-circle-fill"></i> Apply
-      </button> -->
-
-    <!-- Modal -->
-    <!-- <div class="modal fade" id="myModal" tabindex="-1">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h1 class="modal-title fs-5" id="myModalLabel">Modal title</h1>
-              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-              Are you sure? <br>
-              This offer will be added to your 'applications' list
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-              <button class="btn btn-success" id="apply-btn">I'm sure</button>
-            </div>
-          </div>
-        </div>
-      </div> -->
-
-    <!-- <script>
-        document.getElementById('company-btn').addEventListener('click', async () => {
-          sessionStorage.setItem('offerId', '{{offer.id}}')
-          await access('/companies/{{offer.company_id}}', 'GET')
-        });
-
-        document.getElementById('apply-btn').addEventListener('click', async () => {
-          await access('/applications/apply/{{current_user.id}}/{{offer.id}}', 'POST');
-          await access('/applications/view/{{current_user.id}}', 'GET');
-        });
-
-        document.getElementById('offers-btn').addEventListener('click', async () => {
-          await access('/offers', 'GET')
-        })
-      </script> -->
-
-    <!-- {% endif %} -->
   </div>
 </div>
 </div>

@@ -7,10 +7,6 @@ async function access(url, method, data)
         return;
     }
 
-    console.log(url)
-    console.log(method)
-    console.log(data)
-
     try {
         const response = await fetch(
             url,
