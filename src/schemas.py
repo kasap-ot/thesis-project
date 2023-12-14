@@ -45,13 +45,6 @@ class StudentRead(StudentBase):
 
 class StudentUpdate(StudentBase):
     ...
-    # email: str | None = None
-    # name: str | None = None
-    # date_of_birth: int | None = None
-    # university: str | None = None
-    # major: str | None = None
-    # credits: int | None = None
-    # gpa: float | None = None
 
 
 class StudentInDB(StudentBase):
@@ -98,12 +91,6 @@ class CompanyRead(CompanyBase):
 
 class CompanyUpdate(CompanyBase):
     ...
-    # email: str | None = None
-    # name: str | None = None
-    # field: str | None = None
-    # num_employees: int | None = None
-    # year_founded: int | None = None
-    # website: str | None = None
 
 
 class CompanyInDB(CompanyBase):
@@ -121,7 +108,6 @@ class OfferBase(BaseModel):
     deadline: date
     requirements: str
     responsibilities: str
-    # company_id: int
 
 
 class OfferCreate(OfferBase):
@@ -135,12 +121,6 @@ class OfferRead(OfferBase):
 
 class OfferUpdate(OfferBase):
     ...
-    # salary: int | None = None
-    # num_weeks: int | None = None
-    # field: str | None = None
-    # deadline: date | None = None
-    # requirements: str | None = None
-    # responsibilities: str | None = None
 
 
 class OfferBriefRead(BaseModel):
@@ -161,7 +141,6 @@ class ExperienceBase(BaseModel):
     company: str
     position: str
     description: str
-    # student_id: int
 
 
 class ExperienceCreate(ExperienceBase):
@@ -175,11 +154,6 @@ class ExperienceRead(ExperienceBase):
 
 class ExperienceUpdate(ExperienceBase):
     ...
-    # from_date: date | None = None
-    # to_date: date | None = None
-    # company: str | None = None
-    # position: str | None = None
-    # description: str | None = None
 
 
 """ APPLICATION SCHEMAS """

@@ -44,17 +44,30 @@
   </button>
 
   {% if current_user.university %}
-  <script async>
+
+  <script>
     document.getElementById('home-btn')
       .addEventListener('click', async () => {
         await access('/students-home', 'GET')
       })
   </script>
+
   {% elif current_user.num_employees %}
-  <script async>
+
+  <button class="btn btn-primary my-3" id="createOfferBtn">
+    <strong>Create offer</strong>
+  </button>
+
+  <script>
     document.getElementById('home-btn')
       .addEventListener('click', async () => {
         await access('/companies-home', 'GET')
+      })
+
+    document.getElementById("createOfferBtn")
+      .addEventListener("click", async () => {
+        sessionStorage.setItem("companyId", "{{current_user.id}}")
+        await access("/offers-create", "GET")
       })
   </script>
   {% endif %}

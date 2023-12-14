@@ -85,6 +85,24 @@ async def student_profile_get(request: Request, student_id: int, current_user = 
     )
 
 
+@router.get("/students-home", response_class=HTMLResponse, tags=["static-templates"])
+async def students_home_get(request: Request, current_user = Depends(get_current_user)):
+    return templates.TemplateResponse("student-home.html", {"request": request, "current_user": current_user})
+
+
+@router.get("/students/profile/{student_id}/edit", response_class=HTMLResponse, tags=["students"])
+async def student_profile_edit_get(
+    request: Request, 
+    student_id: int, 
+    _ = Depends(get_current_user)
+):
+    student_profile = await student_profile_get_controller(student_id)
+    return templates.TemplateResponse(
+        name = "student-profile-edit.html", 
+        context = {"request": request, "student_profile": student_profile}
+    )
+
+
 """ Routes for COMPANIES """
 
 
@@ -123,7 +141,17 @@ async def company_delete(company_id: int, current_user = Depends(get_current_use
     await company_delete_controller(company_id, current_user)
 
 
+@router.get("/companies-home", response_class=HTMLResponse, tags=["static-templates"])
+async def companies_home_get(request: Request, current_user = Depends(get_current_user)):
+    return templates.TemplateResponse("company-home.html", {"request": request, "current_user": current_user})
+
+
 """ Routes for OFFERS """
+
+
+@router.get("/offers-create", response_class=HTMLResponse, tags=["offers"])
+async def offer_create_get(request: Request):
+    return templates.TemplateResponse("offer-create.html", {"request": request})
 
 
 @router.post("/offers", status_code=status.HTTP_201_CREATED, tags=["offers"])
@@ -309,26 +337,3 @@ async def register_company_get(request: Request):
 @router.get("/log-in", response_class=HTMLResponse, tags=["static-templates"])
 async def log_in_get(request: Request):
     return templates.TemplateResponse("log-in.html", {"request": request})
-
-
-@router.get("/students-home", response_class=HTMLResponse, tags=["static-templates"])
-async def students_home_get(request: Request, current_user = Depends(get_current_user)):
-    return templates.TemplateResponse("student-home.html", {"request": request, "current_user": current_user})
-
-
-@router.get("/students/profile/{student_id}/edit", response_class=HTMLResponse, tags=["students"])
-async def student_profile_edit_get(
-    request: Request, 
-    student_id: int, 
-    _ = Depends(get_current_user)
-):
-    student_profile = await student_profile_get_controller(student_id)
-    return templates.TemplateResponse(
-        name = "student-profile-edit.html", 
-        context = {"request": request, "student_profile": student_profile}
-    )
-
-
-@router.get("/companies-home", response_class=HTMLResponse, tags=["static-templates"])
-async def companies_home_get(request: Request, current_user = Depends(get_current_user)):
-    return templates.TemplateResponse("company-home.html", {"request": request, "current_user": current_user})
