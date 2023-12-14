@@ -102,7 +102,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                        <a href="/applicants" class="btn btn-success">I'm sure</a>
+                        <button class="btn btn-success" id="modalRejectBtn">I'm sure</button>
                     </div>
                 </div>
             </div>
@@ -121,7 +121,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                        <a href="/applicants" class="btn btn-success">I'm sure</a>
+                        <button class="btn btn-success" id="modalAcceptBtn">I'm sure</button>
                     </div>
                 </div>
             </div>
@@ -130,12 +130,18 @@
         <script>
             document.getElementById("backToApplicantsBtn").addEventListener("click", async () => {
                 const offerId = sessionStorage.getItem("offerId")
-                
-                console.log("i like oranges!!!", offerId)
                 await access(`/applications/applicants/${offerId}`, "GET")
             })
-            // reject button
-            // accept button
+            document.getElementById("modalRejectBtn").addEventListener("click", async () => {
+                console.log("TODO - REJECT FUNCTIONALITY - IS IT NECESSARY THOUGH?")
+            })
+            document.getElementById("modalAcceptBtn").addEventListener("click", async () => {
+                const offerId = sessionStorage.getItem("offerId")
+                const studentId = "{{student.id}}"
+                console.log(studentId, offerId)  
+                await access(`/applications/accept/${studentId}/${offerId}`, "PATCH")
+                await access(`/applications/applicants/${offerId}`, "GET")
+            })
         </script>
 
         {% endif %}

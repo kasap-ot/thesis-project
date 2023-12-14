@@ -70,6 +70,7 @@
     button.addEventListener('click', async () => {
       const buttonIdParts = button.id.split('-');
       const offerId = buttonIdParts[1];
+      sessionStorage.setItem("offerId", offerId)
       await access(`/offers/${offerId}`, 'GET');
     });
   });
