@@ -1,9 +1,5 @@
 {% extends 'base.html' %}
 
-{% block script %}
-<script async src="{{ url_for('static', path='js/access.js') }}"></script>
-{% endblock %}
-
 {% block content %}
 
 <div class="container w-75">
@@ -30,7 +26,7 @@
                 <div class="col bg-primary-subtle shadow rounded-pill px-2 py-4 mx-5 border border-primary border-3">
                     <strong>Major:</strong><br>{{student.major}}
                 </div>
-                
+
             </div>
 
             <div class="row text-center column-gap-5 mt-4 mb-3 mx-3 fs-5">
@@ -38,7 +34,7 @@
                     <strong>Credits:</strong><br>{{student.credits}}
                 </div>
                 <div class="col bg-primary-subtle shadow rounded-pill px-2 py-4 mx-5 border border-primary border-3">
-                    <strong>Credits:</strong><br>{{student.credits}}
+                    <strong>GPA:</strong><br>{{student.gpa}}
                 </div>
             </div>
 
@@ -47,85 +43,103 @@
             <h5 class="my-4 fs-4">EXPERIENCES</h5>
 
             {% for experience in student.experiences %}
-                <p class="lead">{{experience.position}}, {{experience.company}}</p>
-                <p class="fst-italic">({{experience.from_date}} to {{experience.to_date}})</p>
-                <p>{{experience.description}}</p>
+            <p class="lead">{{experience.position}}, {{experience.company}}</p>
+            <p class="fst-italic">({{experience.from_date}} to {{experience.to_date}})</p>
+            <p>{{experience.description}}</p>
             {% endfor %}
         </div>
     </div>
 
-    <div class="row">
-        <div class="col">
-            <button class="btn btn-secondary mt-2" id="home-btn">
+    <div class="d-flex justify-content-between mt-2">
+
+        {% if current_user.university %}
+        <div>
+            <button class="btn btn-secondary" id="studentHomeBtn">
                 <i class="bi bi-arrow-left"></i> Home
             </button>
         </div>
-       
-        <div class="col text-end mt-2">
-            {% if current_user.university %}
-            <button class="btn btn-success" id="edit-btn">
+        <div>
+            <button class="btn btn-success" id="editBtn">
                 <i class="bi bi-pencil-square"></i> Edit
             </button>
-            {% elif current_user.num_employees %}
+        </div>
+
+        <script>
+            document.getElementById("studentHomeBtn").addEventListener("click", async () => {
+                await access("/students-home", "GET")
+            })
+
+            document.getElementById("editBtn").addEventListener("click", async () => {
+                await access("/students/profile/{{student.id}}/edit", "GET")
+            })
+        </script>
+
+        {% elif current_user.num_employees %}
+        <div>
+            <button class="btn btn-secondary" id="backToApplicantsBtn">
+                <i class="bi bi-arrow-left"></i> Applicants
+            </button>
+        </div>
+        <div>
             <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal">
                 <i class="bi bi-x-circle-fill"></i> Reject
             </button>
             <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#acceptModal">
                 <i class="bi bi-check-circle-fill"></i> Accept
             </button>
-            {% endif %}
         </div>
-    </div>
 
-    <!-- Reject - modal -->
-    <div class="modal fade" id="rejectModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5">Reject applicant?</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    The student will be marked as rejected. They will be able to see this action.
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                    <a href="/applicants" class="btn btn-success">I'm sure</a>
+        <!-- Reject - modal -->
+        <div class="modal fade" id="rejectModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5">Reject applicant?</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        The student will be marked as rejected. They will be able to see this action.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        <a href="/applicants" class="btn btn-success">I'm sure</a>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Accept - modal -->
-    <div class="modal fade" id="acceptModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="myModalLabel">Accept applicant?</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    The student will be added to your 'accepted' list. They will be able to see this action.
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                    <a href="/applicants" class="btn btn-success">I'm sure</a>
+        <!-- Accept - modal -->
+        <div class="modal fade" id="acceptModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="myModalLabel">Accept applicant?</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        The student will be added to your 'accepted' list. They will be able to see this action.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        <a href="/applicants" class="btn btn-success">I'm sure</a>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <script>
+            document.getElementById("backToApplicantsBtn").addEventListener("click", async () => {
+                const offerId = sessionStorage.getItem("offerId")
+                
+                console.log("i like oranges!!!", offerId)
+                await access(`/applications/applicants/${offerId}`, "GET")
+            })
+            // reject button
+            // accept button
+        </script>
+
+        {% endif %}
     </div>
 </div>
-
-<script>
-    document.getElementById('home-btn')
-    .addEventListener('click', async () => {
-        await access('/students-home', 'GET')
-    })
-
-    document.getElementById('edit-btn')
-    .addEventListener('click', async () => {
-        await access('/students/profile/{{student.id}}/edit', 'GET')
-    })
-</script>
 
 {% endblock %}
