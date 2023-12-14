@@ -6,7 +6,7 @@
 
 {% block content %}
 
-<div class="container">
+<div class="container" id="logInContainer">
   <div class="row align-items-center gx-5">
     <div class="col-6">
       <form class="my-5" id="login-form">
@@ -48,6 +48,9 @@
 <script>
   document.getElementById('login-form').addEventListener('submit', async function (event) {
     event.preventDefault();
+
+    document.querySelectorAll(".warning-message")
+    .forEach(message => message.remove())
     
     const userType = document.getElementById('user-type').value;
     const url = `/token?user_type_param=${userType}`;
@@ -65,10 +68,10 @@
       await access('/companies-home', 'GET');
     }
     else {
-      let form = document.getElementById('login-form');
+      let form = document.getElementById('logInContainer');
       let element = document.createElement('p');
       element.innerHTML = 'Login was unsuccessful...';
-      element.classList.add('mt-2', 'text-danger');
+      element.classList.add('mt-2', 'text-danger', 'warning-message');
       form.appendChild(element);
     }
   })

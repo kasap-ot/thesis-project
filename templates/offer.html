@@ -13,13 +13,13 @@
 
       <div class="container text-center my-5">
         <div class="row column-gap-5 fs-5">
-          <div class="col bg-primary-subtle rounded-pill p-2 shadow">
+          <div class="col bg-primary-subtle rounded-pill p-2 shadow border border-primary border-3">
             <strong>Salary:</strong> <br> {{ offer.salary }}
           </div>
-          <div class="col bg-primary-subtle rounded-pill p-2 shadow">
+          <div class="col bg-primary-subtle rounded-pill p-2 shadow border border-primary border-3">
             <strong>Length:</strong> <br> {{ offer.num_weeks }}
           </div>
-          <div class="col bg-primary-subtle rounded-pill p-2 shadow">
+          <div class="col bg-primary-subtle rounded-pill p-2 shadow border border-primary border-3">
             <strong>Deadline:</strong> <br> {{ offer.deadline }}
           </div>
         </div>
@@ -62,8 +62,19 @@
       })
 
       document.getElementById("editOfferBtn").addEventListener("click", async () => {
-        document.write("NOT YET IMPLEMENTED")
-        document.close()
+        const offer = {
+          salary: "{{offer.salary}}",
+          num_weeks: "{{offer.num_weeks}}",
+          field: "{{offer.field}}",
+          deadline: "{{offer.deadline}}",
+          requirements: "{{offer.requirements}}",
+          responsibilities: "{{offer.responsibilities}}",
+          company_id: "{{offer.company_id}}",
+        }
+        offerJSONString = JSON.stringify(offer)
+        sessionStorage.setItem("offer", offerJSONString)
+        
+        await access("/offers/{{offer.id}}/edit", "GET")
       })
     </script>
 
@@ -76,28 +87,30 @@
 
     <div>
       <button class="btn btn-primary" id="viewCompanyBtn">View Company</button>
-      <button class="btn btn-primary" id="applyBtn" data-bs-toggle="modal" data-bs-target="myModal">Apply</button>
+
+      <!-- Button trigger for modal -->
+      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#applyModal">
+        Apply
+      </button>
 
       <!-- Modal -->
-      <div class="modal fade" id="myModal" tabindex="-1">
+      <div class="modal fade" id="applyModal" tabindex="-1">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h1 class="modal-title fs-5" id="myModalLabel">Modal title</h1>
+              <h1 class="modal-title fs-5">Are you sure?</h1>
               <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-              Are you sure? <br>
-              This offer will be added to your 'applications' list
+              This offer will be added to your list of applications.
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-              <button class="btn btn-success" id="modalApplyBtn">I'm sure</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" id="applyBtn">Save changes</button>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
     <script>
       document.getElementById("offersBtn").addEventListener("click", async () => {
@@ -105,11 +118,10 @@
       })
 
       document.getElementById("viewCompanyBtn").addEventListener("click", async () => {
-        console.log("save offer id to session storage: {{offer.id}}")
         await access("/companies/{{offer.company_id}}", "GET")
       })
 
-      document.getElementById("modalApplyBtn").addEventListener("click", async () => {
+      document.getElementById("applyBtn").addEventListener("click", async () => {
         await access("/applications/apply/{{current_user.id}}/{{offer.id}}", "POST");
         await access("/applications/view/{{current_user.id}}", "GET");
       })

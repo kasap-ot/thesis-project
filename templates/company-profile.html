@@ -9,6 +9,7 @@
                     <h1>{{ company.name }}</h1>
                     <!-- TODO: implement country -->
                     <h3 class="mb-4 text-body-secondary">Sweden</h3>
+                    <h5>{{ company.email }}</h5>
                 </div>
                 <div class="col d-flex align-items-center justify-content-end me-3">
                     <img src="{{ url_for('static', path='img/volvo-logo.png') }}" alt="Some image" height="120rem">
@@ -18,13 +19,13 @@
             <hr>
 
             <div class="row text-center column-gap-5 m-3 fs-5">
-                <div class="col bg-primary-subtle text-dark shadow rounded-pill p-2">
+                <div class="col bg-primary-subtle text-dark shadow rounded-pill p-2 border border-primary border-3">
                     <strong>Field:</strong><br>{{ company.field }}
                 </div>
-                <div class="col bg-primary-subtle text-dark shadow rounded-pill p-2">
+                <div class="col bg-primary-subtle text-dark shadow rounded-pill p-2 border border-primary border-3">
                     <strong>Number of employees:</strong><br>{{ company.num_employees }}
                 </div>
-                <div class="col bg-primary-subtle text-dark shadow rounded-pill p-2">
+                <div class="col bg-primary-subtle text-dark shadow rounded-pill p-2 border border-primary border-3">
                     <strong>Founding year:</strong><br>{{ company.year_founded }}
                 </div>
             </div>
