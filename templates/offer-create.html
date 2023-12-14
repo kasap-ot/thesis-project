@@ -43,17 +43,15 @@
 </form>
 
 <script>
-    // <!-- TODO: fix problem with back-button (sometimes works, sometimes doesn't) -->
-    console.log("session storage: ", sessionStorage.getItem("companyId"))
-
-    document.getElementById("backBtn").addEventListener("click", async () => {
+    document.getElementById("backBtn").addEventListener("click", async (event) => {
+        event.preventDefault()
         const companyId = sessionStorage.getItem("companyId")
-        console.log(companyId)
         await access(`/companies/${companyId}/offers`, "GET")
-        console.log('this is a test', companyId)
     })
 
-    document.getElementById("submitBtn").addEventListener("click", async () => {
+    document.getElementById("submitBtn").addEventListener("click", async (event) => {
+        event.preventDefault()
+        
         const field = document.getElementById("fieldInput").value
         const salary = document.getElementById("salaryInput").value
         const numWeeks = document.getElementById("numWeeksInput").value
@@ -62,15 +60,18 @@
         const responsibilities = document.getElementById("responsibilitiesInput").value
         const companyId = sessionStorage.getItem("companyId")
 
-        console.log(
-            field,
-            salary,
-            numWeeks,
-            deadline,
-            requirements,
-            responsibilities,
-            companyId,
-        )
+        newOffer = {
+            field: field,
+            salary: salary,
+            num_weeks: numWeeks,
+            deadline: deadline,
+            requirements: requirements,
+            responsibilities: responsibilities,
+            company_id: companyId,
+        }
+
+        await access("/offers", "POST", newOffer)
+        await access(`/companies/${companyId}/offers`, "GET")
     })
 </script>
 

@@ -1,6 +1,6 @@
 async function access(url, method, data) 
 {
-    console.log(url, method, data)
+    console.log("accessing: ", url, method, data)
 
     const token = sessionStorage.getItem('token');
 
