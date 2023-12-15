@@ -204,8 +204,10 @@ async def offers_get_controller(
         parameters: list = [min_num_weeks, max_num_weeks, min_salary, max_salary]
 
         if field is not None:
-            sql += " AND field = %s"
+            sql += " AND o.field = %s"
             parameters.append(field)
+
+        print(parameters)
 
         await cur.execute(sql, parameters)
         records = await cur.fetchall()
