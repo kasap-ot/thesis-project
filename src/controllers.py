@@ -1,5 +1,5 @@
 from .schemas import (
-    ApplicationRead,
+    ApplicantRead,
     ExperienceCreate,
     ExperienceUpdate,
     OfferUpdate,
@@ -15,7 +15,7 @@ from .schemas import (
     OfferRead,
     OfferCreate,
     OfferBriefRead,
-    ApplicantRead,
+    OfferApplication,
 )
 from .enums import Status, UserType
 from .security import Token, get_token, pwd_context, authorize_user
@@ -338,13 +338,13 @@ async def application_post_controller(student_id: int, offer_id: int, current_us
         await conn.execute(sql, [student_id, offer_id, Status.WAITING.value])
 
 
-async def applications_get_controller(student_id: int, current_user) -> list[ApplicationRead]:
+async def applications_get_controller(student_id: int, current_user) -> list[OfferApplication]:
     authorize_user(student_id, current_user, StudentInDB)
 
     async with get_async_pool().connection() as conn, conn.cursor(
-        row_factory=class_row(ApplicationRead)
+        row_factory=class_row(OfferApplication)
     ) as cur:
-        sql = "SELECT student_id, offer_id, status FROM applications WHERE student_id = %s;"
+        sql = "SELECT * FROM my_applications(%s);"
         await cur.execute(sql, [student_id])
         records = await cur.fetchall()
         return records

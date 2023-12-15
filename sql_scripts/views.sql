@@ -21,4 +21,24 @@ BEGIN
 END;
 $$;
 
-DROP FUNCTION applicants(offer_id_v INT);
+CREATE OR REPLACE FUNCTION my_applications(p_student_id INT)
+RETURNS TABLE (
+    field VARCHAR(255),
+    salary INT,
+    num_weeks INT,
+    status status,
+    student_id INT,
+    offer_id INT
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT o.field, o.salary, o.num_weeks, a.status, a.student_id, a.offer_id
+    FROM offers o
+    JOIN applications a ON o.id = a.offer_id
+    WHERE a.student_id = p_student_id;
+END;
+$$;
+
+DROP FUNCTION my_applications(p_student_id INT);

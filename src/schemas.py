@@ -132,6 +132,15 @@ class OfferBriefRead(BaseModel):
     company_name: str
 
 
+class OfferApplication(BaseModel):
+    field: str
+    salary: int
+    num_weeks: int
+    status: Status
+    student_id: int
+    offer_id: int
+
+
 """ EXPERIENCE SCHEMAS """
 
 

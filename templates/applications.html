@@ -8,10 +8,10 @@
         <li class="list-group-item bg-primary text-light fw-bold">
             <div class="container text-center">
                 <div class="row py-2">
-                    <div class="col">Student ID</div>
-                    <div class="col">Offer ID</div>
-                    <!-- TODO - country functionality -->
-                    <!-- TODO - display brief offer info (company, field, etc.) -->
+                    <div class="col">Country</div> <!-- TODO -->
+                    <div class="col">Field</div>
+                    <div class="col">Salary</div>
+                    <div class="col">Number of weeks</div>
                     <div class="col">Status</div>
                     <div class="col">Action</div>
                 </div>
@@ -46,9 +46,12 @@
         <li class="list-group-item list-group-item-action list-group-item-{{list_item_color}}">
             <div class="container text-center">
                 <div class="row py-2 align-items-center">
-                    <div class="col">{{application.student_id}}</div>
-                    <div class="col">{{application.offer_id}}</div>
+                    <div class="col">COUNTRY</div>
+                    <div class="col">{{application.field}}</div>
+                    <div class="col">{{application.salary}}</div>
+                    <div class="col">{{application.num_weeks}}</div>
                     <div class="col">{{status_text}}</div>
+
                     <div class="col">
                         <button class="{{button_styles}}" id="{{button_id}}">
                             {{button_text}}
@@ -60,7 +63,6 @@
         {% endfor %}
     </ul>
 
-    <!-- <a href="/offers" class="btn btn-secondary mt-2"><i class="bi bi-arrow-left"></i> Offers</a> -->
     <button class="btn btn-secondary mt-2" id="home-btn">
         <i class="bi bi-arrow-left"></i> Home
     </button>
