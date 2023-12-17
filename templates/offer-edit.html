@@ -9,31 +9,31 @@
 
         <form action="/" class="bg-primary-subtle px-4 pt-3 rounded border border-4 border-light"
             style="padding-bottom: 3.4rem;">
-            <label class="form-label">Field</label>
-            <input type="text" class="form-control shadow" id="fieldInput">
-
             <!-- TODO: Country features -->
-            <label class="form-label mt-4">Country</label>
-            <input type="text" class="form-control shadow" id="countryInput">
+            <label class="form-label">Country</label>
+            <input type="text" class="form-control shadow" id="countryInput" value="TODO">
+            
+            <label class="form-label mt-4">Field</label>
+            <input type="text" class="form-control shadow" id="fieldInput" value="{{offer.field}}">
 
             <label class="form-label mt-4">Salary</label>
-            <input type="text" class="form-control shadow" id="salaryInput">
+            <input type="text" class="form-control shadow" id="salaryInput" value="{{offer.salary}}">
 
-            <label class="form-label mt-4">Length</label>
-            <input type="text" class="form-control shadow" id="numWeeksInput">
+            <label class="form-label mt-4">Number of weeks</label>
+            <input type="text" class="form-control shadow" id="numWeeksInput" value="{{offer.num_weeks}}">
 
             <label class="form-label mt-4">Deadline</label>
-            <input type="text" class="form-control shadow" id="deadlineInput">
-
-            <label class="form-label mt-4">Requirements</label>
-            <input type="text" class="form-control shadow" id="requirementsInput">
-
-            <label class="form-label mt-4">Responsibilities</label>
-            <input type="text" class="form-control shadow" id="responsibilitiesInput">
+            <input type="text" class="form-control shadow" id="deadlineInput" value="{{offer.deadline}}">
         </form>
 
-        <a href="/offer" class="btn btn-secondary mt-2"><i class="bi bi-x-circle"> Cancel</i></a>
-        <a href="/offer" class="btn btn-success mt-2"><i class="bi bi-check-circle-fill"> Confirm</i></a>
+        <div class="mt-2">
+            <button class="btn btn-secondary" id="cancelBtn">
+                <i class="bi bi-x-circle"></i> Cancel
+            </button>
+            <button class="btn btn-success" id="confirmBtn">
+                <i class="bi bi-check-circle-fill"></i> Confirm
+            </button>
+        </div>
     </div>
     <div class="col">
         <p class="fs-5">Requirements</p>
@@ -41,8 +41,7 @@
         <ul class="list-group">
             <li class="list-group-item bg-primary-subtle">Your requirements include</li>
             <li class="list-group-item">
-                <textarea class="form-control shadow my-3"
-                    style="height: 33rem;">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Impedit, alias nam pariatur quisquam assumenda esse cumque inventore tempore ratione iste, blanditiis nemo labore dolor recusandae aperiam doloribus ipsum quis neque? Beatae, placeat. Dignissimos blanditiis illo voluptatibus quisquam alias odio dolores laboriosam eligendi impedit repudiandae at, quaerat maiores iusto nam, quia, qui modi non. Sapiente, dignissimos! Doloribus repellendus officiis amet soluta quas neque, sed temporibus provident quo eius. Sit, veniam eligendi numquam obcaecati harum voluptatem velit quo inventore illo maxime, possimus quas ea placeat aliquid quos ad asperiores quibusdam delectus tempore architecto. Id, maiores modi ipsam ducimus hic molestiae alias architecto?</textarea>
+                <textarea class="form-control shadow my-3" style="height: 27rem;" id="requirementsInput">{{offer.requirements}}</textarea>
             </li>
         </ul>
     </div>
@@ -52,21 +51,29 @@
         <ul class="list-group">
             <li class="list-group-item bg-primary-subtle">Your responsibilities will be</li>
             <li class="list-group-item">
-                <textarea class="form-control shadow my-3"
-                    style="height: 33rem;">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Reiciendis non voluptate, numquam officiis quidem dolore, temporibus ipsum enim, beatae tempore molestias! Error laudantium, unde voluptatum dolore facere libero recusandae maiores officia magni modi sint et consequuntur laboriosam consequatur numquam harum qui, eligendi nobis explicabo, a consectetur asperiores! Necessitatibus ex voluptatem magni illo deserunt quidem esse sit at nam, maxime quas inventore libero voluptas sequi repudiandae doloribus. Voluptate natus saepe temporibus, delectus non ducimus quibusdam explicabo. Accusantium, deserunt autem earum amet maxime repellendus doloremque reiciendis sit, ex magnam voluptatum in mollitia, saepe quidem quam porro non laborum laudantium magni eligendi dignissimos!</textarea>
+                <textarea class="form-control shadow my-3" style="height: 27rem;" id="responsibilitiesInput">{{offer.responsibilities}}</textarea>
             </li>
         </ul>
     </div>
 </div>
 
 <script>
-    const offer = JSON.parse(sessionStorage.getItem("offer"))
-    document.getElementById("salaryInput").value = offer.
-    document.getElementById("fieldInput").value = offer.
-    document.getElementById("numWeeksInput").value = offer.
-    document.getElementById("deadlineInput").value = offer.
-    document.getElementById("Input").value = offer.
-    document.getElementById("Input").value = offer.
+    document.getElementById("cancelBtn").addEventListener("click", async () => {
+        await access("/offers/{{offer.id}}", "GET")
+    })
+
+    document.getElementById("confirmBtn").addEventListener("click", async () => {
+        const updatedOffer = {
+            field: document.getElementById("fieldInput").value,
+            salary: document.getElementById("salaryInput").value,
+            num_weeks: document.getElementById("numWeeksInput").value,
+            deadline: document.getElementById("deadlineInput").value,
+            requirements: document.getElementById("requirementsInput").value,
+            responsibilities: document.getElementById("responsibilitiesInput").value,
+        }
+        await access("/offers/{{offer.id}}", "PUT", updatedOffer)
+        await access("/offers/{{offer.id}}", "GET")
+    })
 </script>
 
 {% endblock %}

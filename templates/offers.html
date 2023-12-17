@@ -7,6 +7,8 @@
 </button>
 
 <ul class="list-group">
+  <!--  -->
+  {% if current_user.university %}
   <li class="list-group-item bg-primary text-light fw-bold">
     <div class="row text-center">
       <label class="col">Field</label>
@@ -41,6 +43,8 @@
       </div>
     </div>
   </li>
+  {% endif %}
+  <!--  -->
   <li class="list-group-item bg-primary text-light fw-bold">
     <div class="container text-center">
       <div class="row py-2">
@@ -83,6 +87,25 @@
       .addEventListener('click', async () => {
         await access('/students-home', 'GET')
       })
+
+    document.getElementById("search-btn").addEventListener("click", async (event) => {
+      event.preventDefault()
+
+      const field = document.getElementById("field-search").value
+      const minSalary = document.getElementById("min-salary-search").value
+      const maxSalary = document.getElementById("max-salary-search").value
+      const minNumWeeks = document.getElementById("min-num-weeks-search").value
+      const maxNumWeeks = document.getElementById("max-num-weeks-search").value
+
+      let targetUrl = "/offers?"
+      if (field != "") targetUrl += `field=${field}&`
+      if (minSalary != "") targetUrl += `min_salary=${minSalary}&`
+      if (maxSalary != "") targetUrl += `max_salary=${maxSalary}&`
+      if (minNumWeeks != "") targetUrl += `min_num_weeks=${minNumWeeks}&`
+      if (maxNumWeeks != "") targetUrl += `max_num_weeks=${maxNumWeeks}&`
+
+      await access(targetUrl, "GET")
+    })
   </script>
 
   {% elif current_user.num_employees %}
@@ -107,33 +130,19 @@
 </div>
 
 <script>
-  document.querySelectorAll('.offer-btn').forEach(async button => {
+  document.querySelectorAll('.offer-btn').forEach(button => {
     button.addEventListener('click', async () => {
       const buttonIdParts = button.id.split('-');
       const offerId = buttonIdParts[1];
       sessionStorage.setItem("offerId", offerId)
-      await access(`/offers/${offerId}`, 'GET');
+      try {
+        await access(`/offers/${offerId}`, 'GET');
+      }
+      catch (error) {
+        console.error("The error is:", error)
+      }
     });
   });
-
-  document.getElementById("search-btn").addEventListener("click", async (event) => {
-    event.preventDefault()
-    
-    const field = document.getElementById("field-search").value
-    const minSalary = document.getElementById("min-salary-search").value
-    const maxSalary = document.getElementById("max-salary-search").value
-    const minNumWeeks = document.getElementById("min-num-weeks-search").value
-    const maxNumWeeks = document.getElementById("max-num-weeks-search").value
-
-    let targetUrl = "/offers?"
-    if (field != "") targetUrl += `field=${field}&`
-    if (minSalary != "") targetUrl += `min_salary=${minSalary}&`
-    if (maxSalary != "") targetUrl += `max_salary=${maxSalary}&`
-    if (minNumWeeks != "") targetUrl += `min_num_weeks=${minNumWeeks}&`
-    if (maxNumWeeks != "") targetUrl += `max_num_weeks=${maxNumWeeks}&`
-
-    await access(targetUrl, "GET")
-  })
 </script>
 
 {% endblock %}

@@ -25,6 +25,8 @@ async function access(url, method, data)
         if (method != 'GET') return;
 
         let responseText = await response.text();
+        console.log(response);
+        console.log(responseText);
         document.write(responseText);
         document.close();
         history.pushState(null, null, url);
