@@ -81,7 +81,11 @@
     {% elif current_user.university %}
     <div>
       <button class="btn btn-secondary" id="offersBtn">
-        <i class="bi bi-arrow-left"></i> Offers
+        <i class="bi bi-house-fill"></i> Offers
+      </button>
+
+      <button class="btn btn-secondary" id="applicationsBtn">
+        <i class="bi bi-window-stack"></i> My applications
       </button>
     </div>
 
@@ -124,6 +128,10 @@
       document.getElementById("applyBtn").addEventListener("click", async () => {
         await access("/applications/apply/{{current_user.id}}/{{offer.id}}", "POST");
         await access("/applications/view/{{current_user.id}}", "GET");
+      })
+
+      document.getElementById("applicationsBtn").addEventListener("click", async () => {
+        await access("/applications/view/{{current_user.id}}", "GET")
       })
     </script>
 

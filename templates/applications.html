@@ -14,6 +14,7 @@
                     <div class="col">Number of weeks</div>
                     <div class="col">Status</div>
                     <div class="col">Action</div>
+                    <div class="col">Offer</div>
                 </div>
             </div>
         </li>
@@ -51,10 +52,14 @@
                     <div class="col">{{application.salary}}</div>
                     <div class="col">{{application.num_weeks}}</div>
                     <div class="col">{{status_text}}</div>
-
                     <div class="col">
                         <button class="{{button_styles}}" id="{{button_id}}">
                             {{button_text}}
+                        </button>
+                    </div>
+                    <div class="col">
+                        <button class="btn btn-primary offer-btn" id="offer-{{application.offer_id}}-btn">
+                            View offer
                         </button>
                     </div>
                 </div>
@@ -74,14 +79,24 @@
             await access('/students-home', 'GET')
         })
 
+    // Cancel button ID format: "cancel-btn-[student_id]-[offer_id]"
     document.querySelectorAll('.cancel-btn').forEach(async button => {
         button.addEventListener('click', async () => {
-            // ID format: cancel-btn-[student_id]-[offer_id]
             const buttonIdParts = button.id.split('-')
             const student_id = buttonIdParts[2]
             const offer_id = buttonIdParts[3]
             await access(`/applications/cancel/${student_id}/${offer_id}`, 'DELETE')
             await access(`/applications/view/${student_id}`, 'GET')
+        })
+    })
+
+    // Offer button ID format: "offer-[offer_id]-btn"
+    document.querySelectorAll(".offer-btn").forEach(async button => {
+        button.addEventListener("click", async () => {
+            const buttonIdParts = button.id.split("-")
+            const offerId = buttonIdParts[1]
+            sessionStorage.setItem("offerId", offerId)
+            await access(`/offers/${offerId}`, "GET")
         })
     })
 </script>
