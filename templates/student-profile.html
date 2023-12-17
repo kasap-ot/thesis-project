@@ -81,16 +81,16 @@
             </button>
         </div>
         <div>
-            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal">
+            <!-- <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal">
                 <i class="bi bi-x-circle-fill"></i> Reject
-            </button>
+            </button> -->
             <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#acceptModal">
                 <i class="bi bi-check-circle-fill"></i> Accept
             </button>
         </div>
 
         <!-- Reject - modal -->
-        <div class="modal fade" id="rejectModal" tabindex="-1">
+        <!-- <div class="modal fade" id="rejectModal" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -106,7 +106,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <!-- Accept - modal -->
         <div class="modal fade" id="acceptModal" tabindex="-1">
@@ -132,9 +132,11 @@
                 const offerId = sessionStorage.getItem("offerId")
                 await access(`/applications/applicants/${offerId}`, "GET")
             })
+            /*
             document.getElementById("modalRejectBtn").addEventListener("click", async () => {
                 console.log("TODO - REJECT FUNCTIONALITY - IS IT NECESSARY THOUGH?")
             })
+            */
             document.getElementById("modalAcceptBtn").addEventListener("click", async () => {
                 const offerId = sessionStorage.getItem("offerId")
                 const studentId = "{{student.id}}"
