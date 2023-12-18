@@ -10,7 +10,6 @@
                     <h5 class="card-title">My Offers</h5>
                     <p class="card-text">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Minima nisi,
                         architecto ipsum fugit alias libero voluptatum molestiae ipsam itaque cupiditate.</p>
-                    <!-- <a href="/offers" class="btn btn-primary">View</a> -->
                     <button class="btn btn-primary" id="offers-btn">View</button>
                 </div>
             </div>
@@ -24,7 +23,6 @@
                     <h5 class="card-title">My profile</h5>
                     <p class="card-text">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Minima nisi,
                         architecto ipsum fugit alias libero voluptatum molestiae ipsam itaque cupiditate.</p>
-                    <!-- <a href="/student-profile-edit" class="btn btn-primary">View</a> -->
                     <button class="btn btn-primary" id="profile-btn">View</button>
                 </div>
             </div>
@@ -43,7 +41,10 @@
 
 <script>
     document.getElementById('offers-btn').addEventListener('click', async () => {
-        access('/companies/{{current_user.id}}/offers', 'GET')
+        await access('/companies/{{current_user.id}}/offers', 'GET')
+    })
+    document.getElementById("profile-btn").addEventListener("click", async () => {
+        await access("/companies/{{current_user.id}}", "GET")
     })
 </script>
 

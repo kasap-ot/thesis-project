@@ -38,4 +38,5 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 # TODO: implement session-storage for edit-profile section (students)
 # TODO: implement session-storage for edit-profile section (companies)
 # TODO: implement session-storage for edit-offer section
+# TODO: add description-field to companies (in DB, schemas, and templates)
 

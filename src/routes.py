@@ -112,11 +112,11 @@ async def company_post(c: CompanyCreate):
 
 
 @router.get("/companies/{company_id}", response_class=HTMLResponse, tags=["companies"])
-async def company_get(request: Request, company_id: int):
+async def company_get(request: Request, company_id: int, current_user = Depends(get_current_user)):
     company = await company_get_controller(company_id)
     return templates.TemplateResponse(
         "company-profile.html", 
-        {"request":  request, "company": company}
+        {"request":  request, "company": company, "current_user": current_user}
     )
 
 
@@ -128,6 +128,15 @@ async def company_offers_get(request: Request, company_id: int, current_user = D
     return templates.TemplateResponse(
        name = "offers.html",
        context = {"request": request, "offers": offers, "current_user": current_user}
+    )
+
+
+@router.get("/companies/{company_id}/edit", response_class=HTMLResponse, tags=["companies"])
+async def company_edit_get(request: Request, company_id: int):
+    company = await company_get_controller(company_id)
+    return templates.TemplateResponse(
+        "company-profile-edit.html", 
+        {"request": request, "company": company}
     )
 
 
@@ -208,7 +217,6 @@ async def offer_get(request: Request, offer_id: int, current_user = Depends(get_
 @router.get("/offers/{offer_id}/edit", response_class=HTMLResponse, tags=["offers"])
 async def offer_edit_get(request: Request, offer_id: int):
     offer = await offer_get_controller(offer_id)
-    print("TEST ------------ ", offer)
     return templates.TemplateResponse("offer-edit.html", {"request": request, "offer": offer})
 
 

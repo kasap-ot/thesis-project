@@ -44,22 +44,32 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col">
-            <!-- TODO: make this work -->
-            <button class="btn btn-secondary mt-2" id="offer-btn">
-                <i class="bi bi-arrow-left"></i> Back to offer
-            </button>
-        </div>
-    </div>
-</div>
+    {% if current_user.university %}
+    <button class="btn btn-secondary mt-2" id="offer-btn">
+        <i class="bi bi-arrow-left"></i> Back to offer
+    </button>
 
-<script>
-    document.getElementById('offer-btn')
-        .addEventListener('click', async () => {
-            let offerId = sessionStorage.getItem('offerId')
-            await access(`/offers/${offerId}`, 'GET')
+    <script>
+        document.getElementById('offer-btn')
+            .addEventListener('click', async () => {
+                let offerId = sessionStorage.getItem('offerId')
+                await access(`/offers/${offerId}`, 'GET')
+            })
+    </script>
+    
+    {% elif current_user.num_employees %}
+    <div class="d-flex justify-content-end">
+        <button class="btn btn-success mt-2" id="editBtn">
+            <i class="bi bi-pencil-square"></i> Edit
+        </button>
+    </div>
+
+    <script>
+        document.getElementById("editBtn").addEventListener("click", async () => {
+            await access("/companies/{{current_user.id}}/edit", "GET")
         })
-</script>
+    </script>
+    {% endif %}
+</div>
 
 {% endblock %}
