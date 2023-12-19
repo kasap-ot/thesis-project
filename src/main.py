@@ -28,8 +28,9 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 # * Primary tasks
-# TODO: complete company-user functionalities
-# TODO: fix /applicants route - Internal Server Error
+# TODO: delete-offer feature - for companies
+# TODO: user registration (companies and students)
+# TODO: fix /applicants route - Internal Server Error (forgot what this was?)
 
 # * Secondary tasks
 # TODO: change types input tags where necessary (e.g. from text to date)

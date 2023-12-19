@@ -27,7 +27,7 @@ class StudentCreate(StudentBase):
                 {
                     "email": random_string(),
                     "name": "Some Name",
-                    "date": "2018-01-01",
+                    "date_of_birth": "2018-01-01",
                     "university": "Some University",
                     "major" : "Some Major",
                     "credits": 150,

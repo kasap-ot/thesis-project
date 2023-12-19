@@ -1,5 +1,4 @@
-async function access(url, method, data) 
-{
+async function access(url, method, data) {
     console.log("accessing: ", url, method, data)
 
     const token = sessionStorage.getItem('token');
@@ -22,14 +21,12 @@ async function access(url, method, data)
             }
         );
 
-        if (method != 'GET') return;
-
-        let responseText = await response.text();
-        console.log(response);
-        console.log(responseText);
-        document.write(responseText);
-        document.close();
-        history.pushState(null, null, url);
+        if (method == 'GET') {
+            let responseText = await response.text();
+            document.write(responseText);
+            document.close();
+            history.pushState(null, null, url);
+        }
     }
     catch (error) {
         console.error('Error accessing authenticated route:', error.message);

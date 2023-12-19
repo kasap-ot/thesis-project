@@ -1,66 +1,130 @@
 {% extends 'base.html' %}
-{% block content %} 
 
-<div class="container">
-    <div class="row align-items-center gx-5">
-      <div class="col-6">
-        <form>
-          <div class="mb-3">
-            <label for="email" class="form-label">Email address</label>
-            <input type="email" class="form-control shadow" id="email" placeholder="e.g. john.doe@mail.com">
-          </div>
-  
-          <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <input type="password" class="form-control shadow" id="password" placeholder="*************">
-          </div>
-  
-          <div class="mb-3">
-            <label for="name" class="form-label">Name</label>
-            <input type="text" class="form-control shadow" id="name" placeholder="e.g. John Doe">
-          </div>
-          
-          <div class="mb-3">
-            <label for="country" class="form-label">Country</label>
-            <select class="form-select" id="country">
-              <option selected>-----</option>
-              <option value="1">Country 1</option>
-              <option value="2">Country 2</option>
-              <option value="3">Country 3</option>
-            </select>
-          </div>
-  
-          <div class="mb-3">
-            <label for="university" class="form-label">University</label>
-            <input type="text" class="form-control shadow" id="university" placeholder="MIT University">
-          </div>
-          
-          <div class="mb-3">
-            <label for="major" class="form-label">Major</label>
-            <input type="text" class="form-control shadow" id="major" placeholder="Mechanical Engineering">
-          </div>
-  
-          <div class="mb-3">
-            <label for="credits" class="form-label">Credits</label>
-            <input type="number" class="form-control shadow" id="credits" placeholder="150">
-          </div>
-          
-          <button type="submit" class="btn btn-lg btn-primary mt-3">Submit</button>
-        </form>
-      </div>
+{% block script %}
+<script async src="{{ url_for('static', path='js/logIn.js') }}"></script>
+{% endblock%}
 
-      <div class="col-6 fs-3 text-center">
-        <div class="card py-4 shadow">
-          <div class="card-body">
-            <h5 class="card-title">Hello Student!</h5>
-            <h6 class="card-subtitle mb-3 text-body-secondary">Clarification</h6>
-            <p class="card-text fst-italic">Please fill out your user- and student-related information. This will be helpful when companies and institutions see your various applications. You can fill out further information once you have registered.</p>
-          </div>
-        </div>
-        
-      </div>
+{% block content %}
+
+<h3 class="mb-4">Student Registration Form</h3>
+
+<div class="row">
+  <div class="col">
+    <div class="mb-3">
+      <label class="form-label">Email address</label>
+      <input type="email" class="form-control shadow" id="email">
     </div>
 
+    <div class="mb-3">
+      <label class="form-label">Password</label>
+      <input type="password" class="form-control shadow" id="password">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Name</label>
+      <input type="text" class="form-control shadow" id="name">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Date of birth</label>
+      <input type="date" class="form-control shadow" id="dateOfBirth">
+    </div>
+
+    <div id="errorMsgArea"></div>
+  </div>
+  <div class="col">
+    <div class="mb-3">
+      <label class="form-label">University</label>
+      <input type="text" class="form-control shadow" id="university">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Major</label>
+      <input type="text" class="form-control shadow" id="major">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Credits</label>
+      <input type="number" class="form-control shadow" id="credits">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">GPA</label>
+      <input type="number" class="form-control shadow" id="gpa">
+    </div>
+
+    <div class="d-flex justify-content-end mt-3 my-3">
+      <button type="submit" class="btn btn-lg btn-secondary me-3" id="backBtn">Back</button>
+      <button type="submit" class="btn btn-lg btn-primary" id="submitBtn">Submit</button>
+    </div>
+  </div>
 </div>
+
+<div class="card py-4 shadow">
+  <div class="card-body">
+    <h5 class="card-title">Hello Student!</h5>
+    <h6 class="card-subtitle mb-3 text-body-secondary">Clarification</h6>
+    <p class="card-text fst-italic">Please fill out your user- and student-related information. This will be helpful
+      when companies and institutions see your various applications. You can fill out further information once you have
+      registered.</p>
+  </div>
+</div>
+
+<script>
+  document.getElementById("backBtn").addEventListener("click", async () => {
+    await access("/register", "GET")
+  })
+
+  document.getElementById("submitBtn").addEventListener("click", async () => {
+    const newStudent = {
+      email: document.getElementById("email").value,
+      password: document.getElementById("password").value,
+      name: document.getElementById("name").value,
+      date_of_birth: document.getElementById("dateOfBirth").value,
+      university: document.getElementById("university").value,
+      major: document.getElementById("major").value,
+      credits: document.getElementById("credits").value,
+      gpa: document.getElementById("gpa").value,
+    }
+
+    console.log(JSON.stringify(newStudent))
+
+    /* 
+    We define here custom FETCH logic because 
+    authorization tokens are not needed here 
+    */
+    try {
+      const response = await fetch("/students", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newStudent),
+      }
+      )
+      if (!response.ok) {
+        console.error('Request failed. Status Code:', response.status)
+        console.error(await response.text())
+        const errorMsgArea = document.getElementById("errorMsgArea")
+        errorMsgArea.innerHTML = "Registration was unsuccessful..."
+        errorMsgArea.classList.add("text-danger")
+      }
+      else {
+        console.log("Registration was successful.")
+
+        console.log("Logging new user in")
+        await login(
+          url = "/token?user_type_param=student",
+          username = newStudent.email,
+          password = newStudent.password,
+        )
+
+        console.log("Rerouting to home page")
+        await access("/students-home", "GET")
+      }
+    }
+    catch (error) {
+      console.error('Error accessing authenticated route:', error.message)
+    }
+  })
+</script>
 
 {% endblock %}
