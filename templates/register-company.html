@@ -1,71 +1,125 @@
 {% extends 'base.html' %}
-{% block content %} 
+
+{% block script %}
+<script async src="{{ url_for('static', path='js/logIn.js') }}"></script>
+{% endblock %}
+
+{% block content %}
 
 <div class="container">
-    <div class="row align-items-center gx-5">
-      <div class="col-6">
-        <form>
-          <div class="mb-3">
-            <label for="email" class="form-label">Email address</label>
-            <input type="email" class="form-control shadow" id="email" placeholder="e.g. john.doe@mail.com">
-          </div>
-  
-          <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <input type="password" class="form-control shadow" id="password" placeholder="*************">
-          </div>
-  
-          <div class="mb-3">
-            <label for="company-name" class="form-label">Company name</label>
-            <input type="text" class="form-control shadow" id="company-name" placeholder="e.g. Metal Inc.">
-          </div>
-          
-          <div class="mb-3">
-            <label for="country" class="form-label">Country</label>
-            <select class="form-select" id="country">
-              <option selected>-----</option>
-              <option value="1">Country 1</option>
-              <option value="2">Country 2</option>
-              <option value="3">Country 3</option>
-            </select>
-          </div>
-  
-          <div class="mb-3">
-            <label for="field" class="form-label">Field</label>
-            <input type="text" class="form-control shadow" id="field" placeholder="Construction">
-          </div>
-          
-          <div class="mb-3">
-            <label for="num-employees" class="form-label">Number of employees</label>
-            <input type="number" class="form-control shadow" id="num-employees" placeholder="80">
-          </div>
-  
-          <div class="mb-3">
-            <label for="founding-year" class="form-label">Founding year</label>
-            <input type="number" class="form-control shadow" id="founding-year" placeholder="1998">
-          </div>
+  <div class="row align-items-center gx-5">
+    <div class="col-6">
+      <form class="bg-primary-subtle px-3 pb-4 border border-primary border-3">
+        <h3 class="my-4">Company Profile Information</h3>
 
-          <div class="mb-3">
-            <label for="website" class="form-label">Website</label>
-            <input type="text" class="form-control shadow" id="website" placeholder="some-website.com">
-          </div>
-          
-          <button type="submit" class="btn btn-lg btn-primary mt-3">Submit</button>
-        </form>
-      </div>
-
-      <div class="col-6 fs-3 text-center">
-        <div class="card py-4 shadow">
-          <div class="card-body">
-            <h5 class="card-title">Hello Company!</h5>
-            <h6 class="card-subtitle mb-3 text-body-secondary">Clarification</h6>
-            <p class="card-text fst-italic">Please fill out your user- and company-related information. This will be helpful when students will apply for your offers and view your profiles. You can fill out further information once you have registered.</p>
-          </div>
+        <!-- Email -->
+        <div class="form-group">
+          <label class="form-label">Email:</label>
+          <input type="email" class="form-control" id="email" placeholder="Enter your email" required>
         </div>
-        
+
+        <!-- Name -->
+        <div class="form-group mt-3">
+          <label class="form-label">Name:</label>
+          <input type="text" class="form-control" id="name" placeholder="Enter your name" required>
+        </div>
+
+        <!-- Field -->
+        <div class="form-group mt-3">
+          <label class="form-label">Field:</label>
+          <input type="text" class="form-control" id="field" placeholder="Enter your field" required>
+        </div>
+
+        <!-- Number of Employees -->
+        <div class="form-group mt-3">
+          <label class="form-label">Number of Employees:</label>
+          <input type="number" class="form-control" id="numEmployees" placeholder="Enter the number of employees"
+            required>
+        </div>
+
+        <!-- Year Founded -->
+        <div class="form-group mt-3">
+          <label class="form-label">Year Founded:</label>
+          <input type="number" class="form-control" id="yearFounded" placeholder="Enter the year founded" required>
+        </div>
+
+        <!-- Website -->
+        <div class="form-group mt-3">
+          <label class="form-label">Website:</label>
+          <input type="url" class="form-control" id="website" placeholder="Enter your website URL" required>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group mt-3">
+          <label class="form-label">Password:</label>
+          <input type="password" class="form-control" id="password" placeholder="Enter your password" required>
+        </div>
+      </form>
+
+      <div class="d-flex justify-content-between mt-4">
+        <button class="btn btn-primary btn-lg" id="submitBtn">Submit</button>
+        <div id="errorMsgArea"></div>
       </div>
     </div>
 
+    <div class="col-6 fs-3 text-center">
+      <div class="card py-5 shadow">
+        <div class="card-body">
+          <h5 class="card-title">Hello Company!</h5>
+          <h6 class="card-subtitle mb-3 text-body-secondary">Clarification</h6>
+          <p class="card-text fst-italic">Please fill out your user- and company-related information. This will be
+            helpful when students will apply for your offers and view your profiles. You can fill out further
+            information once you have registered.</p>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+
+<script>
+  document.getElementById("submitBtn").addEventListener("click", async () => {
+    const newCompany = {
+      email: document.getElementById("email").value,
+      name: document.getElementById("name").value,
+      field: document.getElementById("field").value,
+      num_employees: document.getElementById("numEmployees").value,
+      year_founded: document.getElementById("yearFounded").value,
+      website: document.getElementById("website").value,
+      password: document.getElementById("password").value,
+    }
+
+    try {
+      const response = await fetch("/companies", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newCompany),
+      }
+      )
+      if (!response.ok) {
+        console.error('Request failed. Status Code:', response.status)
+        console.error(await response.text())
+        const errorMsgArea = document.getElementById("errorMsgArea")
+        errorMsgArea.innerHTML = "Registration was unsuccessful..."
+        errorMsgArea.classList.add("text-danger")
+      }
+      else {
+        console.log("Registration was successful.")
+
+        console.log("Logging new user in")
+        await login(
+          url = "/token?user_type_param=company",
+          username = newCompany.email,
+          password = newCompany.password,
+        )
+
+        console.log("Rerouting to home page")
+        await access("/companies-home", "GET")
+      }
+    }
+    catch (error) {
+      console.error('Error accessing authenticated route:', error.message)
+    }
+  })
+</script>
 
 {% endblock %}
