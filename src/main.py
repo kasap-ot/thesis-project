@@ -26,11 +26,8 @@ app.include_router(router)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
-
 # * Primary tasks
 # TODO: delete-offer feature - for companies
-# TODO: user registration (companies and students)
-# TODO: fix /applicants route - Internal Server Error (forgot what this was?)
 
 # * Secondary tasks
 # TODO: change types input tags where necessary (e.g. from text to date)

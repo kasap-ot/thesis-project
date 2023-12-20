@@ -264,7 +264,7 @@ async def offer_delete_controller(offer_id: int, current_user) ->None:
         
         authorize_user(record["company_id"], current_user, CompanyInDB)
         
-        sql = "DELETE FROM offers WHERE id = %s"
+        sql = "UPDATE offers SET company_id = -1 WHERE id = %s"
         await conn.execute(sql, [offer_id])
 
 

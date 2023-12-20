@@ -32,8 +32,6 @@
       <p>{{ offer.responsibilities }}</p>
 
       <!-- TODO: Connect offer-views to company-owners -->
-      <p class="lead mb-1 mt-4">Offer provided by:</p>
-      <span>TODO - SHOW COMPANY NAME</span>
     </div>
   </div>
 
@@ -48,12 +46,42 @@
     </div>
 
     <div>
+      <!-- Button trigger modal -->
+      <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteOfferModal">
+        Delete offer
+      </button>
       <button class="btn btn-primary" id="applicantsBtn">Applicants</button>
       <button class="btn btn-primary" id="editOfferBtn">Edit offer</button>
     </div>
 
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="deleteOfferModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5">Are you sure?</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            This offer will be permanently deleted.
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button class="btn btn-primary" id="deleteOfferModalBtn">Confirm</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script>
       document.getElementById("myOffersBtn").addEventListener("click", async () => {
+        await access("/companies/{{current_user.id}}/offers", "GET")
+      })
+
+      document.getElementById("deleteOfferModalBtn").addEventListener("click", async () => {
+        await access("/offers/{{offer.id}}", "DELETE")
         await access("/companies/{{current_user.id}}/offers", "GET")
       })
 
@@ -73,7 +101,7 @@
         }
         offerJSONString = JSON.stringify(offer)
         sessionStorage.setItem("offer", offerJSONString)
-        
+
         await access("/offers/{{offer.id}}/edit", "GET")
       })
     </script>
@@ -116,29 +144,29 @@
         </div>
       </div>
 
-    <script>
-      document.getElementById("offersBtn").addEventListener("click", async () => {
-        await access("/offers", "GET")
-      })
+      <script>
+        document.getElementById("offersBtn").addEventListener("click", async () => {
+          await access("/offers", "GET")
+        })
 
-      document.getElementById("viewCompanyBtn").addEventListener("click", async () => {
-        await access("/companies/{{offer.company_id}}", "GET")
-      })
+        document.getElementById("viewCompanyBtn").addEventListener("click", async () => {
+          await access("/companies/{{offer.company_id}}", "GET")
+        })
 
-      document.getElementById("applyBtn").addEventListener("click", async () => {
-        await access("/applications/apply/{{current_user.id}}/{{offer.id}}", "POST");
-        await access("/applications/view/{{current_user.id}}", "GET");
-      })
+        document.getElementById("applyBtn").addEventListener("click", async () => {
+          await access("/applications/apply/{{current_user.id}}/{{offer.id}}", "POST");
+          await access("/applications/view/{{current_user.id}}", "GET");
+        })
 
-      document.getElementById("applicationsBtn").addEventListener("click", async () => {
-        await access("/applications/view/{{current_user.id}}", "GET")
-      })
-    </script>
+        document.getElementById("applicationsBtn").addEventListener("click", async () => {
+          await access("/applications/view/{{current_user.id}}", "GET")
+        })
+      </script>
 
-    {% endif %}
+      {% endif %}
 
+    </div>
   </div>
-</div>
 </div>
 
 {% endblock %}
