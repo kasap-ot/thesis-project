@@ -58,13 +58,21 @@
     </script>
     
     {% elif current_user.num_employees %}
-    <div class="d-flex justify-content-end">
-        <button class="btn btn-success mt-2" id="editBtn">
+    <div class="d-flex justify-content-between mt-2">
+        <button class="btn btn-secondary" id="homeBtn">
+            <i class="bi bi-arrow-left"></i> Home
+        </button>
+
+        <button class="btn btn-success" id="editBtn">
             <i class="bi bi-pencil-square"></i> Edit
         </button>
     </div>
 
     <script>
+        document.getElementById("homeBtn").addEventListener("click", async () => {
+            await access("/companies-home", "GET")
+        })
+
         document.getElementById("editBtn").addEventListener("click", async () => {
             await access("/companies/{{current_user.id}}/edit", "GET")
         })
