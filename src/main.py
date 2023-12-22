@@ -27,7 +27,10 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 # * Primary tasks
-# TODO: delete-offer feature - for companies
+# TODO: add appropriate indexes
+# TODO: migrate to CockroachDB database
+# TODO: change PRIMARY KEY types to UUIDs
+# TODO: add global/regional options for creating offers
 
 # * Secondary tasks
 # TODO: change types input tags where necessary (e.g. from text to date)
