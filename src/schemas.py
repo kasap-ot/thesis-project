@@ -2,6 +2,7 @@ from .utils import random_string
 from .enums import Status
 from pydantic import BaseModel
 from datetime import date
+from uuid import UUID
 
 
 """ STUDENT SCHEMAS """
@@ -40,7 +41,7 @@ class StudentCreate(StudentBase):
 
 
 class StudentRead(StudentBase):
-    id: int
+    id: UUID
 
 
 class StudentUpdate(StudentBase):
@@ -48,7 +49,7 @@ class StudentUpdate(StudentBase):
 
 
 class StudentInDB(StudentBase):
-    id: int
+    id: UUID
     hashed_password: str
 
 
@@ -86,7 +87,7 @@ class CompanyCreate(CompanyBase):
 
 
 class CompanyRead(CompanyBase):
-    id: int
+    id: UUID
 
 
 class CompanyUpdate(CompanyBase):
@@ -94,7 +95,7 @@ class CompanyUpdate(CompanyBase):
 
 
 class CompanyInDB(CompanyBase):
-    id: int
+    id: UUID
     hashed_password: str
 
 
@@ -111,12 +112,12 @@ class OfferBase(BaseModel):
 
 
 class OfferCreate(OfferBase):
-    company_id: int
+    company_id: UUID
 
 
 class OfferRead(OfferBase):
-    id: int
-    company_id: int
+    id: UUID
+    company_id: UUID
 
 
 class OfferUpdate(OfferBase):
@@ -124,7 +125,7 @@ class OfferUpdate(OfferBase):
 
 
 class OfferBriefRead(BaseModel):
-    id: int
+    id: UUID
     salary: int
     num_weeks: int
     field: str
@@ -137,8 +138,8 @@ class OfferApplication(BaseModel):
     salary: int
     num_weeks: int
     status: Status
-    student_id: int
-    offer_id: int
+    student_id: UUID
+    offer_id: UUID
 
 
 """ EXPERIENCE SCHEMAS """
@@ -153,12 +154,12 @@ class ExperienceBase(BaseModel):
 
 
 class ExperienceCreate(ExperienceBase):
-    student_id: int
+    student_id: UUID
 
 
 class ExperienceRead(ExperienceBase):
-    id: int
-    student_id: int
+    id: UUID
+    student_id: UUID
 
 
 class ExperienceUpdate(ExperienceBase):
@@ -169,8 +170,8 @@ class ExperienceUpdate(ExperienceBase):
 
 
 class ApplicationBase(BaseModel):
-    student_id: int
-    offer_id: int
+    student_id: UUID
+    offer_id: UUID
     status: Status
 
 

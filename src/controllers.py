@@ -23,6 +23,7 @@ from .database import get_async_pool
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import HTTPException
 from psycopg.rows import dict_row, class_row
+from uuid import UUID
 
 
 async def token_controller(user_type_param: str, form_data: OAuth2PasswordRequestForm) -> Token:
@@ -51,7 +52,7 @@ async def student_post_controller(s: StudentCreate) -> None:
         ])
 
 
-async def student_put_controller(student_id: int, s: StudentUpdate, current_user) -> None:
+async def student_put_controller(student_id: UUID, s: StudentUpdate, current_user) -> None:
     authorize_user(student_id, current_user, StudentInDB)
     
     async with get_async_pool().connection() as conn:
@@ -71,7 +72,7 @@ async def student_put_controller(student_id: int, s: StudentUpdate, current_user
             ])
         
 
-async def student_delete_controller(student_id: int, current_user) -> None:
+async def student_delete_controller(student_id: UUID, current_user) -> None:
     authorize_user(student_id, current_user, StudentInDB)
     
     async with get_async_pool().connection() as conn:
@@ -79,7 +80,7 @@ async def student_delete_controller(student_id: int, current_user) -> None:
         await conn.execute(sql, [student_id])
 
 
-async def student_profile_get_controller(student_id: int) -> StudentProfileRead:
+async def student_profile_get_controller(student_id: UUID) -> StudentProfileRead:
     async with get_async_pool().connection() as conn:
         cur = conn.cursor(row_factory=dict_row)
         
@@ -118,7 +119,7 @@ async def company_post_controller(c: CompanyCreate) -> None:
             ])
         
 
-async def company_get_controller(company_id: int) -> CompanyRead:
+async def company_get_controller(company_id: UUID) -> CompanyRead:
     async with get_async_pool().connection() as conn, conn.cursor(
         row_factory=class_row(CompanyRead)
     ) as cur:
@@ -130,7 +131,7 @@ async def company_get_controller(company_id: int) -> CompanyRead:
         return record
     
 
-async def company_offers_get_controller(company_id: int) -> list[OfferRead]:
+async def company_offers_get_controller(company_id: UUID) -> list[OfferRead]:
     async with get_async_pool().connection() as conn, conn.cursor(
         row_factory=class_row(OfferRead)
     ) as cur:
@@ -140,7 +141,7 @@ async def company_offers_get_controller(company_id: int) -> list[OfferRead]:
         return records
     
 
-async def company_patch_controller(company_id: int, c: CompanyUpdate, current_user) -> None:
+async def company_patch_controller(company_id: UUID, c: CompanyUpdate, current_user) -> None:
     authorize_user(company_id, current_user, CompanyInDB)
     
     async with get_async_pool().connection() as conn:
@@ -158,7 +159,7 @@ async def company_patch_controller(company_id: int, c: CompanyUpdate, current_us
             ])
         
 
-async def company_delete_controller(company_id: int, current_user) -> None:
+async def company_delete_controller(company_id: UUID, current_user) -> None:
     authorize_user(company_id, current_user, CompanyInDB)
     
     async with get_async_pool().connection() as conn:
@@ -214,7 +215,7 @@ async def offers_get_controller(
         return records
     
 
-async def offer_get_controller(offer_id: int) -> OfferRead:
+async def offer_get_controller(offer_id: UUID) -> OfferRead:
     async with get_async_pool().connection() as conn, conn.cursor(
         row_factory=class_row(OfferRead)
     ) as cur:
@@ -226,7 +227,7 @@ async def offer_get_controller(offer_id: int) -> OfferRead:
         return record
     
 
-async def offer_put_controller(offer_id: int, o: OfferUpdate, current_user) -> None:
+async def offer_put_controller(offer_id: UUID, o: OfferUpdate, current_user) -> None:
     async with get_async_pool().connection() as conn, conn.cursor(row_factory=dict_row) as cur:
         sql = "SELECT company_id FROM offers WHERE id = %s;"
         await cur.execute(sql, [offer_id])
@@ -253,7 +254,7 @@ async def offer_put_controller(offer_id: int, o: OfferUpdate, current_user) -> N
             ])
         
 
-async def offer_delete_controller(offer_id: int, current_user) ->None:
+async def offer_delete_controller(offer_id: UUID, current_user) ->None:
     async with get_async_pool().connection() as conn, conn.cursor(row_factory=dict_row) as cur:
         sql = "SELECT company_id FROM offers WHERE id = %s;"
         await cur.execute(sql, [offer_id])
@@ -286,7 +287,7 @@ async def experience_post_controller(e: ExperienceCreate, current_user) -> None:
         
 
 async def experience_patch_controller(
-        experience_id: int, 
+        experience_id: UUID, 
         s: ExperienceUpdate, 
         current_user
 ) -> None:
@@ -315,7 +316,7 @@ async def experience_patch_controller(
             ])
 
 
-async def experience_delete_controller(experience_id: int, current_user) -> None:
+async def experience_delete_controller(experience_id: UUID, current_user) -> None:
     async with get_async_pool().connection() as conn, conn.cursor(row_factory=dict_row) as cur:
         sql = "SELECT student_id FROM experiences WHERE id = %s"
         await cur.execute(sql, [experience_id])
@@ -330,7 +331,7 @@ async def experience_delete_controller(experience_id: int, current_user) -> None
         await conn.execute(sql, [experience_id])
 
 
-async def application_post_controller(student_id: int, offer_id: int, current_user) -> None:
+async def application_post_controller(student_id: UUID, offer_id: UUID, current_user) -> None:
     authorize_user(student_id, current_user, StudentInDB)
     
     # TODO: Fix error-500 for invalid offer_id?
@@ -340,7 +341,7 @@ async def application_post_controller(student_id: int, offer_id: int, current_us
         await conn.execute(sql, [student_id, offer_id, Status.WAITING.value])
 
 
-async def applications_get_controller(student_id: int, current_user) -> list[OfferApplication]:
+async def applications_get_controller(student_id: UUID, current_user) -> list[OfferApplication]:
     authorize_user(student_id, current_user, StudentInDB)
 
     async with get_async_pool().connection() as conn, conn.cursor(
@@ -352,7 +353,7 @@ async def applications_get_controller(student_id: int, current_user) -> list[Off
         return records
     
 
-async def application_accept_controller(student_id: int, offer_id: int, current_user) -> None:
+async def application_accept_controller(student_id: UUID, offer_id: UUID, current_user) -> None:
     async with get_async_pool().connection() as conn, conn.cursor(row_factory=dict_row) as cur:
         sql = "SELECT company_id FROM offers WHERE id = %s"
         await cur.execute(sql, [offer_id])
@@ -363,11 +364,31 @@ async def application_accept_controller(student_id: int, offer_id: int, current_
         
         authorize_user(record["company_id"], current_user, CompanyInDB)
 
-        sql = "CALL accept_student(%s, %s);"
-        await conn.execute(sql, [student_id, offer_id])
+        # ! (deprecated) sql = "CALL accept_student(%s, %s);"
+        
+        # * Waiting - 0
+        # * Accepted - 1
+        # * Rejected - 2
+        
+        sql = """
+            BEGIN;
+            
+            -- Accept the student for the offer, if he is waiting for an answer.
+            UPDATE applications 
+            SET status = 1
+            WHERE student_id = %s AND offer_id = %s AND status = 0;
+
+            -- Reject all other students for the same offer, if they are still waiting.
+            UPDATE applications
+            SET status = 2
+            WHERE student_id <> %s AND offer_id = %s AND status = 0;
+
+            COMMIT;
+        """
+        await conn.execute(sql, [student_id, offer_id, student_id, offer_id])
 
 
-async def application_cancel_controller(student_id: int, offer_id: int, current_user) -> None:
+async def application_cancel_controller(student_id: UUID, offer_id: UUID, current_user) -> None:
     authorize_user(student_id, current_user, StudentInDB)
 
     async with get_async_pool().connection() as conn:
@@ -375,7 +396,7 @@ async def application_cancel_controller(student_id: int, offer_id: int, current_
         await conn.execute(sql, [student_id, offer_id])
 
 
-async def applicants_get_controller(offer_id: int, current_user) -> list[ApplicantRead]:
+async def applicants_get_controller(offer_id: UUID, current_user) -> list[ApplicantRead]:
     async with get_async_pool().connection() as conn:
         applicant_cur = conn.cursor(row_factory=class_row(ApplicantRead))
         dict_cur = conn.cursor(row_factory=dict_row)
