@@ -301,11 +301,12 @@ async def experience_patch_controller(
         
         authorize_user(record["student_id"], current_user, StudentInDB)
 
-        sql = """UPDATE experiences SET 
-                from_date=%s, to_date=%s, company=%s, position=%s, description=%s 
-                WHERE id=%s 
-                RETURNING *;"""
-        
+        sql = """
+            UPDATE experiences SET 
+            from_date=%s, to_date=%s, company=%s, position=%s, description=%s 
+            WHERE id=%s 
+            RETURNING *;
+        """
         await conn.execute(sql, [
                 s.from_date,
                 s.to_date,
@@ -347,7 +348,14 @@ async def applications_get_controller(student_id: UUID, current_user) -> list[Of
     async with get_async_pool().connection() as conn, conn.cursor(
         row_factory=class_row(OfferApplication)
     ) as cur:
-        sql = "SELECT * FROM my_applications(%s);"
+        sql = """
+            SELECT 
+                o.field, o.salary, o.num_weeks, 
+                a.status, a.student_id, a.offer_id
+            FROM offers o
+            JOIN applications a ON o.id = a.offer_id
+            WHERE a.student_id = %s;
+        """
         await cur.execute(sql, [student_id])
         records = await cur.fetchall()
         return records
@@ -363,12 +371,6 @@ async def application_accept_controller(student_id: UUID, offer_id: UUID, curren
             raise HTTPException(404)
         
         authorize_user(record["company_id"], current_user, CompanyInDB)
-
-        # ! (deprecated) sql = "CALL accept_student(%s, %s);"
-        
-        # * Waiting - 0
-        # * Accepted - 1
-        # * Rejected - 2
         
         sql = """
             BEGIN;
@@ -391,9 +393,39 @@ async def application_accept_controller(student_id: UUID, offer_id: UUID, curren
 async def application_cancel_controller(student_id: UUID, offer_id: UUID, current_user) -> None:
     authorize_user(student_id, current_user, StudentInDB)
 
-    async with get_async_pool().connection() as conn:
-        sql = "CALL cancel_application(%s, %s);"
-        await conn.execute(sql, [student_id, offer_id])
+    async with get_async_pool().connection() as conn, conn.cursor(row_factory=dict_row) as cur:
+        # Check the status of the given application
+        sql = "SELECT status FROM applications WHERE student_id=%s AND offer_id=%s;"
+        await cur.execute(sql, [student_id, offer_id])
+        record = await cur.fetchone()
+        
+        if record is None:
+            raise HTTPException(404)
+        
+        status = record["status"]
+
+        # If the application is already accepted,
+        # delete the given application and reset all
+        # other applications for the same offer to status 'waiting'
+        if status == Status.ACCEPTED.value:
+            sql = """
+                BEGIN;
+                
+                DELETE FROM applications 
+                WHERE student_id=%s AND offer_id=%s;
+                     
+                UPDATE applications SET status = 0 
+                WHERE student_id <> %s AND offer_id = %s;
+                
+                COMMIT;
+            """
+            await cur.execute(sql, [student_id, offer_id, student_id, offer_id])
+        
+        # If the applicant is still waiting, 
+        # just delete the application
+        elif status == Status.WAITING.value:
+            sql = "DELETE FROM applications WHERE student_id=%s AND offer_id=%s;"
+            await cur.execute(sql, [student_id, offer_id])
 
 
 async def applicants_get_controller(offer_id: UUID, current_user) -> list[ApplicantRead]:
@@ -410,7 +442,15 @@ async def applicants_get_controller(offer_id: UUID, current_user) -> list[Applic
         
         authorize_user(record["company_id"], current_user, CompanyInDB)
 
-        sql = "SELECT * FROM applicants(%s)"
+        sql = """
+            SELECT 
+                s.id, s.email, s.name, s.date_of_birth, 
+                s.university, s.major, s.credits, s.gpa, 
+                a.status
+            FROM students s
+            JOIN applications a ON s.id = a.student_id
+            WHERE a.offer_id = %s;
+        """
         await applicant_cur.execute(sql, [offer_id])
         records = await applicant_cur.fetchall()
         return records

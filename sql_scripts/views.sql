@@ -21,6 +21,7 @@ BEGIN
 END;
 $$;
 
+
 CREATE OR REPLACE FUNCTION my_applications(p_student_id INT)
 RETURNS TABLE (
     field VARCHAR(255),
