@@ -265,8 +265,10 @@ async def offer_delete_controller(offer_id: UUID, current_user) ->None:
         
         authorize_user(record["company_id"], current_user, CompanyInDB)
         
-        sql = "UPDATE offers SET company_id = -1 WHERE id = %s"
-        await conn.execute(sql, [offer_id])
+        # Set the offer foreign key to reference a fake company in the DB
+        fake_company_id = "00000000-0000-0000-0000-000000000000"
+        sql = "UPDATE offers SET company_id = %s WHERE id = %s"
+        await conn.execute(sql, [fake_company_id, offer_id])
 
 
 async def experience_post_controller(e: ExperienceCreate, current_user) -> None:
@@ -372,23 +374,18 @@ async def application_accept_controller(student_id: UUID, offer_id: UUID, curren
         
         authorize_user(record["company_id"], current_user, CompanyInDB)
         
-        sql = """
-            BEGIN;
-            
-            -- Accept the student for the offer, if he is waiting for an answer.
-            UPDATE applications 
-            SET status = 1
-            WHERE student_id = %s AND offer_id = %s AND status = 0;
-
-            -- Reject all other students for the same offer, if they are still waiting.
-            UPDATE applications
-            SET status = 2
-            WHERE student_id <> %s AND offer_id = %s AND status = 0;
-
-            COMMIT;
-        """
-        await conn.execute(sql, [student_id, offer_id, student_id, offer_id])
-
+        async with conn.transaction():
+            sql = """
+                UPDATE applications SET status = 1
+                WHERE student_id = %s AND offer_id = %s AND status = 0;
+            """
+            await conn.execute(sql, [student_id, offer_id])
+            sql = """
+                UPDATE applications SET status = 2
+                WHERE student_id <> %s AND offer_id = %s AND status = 0;
+            """
+            await conn.execute(sql, [student_id, offer_id])
+        
 
 async def application_cancel_controller(student_id: UUID, offer_id: UUID, current_user) -> None:
     authorize_user(student_id, current_user, StudentInDB)
@@ -408,19 +405,18 @@ async def application_cancel_controller(student_id: UUID, offer_id: UUID, curren
         # delete the given application and reset all
         # other applications for the same offer to status 'waiting'
         if status == Status.ACCEPTED.value:
-            sql = """
-                BEGIN;
+            async with conn.transaction():
+                sql = """
+                    DELETE FROM applications
+                    WHERE student_id=%s AND offer_id=%s;
+                """
+                await conn.execute(sql, [student_id, offer_id])
+                sql = """
+                    UPDATE applications SET status = 0 
+                    WHERE student_id <> %s AND offer_id = %s;
+                """
+                await conn.execute(sql, [student_id, offer_id])
                 
-                DELETE FROM applications 
-                WHERE student_id=%s AND offer_id=%s;
-                     
-                UPDATE applications SET status = 0 
-                WHERE student_id <> %s AND offer_id = %s;
-                
-                COMMIT;
-            """
-            await cur.execute(sql, [student_id, offer_id, student_id, offer_id])
-        
         # If the applicant is still waiting, 
         # just delete the application
         elif status == Status.WAITING.value:
