@@ -8,7 +8,7 @@
             <div class="row">
                 <div class="col d-flex flex-column justify-content-center">
                     <h1>{{student.name}}</h1>
-                    <h3 class="mb-4 text-body-secondary">TODO: COUNTRY HERE</h3>
+                    <h3 class="mb-4 text-body-secondary">Location</h3>
                     <p class="fs-5">{{student.date_of_birth}}</p>
                     <p class="fs-5">{{student.email}}</p>
                 </div>
@@ -132,11 +132,6 @@
                 const offerId = sessionStorage.getItem("offerId")
                 await access(`/applications/applicants/${offerId}`, "GET")
             })
-            /*
-            document.getElementById("modalRejectBtn").addEventListener("click", async () => {
-                console.log("TODO - REJECT FUNCTIONALITY - IS IT NECESSARY THOUGH?")
-            })
-            */
             document.getElementById("modalAcceptBtn").addEventListener("click", async () => {
                 const offerId = sessionStorage.getItem("offerId")
                 const studentId = "{{student.id}}"

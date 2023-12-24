@@ -215,7 +215,6 @@ async def offer_get(request: Request, offer_id: UUID, current_user = Depends(get
     )
 
 
-# TODO: Use session storage for offer-info (to reduce queries to DB)
 @router.get("/offers/{offer_id}/edit", response_class=HTMLResponse, tags=["offers"])
 async def offer_edit_get(request: Request, offer_id: UUID):
     offer = await offer_get_controller(offer_id)

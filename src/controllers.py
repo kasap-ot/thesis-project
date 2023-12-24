@@ -335,7 +335,7 @@ async def experience_delete_controller(experience_id: UUID, current_user) -> Non
 async def application_post_controller(student_id: UUID, offer_id: UUID, current_user) -> None:
     authorize_user(student_id, current_user, StudentInDB)
     
-    # TODO: Fix error-500 for invalid offer_id?
+    # TODO: Fix error-500 (for invalid offer_id)?
 
     async with get_async_pool().connection() as conn:
         sql = "INSERT INTO applications (student_id, offer_id, status) VALUES (%s, %s, %s)"

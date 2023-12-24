@@ -8,7 +8,7 @@
         <li class="list-group-item bg-primary text-light fw-bold">
             <div class="container text-center">
                 <div class="row py-2">
-                    <div class="col">Country</div> <!-- TODO -->
+                    <div class="col">Location</div>
                     <div class="col">Field</div>
                     <div class="col">Salary</div>
                     <div class="col">Number of weeks</div>
@@ -28,7 +28,7 @@
         {% if status == 0 %}
             {% set list_item_color = "warning" %}
             {% set button_styles = "btn btn-danger cancel-btn" %}
-            {% set button_id = "cancel-btn-" ~ application.student_id ~ "-" ~ application.offer_id %}
+            {% set button_id = "cancel_btn_" ~ application.student_id ~ "_" ~ application.offer_id %}
             {% set button_text = "Cancel" %}
             {% set status_text = "Waiting" %}
         {% elif status == 1 %}
@@ -47,7 +47,7 @@
         <li class="list-group-item list-group-item-action list-group-item-{{list_item_color}}">
             <div class="container text-center">
                 <div class="row py-2 align-items-center">
-                    <div class="col">COUNTRY</div>
+                    <div class="col">Location</div>
                     <div class="col">{{application.field}}</div>
                     <div class="col">{{application.salary}}</div>
                     <div class="col">{{application.num_weeks}}</div>
