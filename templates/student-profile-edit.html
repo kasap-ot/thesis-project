@@ -78,11 +78,11 @@
 
                         <div class="d-flex justify-content-between mt-3">
                             <button class="delete-experience-btn btn btn-danger"
-                                id="delete-experience-{{experience.id}}-btn">
+                                id="delete_experience_{{experience.id}}_btn">
                                 <i class="bi bi-trash3-fill"></i> Delete
                             </button>
                             <button class="confirm-experience-btn btn btn-primary"
-                                id="confirm-experience-{{experience.id}}-btn">
+                                id="confirm_experience_{{experience.id}}_btn">
                                 <i class="bi bi-check-circle-fill"></i> Confirm
                             </button>
                         </div>
@@ -182,7 +182,7 @@
 
     document.querySelectorAll('.delete-experience-btn').forEach(async button => {
         button.addEventListener('click', async () => {
-            const btnIdParts = button.id.split('-')
+            const btnIdParts = button.id.split('_')
             const experienceId = btnIdParts[2]
             await access(`/experiences/${experienceId}`, 'DELETE')
             await access(`/students/profile/{{student_profile.id}}/edit`, 'GET')
@@ -191,7 +191,7 @@
 
     document.querySelectorAll('.confirm-experience-btn').forEach(async button => {
         button.addEventListener('click', async () => {
-            const btnIdParts = button.id.split('-')
+            const btnIdParts = button.id.split('_')
             const experienceId = btnIdParts[2]
             console.log(btnIdParts)
             console.log(experienceId)

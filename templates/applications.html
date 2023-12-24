@@ -34,7 +34,7 @@
         {% elif status == 1 %}
             {% set list_item_color = "success" %}
             {% set button_styles = "btn btn-danger cancel-btn" %}
-            {% set button_id = "cancel-btn-" ~ application.student_id ~ "-" ~ application.offer_id %}
+            {% set button_id = "cancel_btn_" ~ application.student_id ~ "_" ~ application.offer_id %}
             {% set button_text = "Cancel" %}
             {% set status_text = "Accepted" %}
         {% else %}
@@ -58,7 +58,7 @@
                         </button>
                     </div>
                     <div class="col">
-                        <button class="btn btn-primary offer-btn" id="offer-{{application.offer_id}}-btn">
+                        <button class="btn btn-primary offer-btn" id="offer_{{application.offer_id}}_btn">
                             View offer
                         </button>
                     </div>
@@ -82,7 +82,7 @@
     // Cancel button ID format: "cancel-btn-[student_id]-[offer_id]"
     document.querySelectorAll('.cancel-btn').forEach(async button => {
         button.addEventListener('click', async () => {
-            const buttonIdParts = button.id.split('-')
+            const buttonIdParts = button.id.split('_')
             const student_id = buttonIdParts[2]
             const offer_id = buttonIdParts[3]
             await access(`/applications/cancel/${student_id}/${offer_id}`, 'DELETE')
@@ -93,7 +93,7 @@
     // Offer button ID format: "offer-[offer_id]-btn"
     document.querySelectorAll(".offer-btn").forEach(async button => {
         button.addEventListener("click", async () => {
-            const buttonIdParts = button.id.split("-")
+            const buttonIdParts = button.id.split("_")
             const offerId = buttonIdParts[1]
             sessionStorage.setItem("offerId", offerId)
             await access(`/offers/${offerId}`, "GET")

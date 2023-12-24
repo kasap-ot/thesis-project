@@ -70,7 +70,7 @@
         <div class="col">{{offer.company_name}}</div>
         <div class="col">
           <button class="offer-btn btn btn-success btn-sm w-75 rounded-pill py-2"
-            id="offer-{{offer.id}}-btn">View</button>
+            id="offer_{{offer.id}}_btn">View</button>
         </div>
       </div>
     </div>
@@ -132,7 +132,7 @@
 <script>
   document.querySelectorAll('.offer-btn').forEach(button => {
     button.addEventListener('click', async () => {
-      const buttonIdParts = button.id.split('-');
+      const buttonIdParts = button.id.split('_');
       const offerId = buttonIdParts[1];
       sessionStorage.setItem("offerId", offerId)
       try {
