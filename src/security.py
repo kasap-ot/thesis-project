@@ -5,7 +5,6 @@ from .schemas import StudentInDB, CompanyInDB
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from pydantic import BaseModel
-from uuid import UUID
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import HTTPException, status, Depends
 from psycopg.rows import class_row
@@ -148,7 +147,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> StudentInDB |
     return user_in_db
 
 
-def authorize_user(user_id: UUID, current_user: StudentInDB | CompanyInDB, Schema) -> None:
+def authorize_user(user_id: int, current_user: StudentInDB | CompanyInDB, Schema) -> None:
     """ 
     Checks if the given user-id matches the provided user 
     and if the user if of correct type. If not, raises a 403 exception. 

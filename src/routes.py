@@ -42,7 +42,6 @@ from fastapi import APIRouter, status, Depends, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
-from uuid import UUID
 
 
 router = APIRouter()
@@ -67,19 +66,19 @@ async def student_post(s: StudentCreate):
 
 @router.put("/students/{student_id}", tags=["students"])
 async def student_put(
-    student_id: UUID, s: StudentUpdate, 
+    student_id: int, s: StudentUpdate, 
     current_user = Depends(get_current_user),
 ):
     await student_put_controller(student_id, s, current_user)
 
 
 @router.delete("/students/{student_id}", tags=["students"])
-async def student_delete(student_id: UUID, current_user = Depends(get_current_user)):
+async def student_delete(student_id: int, current_user = Depends(get_current_user)):
     await student_delete_controller(student_id, current_user)
 
 
 @router.get("/students/profile/{student_id}", response_model=StudentProfileRead, tags=["students"])
-async def student_profile_get(request: Request, student_id: UUID, current_user = Depends(get_current_user)):
+async def student_profile_get(request: Request, student_id: int, current_user = Depends(get_current_user)):
     student = await student_profile_get_controller(student_id)
     return templates.TemplateResponse(
         name = "student-profile.html",
@@ -95,7 +94,7 @@ async def students_home_get(request: Request, current_user = Depends(get_current
 @router.get("/students/profile/{student_id}/edit", response_class=HTMLResponse, tags=["students"])
 async def student_profile_edit_get(
     request: Request, 
-    student_id: UUID, 
+    student_id: int, 
     _ = Depends(get_current_user)
 ):
     student_profile = await student_profile_get_controller(student_id)
@@ -114,7 +113,7 @@ async def company_post(c: CompanyCreate):
 
 
 @router.get("/companies/{company_id}", response_class=HTMLResponse, tags=["companies"])
-async def company_get(request: Request, company_id: UUID, current_user = Depends(get_current_user)):
+async def company_get(request: Request, company_id: int, current_user = Depends(get_current_user)):
     company = await company_get_controller(company_id)
     return templates.TemplateResponse(
         "company-profile.html", 
@@ -125,7 +124,7 @@ async def company_get(request: Request, company_id: UUID, current_user = Depends
 @router.get(
     "/companies/{company_id}/offers", response_model=list[OfferRead], tags=["companies"]
 )
-async def company_offers_get(request: Request, company_id: UUID, current_user = Depends(get_current_user)):
+async def company_offers_get(request: Request, company_id: int, current_user = Depends(get_current_user)):
     offers = await company_offers_get_controller(company_id)
     return templates.TemplateResponse(
        name = "offers.html",
@@ -134,7 +133,7 @@ async def company_offers_get(request: Request, company_id: UUID, current_user = 
 
 
 @router.get("/companies/{company_id}/edit", response_class=HTMLResponse, tags=["companies"])
-async def company_edit_get(request: Request, company_id: UUID):
+async def company_edit_get(request: Request, company_id: int):
     company = await company_get_controller(company_id)
     return templates.TemplateResponse(
         "company-profile-edit.html", 
@@ -143,12 +142,12 @@ async def company_edit_get(request: Request, company_id: UUID):
 
 
 @router.put("/companies/{company_id}", tags=["companies"])
-async def company_patch(company_id: UUID, c: CompanyUpdate, current_user = Depends(get_current_user)):
+async def company_patch(company_id: int, c: CompanyUpdate, current_user = Depends(get_current_user)):
     await company_patch_controller(company_id, c, current_user)
 
 
 @router.delete("/companies/{company_id}", tags=["companies"])
-async def company_delete(company_id: UUID, current_user = Depends(get_current_user)):
+async def company_delete(company_id: int, current_user = Depends(get_current_user)):
     await company_delete_controller(company_id, current_user)
 
 
@@ -204,7 +203,7 @@ async def offers_get(
 
 
 @router.get("/offers/{offer_id}", response_class=HTMLResponse, tags=["offers"])
-async def offer_get(request: Request, offer_id: UUID, current_user = Depends(get_current_user)):
+async def offer_get(request: Request, offer_id: int, current_user = Depends(get_current_user)):
     """
     Get a given offer. Anyone can view the offer.
     """
@@ -216,13 +215,13 @@ async def offer_get(request: Request, offer_id: UUID, current_user = Depends(get
 
 
 @router.get("/offers/{offer_id}/edit", response_class=HTMLResponse, tags=["offers"])
-async def offer_edit_get(request: Request, offer_id: UUID):
+async def offer_edit_get(request: Request, offer_id: int):
     offer = await offer_get_controller(offer_id)
     return templates.TemplateResponse("offer-edit.html", {"request": request, "offer": offer})
 
 
 @router.put("/offers/{offer_id}", tags=["offers"])
-async def offer_put(offer_id: UUID, o: OfferUpdate, current_user = Depends(get_current_user)):
+async def offer_put(offer_id: int, o: OfferUpdate, current_user = Depends(get_current_user)):
     """
     Update a given offer. Only offer-owners are authorized.
     """
@@ -230,7 +229,7 @@ async def offer_put(offer_id: UUID, o: OfferUpdate, current_user = Depends(get_c
 
 
 @router.delete("/offers/{offer_id}", tags=["offers"])
-async def offer_delete(offer_id: UUID, current_user = Depends(get_current_user)):
+async def offer_delete(offer_id: int, current_user = Depends(get_current_user)):
     """
     Delete a given offer. Only offer-owners are authorized.
     """
@@ -250,7 +249,7 @@ async def experience_post(e: ExperienceCreate, current_user = Depends(get_curren
 
 
 @router.put("/experiences/{experience_id}", tags=["experiences"])
-async def experience_patch(experience_id: UUID, s: ExperienceUpdate, current_user = Depends(get_current_user)):
+async def experience_patch(experience_id: int, s: ExperienceUpdate, current_user = Depends(get_current_user)):
     """
     Update a given experience item. Only student-owners of the experience are allowed.
     """
@@ -258,7 +257,7 @@ async def experience_patch(experience_id: UUID, s: ExperienceUpdate, current_use
 
 
 @router.delete("/experiences/{experience_id}", tags=["experiences"])
-async def experience_delete(experience_id: UUID, current_user = Depends(get_current_user)):
+async def experience_delete(experience_id: int, current_user = Depends(get_current_user)):
     """
     Delete a give experience item. Only student-owners of the experience are allowed.
     """
@@ -269,7 +268,7 @@ async def experience_delete(experience_id: UUID, current_user = Depends(get_curr
 
 
 @router.post("/applications/apply/{student_id}/{offer_id}", tags=["applications"])
-async def application_post(student_id: UUID, offer_id: UUID, current_user = Depends(get_current_user)):
+async def application_post(student_id: int, offer_id: int, current_user = Depends(get_current_user)):
     """
     Add an application from the student for the given offer. Students 
     will be authorized to create applications for themselves only.
@@ -282,7 +281,7 @@ async def application_post(student_id: UUID, offer_id: UUID, current_user = Depe
     response_class=HTMLResponse,
     tags=["applications"],
 )
-async def applications_get(request: Request, student_id: UUID, current_user = Depends(get_current_user)):
+async def applications_get(request: Request, student_id: int, current_user = Depends(get_current_user)):
     """
     Get all applications of a given student. Only the 
     student-owner can access his applications.
@@ -296,7 +295,7 @@ async def applications_get(request: Request, student_id: UUID, current_user = De
 
 
 @router.patch("/applications/accept/{student_id}/{offer_id}", tags=["applications"])
-async def application_accept(student_id: UUID, offer_id: UUID, current_user = Depends(get_current_user)):
+async def application_accept(student_id: int, offer_id: int, current_user = Depends(get_current_user)):
     """
     If a student has status - waiting for a given application,
     set his his status to - accepted. Change all other applications
@@ -306,7 +305,7 @@ async def application_accept(student_id: UUID, offer_id: UUID, current_user = De
 
 
 @router.delete("/applications/cancel/{student_id}/{offer_id}", tags=["applications"])
-async def application_cancel(student_id: UUID, offer_id: UUID, current_user = Depends(get_current_user)):
+async def application_cancel(student_id: int, offer_id: int, current_user = Depends(get_current_user)):
     """
     If a student is still waiting for his application, simply delete his application.
     If the student's application has been accepted, then delete his application and
@@ -316,7 +315,7 @@ async def application_cancel(student_id: UUID, offer_id: UUID, current_user = De
 
 
 @router.get("/applications/applicants/{offer_id}", tags=["applications"], response_model=list[StudentRead])
-async def applicants_get(request: Request, offer_id: UUID, current_user = Depends(get_current_user)):
+async def applicants_get(request: Request, offer_id: int, current_user = Depends(get_current_user)):
     """
     Get all student-applicants that have applied for the given offer.
     """
