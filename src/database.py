@@ -16,4 +16,3 @@ conn_str = f"                       \
 @lru_cache()
 def get_async_pool():
     return AsyncConnectionPool(conninfo=conn_str)
-    # return AsyncConnectionPool(conninfo=settings.db_url)
