@@ -1,5 +1,5 @@
 from .enums import UserType
-from .database import get_async_pool
+from .config import get_async_pool
 from .utils import pwd_context
 from .schemas import StudentInDB, CompanyInDB
 from jose import JWTError, jwt

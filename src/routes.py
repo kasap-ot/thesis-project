@@ -1,4 +1,4 @@
-from .database import get_async_pool
+from .config import get_async_pool
 from .controllers import (
     applicants_get_controller,
     application_accept_controller,
@@ -46,6 +46,11 @@ from fastapi.responses import HTMLResponse
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
+
+
+@router.get("/test")
+async def test():
+    return "This is a test."
 
 
 """ Routes for TOKENS """

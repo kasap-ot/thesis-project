@@ -1,4 +1,3 @@
-from .utils import random_string
 from .enums import Status
 from pydantic import BaseModel
 from datetime import date
@@ -19,23 +18,6 @@ class StudentBase(BaseModel):
 
 class StudentCreate(StudentBase):
     password: str
-
-    model_config = {
-        "json_schema_extra": {
-            "examples": [
-                {
-                    "email": random_string(),
-                    "name": "Some Name",
-                    "date_of_birth": "2018-01-01",
-                    "university": "Some University",
-                    "major" : "Some Major",
-                    "credits": 150,
-                    "gpa": 7.50,
-                    "password": "secret",
-                }
-            ]
-        }
-    }
 
 
 class StudentRead(StudentBase):
@@ -65,22 +47,6 @@ class CompanyBase(BaseModel):
 
 class CompanyCreate(CompanyBase):
     password: str
-
-    model_config = {
-        "json_schema_extra": {
-            "examples": [
-                {
-                    "email": random_string(),
-                    "name": "Some Name",
-                    "field": "Some Field",
-                    "num_employees" : 120,
-                    "year_founded": 2008,
-                    "website": "my.website.org",
-                    "password": "secret",
-                }
-            ]
-        }
-    }
 
 
 class CompanyRead(CompanyBase):
