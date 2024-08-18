@@ -53,3 +53,11 @@ CREATE TABLE IF NOT EXISTS applications (
     status status NOT NULL,
     PRIMARY KEY (student_id, offer_id)
 );
+
+
+-- Add table for regions
+
+CREATE TABLE IF NOT EXISTS regions (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL
+);

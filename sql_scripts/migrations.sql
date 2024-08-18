@@ -1,3 +1,5 @@
+-- Add offer-company and experience-student relationships
+
 ALTER TABLE offers ADD COLUMN
 company_id INT NOT NULL REFERENCES companies(id)
 ON DELETE SET NULL
@@ -10,7 +12,7 @@ ON DELETE SET NULL
 ON UPDATE CASCADE;
 
 
--- Migration
+-- Modify offer-company relationship
 
 ALTER TABLE offers
 DROP CONSTRAINT IF EXISTS offers_company_id_fkey;
@@ -25,6 +27,8 @@ ON UPDATE CASCADE;
 ALTER TABLE offers
 ALTER COLUMN company_id SET DEFAULT -1;
 
+
+-- Add user email uniqueness constraints
 
 ALTER TABLE students
 ADD CONSTRAINT students_unique_email_constraint UNIQUE (email);
@@ -43,3 +47,22 @@ ADD COLUMN date_of_birth DATE NOT NULL DEFAULT '2020-01-01';
 
 ALTER TABLE students
 ALTER COLUMN date_of_birth DROP DEFAULT;
+
+
+-- Add relationships for student-region and offer-region
+
+ALTER TABLE students
+ADD COLUMN region_id INT NOT NULL REFERENCES region(id)
+ON DELETE SET DEFAULT
+ON UPDATE CASCADE;
+
+ALTER TABLE students
+ALTER COLUMN region_id SET DEFAULT -1;
+
+ALTER TABLE offers
+ADD COLUMN region_id INT NOT NULL REFERENCES region(id)
+ON DELETE SET DEFAULT
+ON UPDATE CASCADE;
+
+ALTER TABLE offers
+ALTER COLUMN region_id SET DEFAULT -1;
