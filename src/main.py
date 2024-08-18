@@ -1,29 +1,23 @@
-from typing import Optional
-from psycopg_pool import AsyncConnectionPool
-from .routes import router
-from .config import get_async_pool
 import asyncio
+from contextlib import asynccontextmanager
+from .config import get_async_pool
+from .routes import router
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from contextlib import asynccontextmanager
 
 
-async_pool: Optional[AsyncConnectionPool] = None
+async_pool = get_async_pool()
 
 
 async def check_async_connections():
-    if not async_pool:
-        raise RuntimeError("Async pool is not initialized...")
     while True:
         await asyncio.sleep(600)
-        print("check async connections")
+        print("Checking async connections...")
         await async_pool.check() 
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global async_pool
-    async_pool = get_async_pool()
     asyncio.create_task(check_async_connections())
     yield
     await async_pool.close()

@@ -36,7 +36,11 @@ async def student_post_controller(s: StudentCreate) -> None:
     hashed_password = pwd_context.hash(s.password)
     
     async with get_async_pool().connection() as conn:
-        sql = """INSERT INTO students (email, hashed_password, name, date_of_birth, university, major, credits, gpa) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"""
+        sql = """
+            INSERT INTO students 
+            (email, hashed_password, name, date_of_birth, university, major, credits, gpa) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """
         await conn.execute(sql, params=[
             s.email, 
             hashed_password, 
