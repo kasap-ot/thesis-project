@@ -1,4 +1,15 @@
-async function login(url, username, password) 
+async function login(url, username, password)
+/**
+ * Used when the user logs into the application.
+ * 
+ * Takes in the parameters for authentication and
+ * send them to the API endpoint for logging in.
+ * 
+ * Awaits the JWT token and saves it to session storage.
+ * 
+ * This token will then be used for all later API
+ * requests by the user.
+ */
 {
     const loginUrl = url;
     const credentials = new URLSearchParams();
@@ -8,9 +19,7 @@ async function login(url, username, password)
     try {
       const response = await fetch(loginUrl, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
+        headers: {'Content-Type': 'application/x-www-form-urlencoded',},
         body: credentials,
       });
 

@@ -29,4 +29,19 @@ def test_student_post(reset_database):
 
 
 def test_student_put(reset_database):
-    
+    # create a student (register)
+    # call the /token endpoing
+    # store the token in a variable
+    # call the PUT enpoint for /students
+    # pass in the token in the HTTP header
+    # update the student
+    # check if the status code is correct
+    # check if the updated students is mathing
+    ...
+
+
+def test_student_delete(reset_database):
+    ...
+
+
+def test_

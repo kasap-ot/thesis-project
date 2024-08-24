@@ -1,4 +1,13 @@
-async function access(url, method, data) {
+async function access(url, method, data) 
+/**
+ * After the user has successfully logged in and 
+ * saved his JWT in the session storage, the user
+ * will should use this function to access any API
+ * endpoints that require authorization.
+ * 
+ * Simply passes the JWT into the Authorization header 
+ */
+{
     console.log("accessing: ", url, method, data)
 
     const token = sessionStorage.getItem('token');
