@@ -3,9 +3,6 @@ import requests
 from http import HTTPStatus
 
 
-BASE_URL = "http://localhost:8000/"
-
-
 def create_student() -> dict:
     return {
         "email": "new@student.com",
@@ -19,15 +16,17 @@ def create_student() -> dict:
     }
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture()
 def reset_database():
-    ...
+    restart_url = "http://localhost:8000/restart-database"
+    requests.delete(url=restart_url)
 
 
-def test_tmp():
-    url = "http://localhost:8000/students"
-    response = requests.post(
-        url=url,
-        json=create_student(),
-    )
+def test_student_post(reset_database):
+    student_url = "http://localhost:8000/students"
+    response = requests.post(url=student_url, json=create_student())
     assert response.status_code == HTTPStatus.CREATED.value
+
+
+def test_student_put(reset_database):
+    

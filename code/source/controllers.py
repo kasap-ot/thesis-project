@@ -19,7 +19,7 @@ from .schemas import (
 )
 from .enums import Status, UserType
 from .security import Token, get_token, pwd_context, authorize_user
-from .config import get_async_pool
+from .database import get_async_pool
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import HTTPException
 from psycopg.rows import dict_row, class_row
@@ -451,3 +451,8 @@ async def applicants_get_controller(offer_id: int, current_user) -> list[Applica
         await applicant_cur.execute(sql, [offer_id])
         records = await applicant_cur.fetchall()
         return records
+    
+
+async def restart_database_controller() -> None:
+    async with get_async_pool().connection() as connection:
+        await connection.execute("DELETE FROM students;")

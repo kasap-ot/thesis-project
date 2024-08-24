@@ -1,5 +1,5 @@
 from .enums import UserType
-from .config import get_async_pool
+from .database import get_async_pool
 from .utils import pwd_context
 from .schemas import StudentInDB, CompanyInDB
 from jose import JWTError, jwt
@@ -147,7 +147,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> StudentInDB |
     return user_in_db
 
 
-def authorize_user(user_id: int, current_user: StudentInDB | CompanyInDB, Schema) -> None:
+def authorize_user(user_id: int, current_user: StudentInDB | CompanyInDB, Schema: BaseModel) -> None:
     """ 
     Checks if the given user-id matches the provided user 
     and if the user if of correct type. If not, raises a 403 exception. 

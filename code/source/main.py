@@ -1,6 +1,6 @@
 import asyncio
 from contextlib import asynccontextmanager
-from .config import get_async_pool
+from .database import get_async_pool
 from .routes import router
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
