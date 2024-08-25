@@ -14,6 +14,7 @@ class StudentBase(BaseModel):
     major: str
     credits: int
     gpa: float
+    region_id: int
 
 
 class StudentCreate(StudentBase):

@@ -38,8 +38,8 @@ async def student_post_controller(s: StudentCreate) -> None:
     async with get_async_pool().connection() as conn:
         sql = """
             INSERT INTO students 
-            (email, hashed_password, name, date_of_birth, university, major, credits, gpa) 
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            (email, hashed_password, name, date_of_birth, university, major, credits, gpa, region_id) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         await conn.execute(sql, params=[
             s.email, 
@@ -49,7 +49,8 @@ async def student_post_controller(s: StudentCreate) -> None:
             s.university, 
             s.major, 
             s.credits, 
-            s.gpa
+            s.gpa,
+            s.region_id,
         ])
 
 
@@ -455,4 +456,9 @@ async def applicants_get_controller(offer_id: int, current_user) -> list[Applica
 
 async def restart_database_controller() -> None:
     async with get_async_pool().connection() as connection:
+        await connection.execute("DELETE FROM applications;")
+        await connection.execute("DELETE FROM experiences;")
+        await connection.execute("DELETE FROM offers;")
         await connection.execute("DELETE FROM students;")
+        await connection.execute("DELETE FROM companies;")
+        await connection.execute("DELETE FROM regions;")

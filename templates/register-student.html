@@ -6,74 +6,89 @@
 
 {% block content %}
 
-<h3 class="mb-4">Student Registration Form</h3>
-
-<div class="row">
-  <div class="col">
-    <div class="mb-3">
-      <label class="form-label">Email address</label>
-      <input type="email" class="form-control shadow" id="email">
-    </div>
-
-    <div class="mb-3">
-      <label class="form-label">Password</label>
-      <input type="password" class="form-control shadow" id="password">
-    </div>
-
-    <div class="mb-3">
-      <label class="form-label">Name</label>
-      <input type="text" class="form-control shadow" id="name">
-    </div>
-
-    <div class="mb-3">
-      <label class="form-label">Date of birth</label>
-      <input type="date" class="form-control shadow" id="dateOfBirth">
-    </div>
-
-    <div id="errorMsgArea"></div>
-  </div>
-  <div class="col">
-    <div class="mb-3">
-      <label class="form-label">University</label>
-      <input type="text" class="form-control shadow" id="university">
-    </div>
-
-    <div class="mb-3">
-      <label class="form-label">Major</label>
-      <input type="text" class="form-control shadow" id="major">
-    </div>
-
-    <div class="mb-3">
-      <label class="form-label">Credits</label>
-      <input type="number" class="form-control shadow" id="credits">
-    </div>
-
-    <div class="mb-3">
-      <label class="form-label">GPA</label>
-      <input type="number" class="form-control shadow" id="gpa">
-    </div>
-
-    <div class="d-flex justify-content-end mt-3 my-3">
-      <button type="submit" class="btn btn-lg btn-secondary me-3" id="backBtn">Back</button>
-      <button type="submit" class="btn btn-lg btn-primary" id="submitBtn">Submit</button>
-    </div>
-  </div>
-</div>
-
-<div class="card py-4 shadow">
+<div class="card py-4 shadow mb-4">
   <div class="card-body">
-    <h5 class="card-title">Hello Student!</h5>
-    <h6 class="card-subtitle mb-3 text-body-secondary">Clarification</h6>
-    <p class="card-text fst-italic">Please fill out your user- and student-related information. This will be helpful
+    <h5 class="card-title fs-1">Hello Student!</h5>
+    <p class="card-text fst-italic fs-4 mt-4">Please fill out your user- and student-related information. This will be helpful
       when companies and institutions see your various applications. You can fill out further information once you have
       registered.</p>
   </div>
 </div>
 
+<div class="bg-primary-subtle p-4 shadow">
+  <h3 class="mb-4">Registration Form</h3>
+
+  <div class="row">
+    <div class="col">
+      <div class="mb-3">
+        <label class="form-label">Email address</label>
+        <input type="email" class="form-control shadow" id="email">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-control shadow" id="password">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Name</label>
+        <input type="text" class="form-control shadow" id="name">
+      </div>
+
+      <div id="errorMsgArea"></div>
+    </div>
+    <div class="col">
+      <div class="mb-3">
+        <label class="form-label">Date of birth</label>
+        <input type="date" class="form-control shadow" id="dateOfBirth">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">University</label>
+        <input type="text" class="form-control shadow" id="university">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Major</label>
+        <input type="text" class="form-control shadow" id="major">
+      </div>
+
+      <!-- *** -->
+    </div>
+
+    <div class="col">
+      <div class="mb-3">
+        <label class="form-label">Credits</label>
+        <input type="number" class="form-control shadow" id="credits">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">GPA</label>
+        <input type="number" class="form-control shadow" id="gpa">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Region</label>
+        <select class="form-select" id="region">
+          <option selected>Select your region</option>
+          <option value="1">Europe</option>
+          <option value="2">Asia</option>
+          <option value="3">Americas</option>
+        </select>
+      </div>
+
+      <div class="d-flex justify-content-end mt-4 mb-3">
+        <a href="/register" class="btn btn-lg btn-secondary me-3">Back</a>
+        <button type="submit" class="btn btn-lg btn-primary" id="submitBtn">Submit</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-  document.getElementById("backBtn").addEventListener("click", async () => {
-    await access("/register", "GET")
-  })
+  // document.getElementById("backBtn").addEventListener("click", async () => {
+  //   await access("/register", "GET")
+  // })
 
   document.getElementById("submitBtn").addEventListener("click", async () => {
     const newStudent = {
@@ -85,6 +100,7 @@
       major: document.getElementById("major").value,
       credits: document.getElementById("credits").value,
       gpa: document.getElementById("gpa").value,
+      region_id: parseInt(document.getElementById("region").value),
     }
 
     console.log(JSON.stringify(newStudent))

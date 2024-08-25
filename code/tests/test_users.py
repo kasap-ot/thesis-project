@@ -3,6 +3,9 @@ import requests
 from http import HTTPStatus
 
 
+BASE_URL = "http://localhost:8000"
+
+
 def create_student() -> dict:
     return {
         "email": "new@student.com",
@@ -18,30 +21,49 @@ def create_student() -> dict:
 
 @pytest.fixture()
 def reset_database():
-    restart_url = "http://localhost:8000/restart-database"
+    restart_url = f"{BASE_URL}/restart-database"
     requests.delete(url=restart_url)
 
 
-def test_student_post(reset_database):
-    student_url = "http://localhost:8000/students"
-    response = requests.post(url=student_url, json=create_student())
+def test_student(reset_database):
+    # create the student
+    student = create_student()
+    student_url = f"{BASE_URL}/students"
+    response = requests.post(url=student_url, json=student)
     assert response.status_code == HTTPStatus.CREATED.value
 
-
-def test_student_put(reset_database):
-    # create a student (register)
-    # call the /token endpoing
-    # store the token in a variable
-    # call the PUT enpoint for /students
-    # pass in the token in the HTTP header
-    # update the student
-    # check if the status code is correct
-    # check if the updated students is mathing
-    ...
-
-
-def test_student_delete(reset_database):
-    ...
+    # login to get the user JWT token
+    user_type = "student"
+    login_body = f"username={student['email']}&password={student['password']}"
+    login_url = f"{BASE_URL}/token?user_type_param={user_type}"
+    login_headers = {"Content-Type": "application/x-www-form-urlencoded"}
+    response = requests.post(
+        url=login_url,
+        headers=login_headers,
+        data=login_body,
+    )
+    token_data = response.json()
+    assert response.status_code == HTTPStatus.OK.value
+    assert token_data["token_type"] == "bearer"
 
 
-def test_
+def test_student_2(reset_database):
+    # create the student
+    student = create_student()
+    student_url = f"{BASE_URL}/students"
+    response = requests.post(url=student_url, json=student)
+    assert response.status_code == HTTPStatus.CREATED.value
+
+    # login to get the user JWT token
+    user_type = "student"
+    login_body = f"username={student['email']}&password={student['password']}"
+    login_url = f"{BASE_URL}/token?user_type_param={user_type}"
+    login_headers = {"Content-Type": "application/x-www-form-urlencoded"}
+    response = requests.post(
+        url=login_url,
+        headers=login_headers,
+        data=login_body,
+    )
+    token_data = response.json()
+    assert response.status_code == HTTPStatus.OK.value
+    assert token_data["token_type"] == "bearer"
