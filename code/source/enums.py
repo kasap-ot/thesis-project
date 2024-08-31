@@ -10,3 +10,10 @@ class Status(Enum):
 class UserType(Enum):
     STUDENT = "student"
     COMPANY = "company"
+
+
+class Region(Enum):
+    GLOBAL = 0
+    EUROPE = 1
+    ASIA = 2
+    AMERICAS = 3

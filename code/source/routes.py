@@ -54,7 +54,7 @@ async def test():
     return "This is a test."
 
 
-""" Routes for TOKENS """
+# Routes for TOKENS
 
 
 @router.post("/token", response_model=Token, tags=["security"])
@@ -62,7 +62,7 @@ async def token(user_type_param: str, form_data: OAuth2PasswordRequestForm = Dep
     return await token_controller(user_type_param, form_data)
 
 
-""" Routes for STUDENTS """
+# Routes for STUDENTS
 
 
 @router.post("/students", status_code=status.HTTP_201_CREATED, tags=["students"])
@@ -110,7 +110,7 @@ async def student_profile_edit_get(
     )
 
 
-""" Routes for COMPANIES """
+# Routes for COMPANIES
 
 
 @router.post("/companies", status_code=status.HTTP_201_CREATED, tags=["companies"])
@@ -162,7 +162,7 @@ async def companies_home_get(request: Request, current_user = Depends(get_curren
     return templates.TemplateResponse("company-home.html", {"request": request, "current_user": current_user})
 
 
-""" Routes for OFFERS """
+# Routes for OFFERS
 
 
 @router.get("/offers-create", response_class=HTMLResponse, tags=["offers"])
@@ -242,7 +242,7 @@ async def offer_delete(offer_id: int, current_user = Depends(get_current_user)):
     await offer_delete_controller(offer_id, current_user)
 
 
-""" Routes for EXPERIENCES """
+# Routes for EXPERIENCES
 
 
 @router.post("/experiences", status_code=status.HTTP_201_CREATED, tags=["experiences"])
@@ -270,7 +270,7 @@ async def experience_delete(experience_id: int, current_user = Depends(get_curre
     await experience_delete_controller(experience_id, current_user)
 
 
-""" Routes for APPLICATIONS """
+# Routes for APPLICATIONS
 
 
 @router.post("/applications/apply/{student_id}/{offer_id}", tags=["applications"])
@@ -333,7 +333,7 @@ async def applicants_get(request: Request, offer_id: int, current_user = Depends
     )
     
 
-""" Routes for STATIC TEMPLATES """
+# Routes for STATIC TEMPLATES
 
 
 @router.get("/", response_class=HTMLResponse, tags=["static-templates"])
@@ -367,7 +367,7 @@ async def restart_database():
     await restart_database_controller()
 
 
-""" Routes for testing Cockroach DB connection """
+# Routes for testing Cockroach DB connection
 
 
 @router.get("/cockroach-db/1", tags=["cockroach"])

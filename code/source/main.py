@@ -26,3 +26,5 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 app.include_router(router)
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# TODO: Add "region" logic to "offers"

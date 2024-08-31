@@ -4,32 +4,6 @@
 
 <h3 class="mb-4">Offer information</h3>
 
-<div class="bg-light rounded p-3 mb-2">
-    <div class="fs-5 mb-3">Select your offer type:</div>
-
-    <div class="row">
-        <div class="col">
-            <div class="card w-100">
-                <div class="card-body">
-                    <input class="form-check-input mb-2" type="radio" name="flexRadioDefault"  id="globalOfferOption" checked>
-                    <h5 class="card-title">Global Offer</h5>
-                    <p class="card-text">Global offers are visible to all students from all regions. Copies of the offer are stored also in every region for increased fault tolerance and reduced latency.</p>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card  w-100">
-                <div class="card-body">
-                    <input class="form-check-input mb-2" type="radio" name="flexRadioDefault" id="regionalOfferOption">
-                    <h5 class="card-title">Regional Offer</h5>
-                    <p class="card-text">Regional offers are only visible to students from the same region as the offer. Copies are stored in only one region.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
 <form>
     <div class="row">
         <div class="col">
@@ -52,14 +26,25 @@
                 <label class="form-label">Deadline</label>
                 <input type="date" class="form-control" id="deadlineInput">
             </div>
+            <div class="mb-3">
+                <label class="form-label">Offer Region</label>
+                <select class="form-select" id="regionInput">
+                    <option selected>Select your region</option>
+                    <option value="1">Europe</option>
+                    <option value="2">Asia</option>
+                    <option value="3">Americas</option>
+                </select>
+            </div>
         </div>
         <div class="mb-3 col">
             <label class="form-label">Requirements</label>
-            <textarea id="requirementsInput" rows="11" class="form-control"></textarea>
+            <textarea id="requirementsInput" rows="15" class="form-control"
+                placeholder="Write your requirements here..."></textarea>
         </div>
         <div class="mb-3 col">
             <label class="form-label">Responsibilities</label>
-            <textarea id="responsibilitiesInput" rows="11" class="form-control"></textarea>
+            <textarea id="responsibilitiesInput" rows="15" class="form-control"
+                placeholder="Write your requirements here..."></textarea>
         </div>
     </div>
 
@@ -84,6 +69,7 @@
         const deadline = document.getElementById("deadlineInput").value
         const requirements = document.getElementById("requirementsInput").value
         const responsibilities = document.getElementById("responsibilitiesInput").value
+        const regionId = document.getElementById("regionInput").value
         const companyId = sessionStorage.getItem("companyId")
 
         newOffer = {
@@ -94,21 +80,12 @@
             requirements: requirements,
             responsibilities: responsibilities,
             company_id: companyId,
+            region_id: regionId,
         }
 
         await access("/offers", "POST", newOffer)
         await access(`/companies/${companyId}/offers`, "GET")
     })
 </script>
-
-<!-- 
-    field: str
-    salary: int
-    num_weeks: int
-    deadline: date
-    requirements: str
-    responsibilities: str
-    company_id: int
--->
 
 {% endblock %}

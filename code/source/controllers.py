@@ -25,11 +25,17 @@ from fastapi import HTTPException
 from psycopg.rows import dict_row, class_row
 
 
+# Token controllers
+
+
 async def token_controller(user_type_param: str, form_data: OAuth2PasswordRequestForm) -> Token:
     email = form_data.username
     password = form_data.password
     user_type = UserType(user_type_param)
     return await get_token(email, password, user_type)
+
+
+# Student controllers
 
 
 async def student_post_controller(s: StudentCreate) -> None:
@@ -104,6 +110,9 @@ async def student_profile_get_controller(student_id: int) -> StudentProfileRead:
         return student_profile
     
 
+# Company controllers
+
+
 async def company_post_controller(c: CompanyCreate) -> None:
     hashed_password = pwd_context.hash(c.password)
     async with get_async_pool().connection() as conn:
@@ -137,7 +146,12 @@ async def company_offers_get_controller(company_id: int) -> list[OfferRead]:
     async with get_async_pool().connection() as conn, conn.cursor(
         row_factory=class_row(OfferRead)
     ) as cur:
-        sql = "SELECT * FROM offers WHERE company_id = %s;"
+        sql = (
+            "SELECT o.id, o.salary, o.num_weeks, o.field, o.deadline, o.requirements, o.responsibilities, o.company_id, r.name as region "
+            "FROM offers as o "
+            "JOIN regions as r ON o.region_id = r.id "
+            "WHERE o.company_id = %s;"
+        )
         await cur.execute(sql, [company_id])
         records = await cur.fetchall()
         return records
@@ -169,13 +183,16 @@ async def company_delete_controller(company_id: int, current_user) -> None:
         await conn.execute(sql, [company_id])
 
 
+# Offer controllers
+
+
 async def offer_post_controller(o: OfferCreate, current_user) -> None:
     authorize_user(o.company_id, current_user, CompanyInDB)
 
     async with get_async_pool().connection() as conn:
         sql = """INSERT INTO offers 
-                (salary, num_weeks, field, deadline, requirements, responsibilities, company_id) 
-                VALUES (%s, %s, %s, %s, %s, %s, %s)"""
+                (salary, num_weeks, field, deadline, requirements, responsibilities, company_id, region_id)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"""
         await conn.execute(sql, params=[
                 o.salary,
                 o.num_weeks,
@@ -184,6 +201,7 @@ async def offer_post_controller(o: OfferCreate, current_user) -> None:
                 o.requirements,
                 o.responsibilities,
                 o.company_id,
+                o.region_id,
             ])
         
 
@@ -198,9 +216,10 @@ async def offers_get_controller(
         row_factory=class_row(OfferBriefRead)
     ) as cur:
         sql = """
-            SELECT o.id, o.salary, o.num_weeks, o.field, o.deadline, c.name AS company_name
+            SELECT o.id, o.salary, o.num_weeks, o.field, o.deadline, r.name as region, c.name AS company_name
             FROM offers AS o
             JOIN companies AS c ON o.company_id = c.id
+            JOIN regions AS r ON o.region_id = r.id
             WHERE o.num_weeks >= %s AND o.num_weeks <= %s
             AND o.salary >= %s AND o.salary <= %s
         """
@@ -210,6 +229,7 @@ async def offers_get_controller(
             sql += " AND o.field = %s"
             parameters.append(field)
 
+        print(sql)
         print(parameters)
 
         await cur.execute(sql, parameters)
@@ -221,7 +241,12 @@ async def offer_get_controller(offer_id: int) -> OfferRead:
     async with get_async_pool().connection() as conn, conn.cursor(
         row_factory=class_row(OfferRead)
     ) as cur:
-        sql = "SELECT * FROM offers WHERE id = %s;"
+        sql = (
+            "SELECT o.id, o.salary, o.num_weeks, o.field, o.deadline, o.requirements, o.responsibilities, o.company_id, r.name as region "
+            "FROM offers as o "
+            "JOIN regions as r ON o.region_id = r.id "
+            "WHERE o.id = %s;"
+        )
         await cur.execute(sql, [offer_id])
         record = await cur.fetchone()
         if record is None:
@@ -271,6 +296,9 @@ async def offer_delete_controller(offer_id: int, current_user) ->None:
         fake_company_id = "00000000-0000-0000-0000-000000000000"
         sql = "UPDATE offers SET company_id = %s WHERE id = %s"
         await conn.execute(sql, [fake_company_id, offer_id])
+
+
+# Experienct controllers
 
 
 async def experience_post_controller(e: ExperienceCreate, current_user) -> None:
@@ -334,6 +362,9 @@ async def experience_delete_controller(experience_id: int, current_user) -> None
 
         sql = "DELETE FROM experiences WHERE id = %s"
         await conn.execute(sql, [experience_id])
+
+
+# Application controllers
 
 
 async def application_post_controller(student_id: int, offer_id: int, current_user) -> None:
@@ -453,6 +484,9 @@ async def applicants_get_controller(offer_id: int, current_user) -> list[Applica
         records = await applicant_cur.fetchall()
         return records
     
+
+# Other controllers
+
 
 async def restart_database_controller() -> None:
     async with get_async_pool().connection() as connection:

@@ -10,16 +10,21 @@
         <h6 class="card-subtitle mb-4 text-body-secondary">Location</h6>
       </div>
 
+      <!-- I want to change these three field to be squares within a 2 by 2 matrix with each square having rounded edges -->
+
       <div class="container text-center my-5">
         <div class="row column-gap-5 fs-5">
           <div class="col bg-primary-subtle rounded-pill p-2 shadow border border-primary border-3">
-            <strong>Salary:</strong> <br> {{ offer.salary }}
+            <strong>Salary</strong> <br> {{ offer.salary }}
           </div>
           <div class="col bg-primary-subtle rounded-pill p-2 shadow border border-primary border-3">
-            <strong>Length:</strong> <br> {{ offer.num_weeks }}
+            <strong>Length</strong> <br> {{ offer.num_weeks }}
           </div>
           <div class="col bg-primary-subtle rounded-pill p-2 shadow border border-primary border-3">
-            <strong>Deadline:</strong> <br> {{ offer.deadline }}
+            <strong>Deadline</strong> <br> {{ offer.deadline }}
+          </div>
+          <div class="col bg-primary-subtle rounded-pill p-2 shadow border border-primary border-3">
+            <strong>Region</strong> <br> {{ offer.region }}
           </div>
         </div>
       </div>

@@ -77,11 +77,13 @@ class OfferBase(BaseModel):
 
 class OfferCreate(OfferBase):
     company_id: int
+    region_id: int
 
 
 class OfferRead(OfferBase):
     id: int
     company_id: int
+    region: str
 
 
 class OfferUpdate(OfferBase):
@@ -95,6 +97,7 @@ class OfferBriefRead(BaseModel):
     field: str
     deadline: date
     company_name: str
+    region: str
 
 
 class OfferApplication(BaseModel):
