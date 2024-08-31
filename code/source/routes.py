@@ -197,6 +197,7 @@ async def offers_get(
         max_num_weeks, 
         min_salary, 
         max_salary,
+        current_user,
     )
     return templates.TemplateResponse(
         name = "offers.html", 

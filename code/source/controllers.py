@@ -211,19 +211,23 @@ async def offers_get_controller(
     max_num_weeks: int,
     min_salary: int,
     max_salary: int,
+    current_user: StudentInDB,
 ) -> list[OfferBriefRead]:
+    authorize_user(current_user.id, current_user, StudentInDB)
+
     async with get_async_pool().connection() as conn, conn.cursor(
         row_factory=class_row(OfferBriefRead)
     ) as cur:
-        sql = """
-            SELECT o.id, o.salary, o.num_weeks, o.field, o.deadline, r.name as region, c.name AS company_name
-            FROM offers AS o
-            JOIN companies AS c ON o.company_id = c.id
-            JOIN regions AS r ON o.region_id = r.id
-            WHERE o.num_weeks >= %s AND o.num_weeks <= %s
-            AND o.salary >= %s AND o.salary <= %s
-        """
-        parameters: list = [min_num_weeks, max_num_weeks, min_salary, max_salary]
+        sql = (
+            "SELECT o.id, o.salary, o.num_weeks, o.field, o.deadline, r.name as region, c.name AS company_name "
+            "FROM offers AS o "
+            "JOIN companies AS c ON o.company_id = c.id "
+            "JOIN regions AS r ON o.region_id = r.id "
+            "WHERE o.num_weeks >= %s AND o.num_weeks <= %s "
+            "AND o.salary >= %s AND o.salary <= %s "
+            "AND (r.id = %s OR r.name = 'Global')"
+        )
+        parameters: list = [min_num_weeks, max_num_weeks, min_salary, max_salary, current_user.region_id]
 
         if field is not None:
             sql += " AND o.field = %s"
