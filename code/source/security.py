@@ -110,7 +110,7 @@ async def get_token(email: str, password: str, user_type: UserType) -> Token:
         expires_delta=token_expiration_delta,
     )
 
-    return Token(access_token=token, token_type="bearer")
+    return Token(access_token=token, token_type="Bearer")
 
 
 """ To reduce code duplication """

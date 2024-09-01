@@ -10,7 +10,6 @@ from .controllers import (
     experience_post_controller,
     offer_delete_controller,
     offer_put_controller,
-    restart_database_controller,
     token_controller,
     student_post_controller,
     student_put_controller,
@@ -51,7 +50,7 @@ templates = Jinja2Templates(directory="templates")
 
 @router.get("/test")
 async def test():
-    return "This is a test."
+    return {"message": "This is a test message."}
 
 
 # Routes for TOKENS
@@ -360,12 +359,6 @@ async def register_company_get(request: Request):
 @router.get("/log-in", response_class=HTMLResponse, tags=["static-templates"])
 async def log_in_get(request: Request):
     return templates.TemplateResponse("log-in.html", {"request": request})
-
-
-""" Routes for reseting the database """
-@router.delete("/restart-database", status_code=status.HTTP_200_OK)
-async def restart_database():
-    await restart_database_controller()
 
 
 # Routes for testing Cockroach DB connection

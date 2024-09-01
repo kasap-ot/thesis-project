@@ -302,7 +302,7 @@ async def offer_delete_controller(offer_id: int, current_user) ->None:
         await conn.execute(sql, [fake_company_id, offer_id])
 
 
-# Experienct controllers
+# Experience controllers
 
 
 async def experience_post_controller(e: ExperienceCreate, current_user) -> None:
@@ -487,16 +487,3 @@ async def applicants_get_controller(offer_id: int, current_user) -> list[Applica
         await applicant_cur.execute(sql, [offer_id])
         records = await applicant_cur.fetchall()
         return records
-    
-
-# Other controllers
-
-
-async def restart_database_controller() -> None:
-    async with get_async_pool().connection() as connection:
-        await connection.execute("DELETE FROM applications;")
-        await connection.execute("DELETE FROM experiences;")
-        await connection.execute("DELETE FROM offers;")
-        await connection.execute("DELETE FROM students;")
-        await connection.execute("DELETE FROM companies;")
-        await connection.execute("DELETE FROM regions;")

@@ -13,17 +13,19 @@
       <!-- I want to change these three field to be squares within a 2 by 2 matrix with each square having rounded edges -->
 
       <div class="container text-center my-5">
-        <div class="row column-gap-5 fs-5">
-          <div class="col bg-primary-subtle rounded-pill p-2 shadow border border-primary border-3">
-            <strong>Salary</strong> <br> {{ offer.salary }}
+        <div class="row fs-5 mb-2 column-gap-3">
+          <div class="col bg-danger-subtle p-2 shadow rounded-3 py-3">
+            <strong>Salary</strong> <br> {{ offer.salary }} USD
           </div>
-          <div class="col bg-primary-subtle rounded-pill p-2 shadow border border-primary border-3">
-            <strong>Length</strong> <br> {{ offer.num_weeks }}
+          <div class="col bg-danger-subtle p-2 shadow rounded-3 py-3">
+            <strong>Length</strong> <br> {{ offer.num_weeks }} Weeks
           </div>
-          <div class="col bg-primary-subtle rounded-pill p-2 shadow border border-primary border-3">
+        </div>
+        <div class="row fs-5 mt-2 column-gap-3">
+          <div class="col bg-danger-subtle p-2 shadow rounded-3 py-3">
             <strong>Deadline</strong> <br> {{ offer.deadline }}
           </div>
-          <div class="col bg-primary-subtle rounded-pill p-2 shadow border border-primary border-3">
+          <div class="col bg-danger-subtle p-2 shadow rounded-3 py-3">
             <strong>Region</strong> <br> {{ offer.region }}
           </div>
         </div>
