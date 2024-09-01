@@ -155,4 +155,7 @@ def authorize_user(user_id: int, current_user: StudentInDB | CompanyInDB, Schema
     is_invalid_user = current_user.id != user_id
     is_invalid_user_type = type(current_user) is not Schema
     if is_invalid_user_type or is_invalid_user:
-        raise HTTPException(403)
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Could not authorize user",
+        )
