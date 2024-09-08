@@ -75,7 +75,7 @@ def insert_student_in_db(db_connection: pg.Connection) -> StudentTest:
 
 
 @pytest.mark.asyncio
-async def test_test():
+async def test_test_route():
     async with AsyncClient(base_url=BASE_URL) as client:
         response = await client.get("/test")
         assert response.status_code == status.HTTP_200_OK
