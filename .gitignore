@@ -2,7 +2,9 @@
 __pycache__/
 commands.sh
 test.py
+test.sql
 test/
+settings.json
 templates/test.html
 database.db
 notes.txt

@@ -3,12 +3,9 @@ from httpx import AsyncClient
 from .utils import pwd_context
 from fastapi import status
 from .database import get_connection_string
-from .security import Token
+from .test_utils import BASE_URL, delete_db_data, db_connection, reset_database, create_token_header
 import psycopg as pg
 import pytest
-
-
-base_url = "http://127.0.0.1:8000"
 
 
 @dataclass
@@ -42,19 +39,6 @@ def create_student() -> StudentTest:
     )
 
 
-def create_token_header(token: dict) -> dict:
-    return {"Authorization": f"Bearer {token['access_token']}"}
-
-
-def delete_db_data(db_connection: pg.Connection):
-    db_connection.execute("DELETE FROM applications;")
-    db_connection.execute("DELETE FROM experiences;")
-    db_connection.execute("DELETE FROM offers;")
-    db_connection.execute("DELETE FROM students;")
-    db_connection.execute("DELETE FROM companies;")
-    db_connection.commit()
-
-
 async def get_student_token(client: AsyncClient, student: StudentTest) -> dict:
     response = await client.post(
         url="/token?user_type_param=student",
@@ -65,20 +49,6 @@ async def get_student_token(client: AsyncClient, student: StudentTest) -> dict:
     })
     token = response.json()
     return token
-
-
-@pytest.fixture(scope="module")
-def db_connection():
-    db_string = get_connection_string()
-    
-    with pg.connect(db_string) as db_connection:
-        yield db_connection
-        delete_db_data(db_connection)
-
-
-@pytest.fixture(scope="function", autouse=True)
-def reset_database(db_connection: pg.Connection):
-    delete_db_data(db_connection)
 
 
 @pytest.fixture(scope="function")
@@ -106,16 +76,16 @@ def insert_student_in_db(db_connection: pg.Connection) -> StudentTest:
 
 @pytest.mark.asyncio
 async def test_test():
-    async with AsyncClient(base_url=base_url) as client:
+    async with AsyncClient(base_url=BASE_URL) as client:
         response = await client.get("/test")
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
         assert response.json() == {"message": "This is a test message."}
 
 
 @pytest.mark.asyncio
 async def test_student_registration():
     student = create_student()
-    async with AsyncClient(base_url=base_url) as client:
+    async with AsyncClient(base_url=BASE_URL) as client:
         # test user registration
         response = await client.post("/students", json=asdict(student))
         assert response.status_code == status.HTTP_201_CREATED
@@ -127,7 +97,7 @@ async def test_student_registration_error():
     student = create_student()
     student_dict = asdict(student)
     student_dict["credits"] = "This should be an integer"
-    async with AsyncClient(base_url=base_url) as client:
+    async with AsyncClient(base_url=BASE_URL) as client:
         # test user registration with incorrect parameter
         response = await client.post("/students", json=student_dict)
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
@@ -137,7 +107,7 @@ async def test_student_registration_error():
 @pytest.mark.asyncio
 async def test_student_login(insert_student_in_db: StudentTest):   
     student = insert_student_in_db
-    async with AsyncClient(base_url=base_url) as client:
+    async with AsyncClient(base_url=BASE_URL) as client:
         # test user login
         response = await client.post(
             url="/token?user_type_param=student",
@@ -166,7 +136,7 @@ async def test_student_login(insert_student_in_db: StudentTest):
 @pytest.mark.asyncio
 async def test_student_profile(insert_student_in_db: StudentTest):
     student = insert_student_in_db
-    async with AsyncClient(base_url=base_url) as client:
+    async with AsyncClient(base_url=BASE_URL) as client:
         # get the token for acces
         token = await get_student_token(client, student)
         
@@ -193,7 +163,7 @@ async def test_student_profile(insert_student_in_db: StudentTest):
 @pytest.mark.asyncio
 async def test_student_update(insert_student_in_db: StudentTest):
     student = insert_student_in_db
-    async with AsyncClient(base_url=base_url) as client:
+    async with AsyncClient(base_url=BASE_URL) as client:
         # get the token for acces
         token = await get_student_token(client, student)
 
@@ -221,7 +191,7 @@ async def test_student_update(insert_student_in_db: StudentTest):
 @pytest.mark.asyncio
 async def test_student_delete(insert_student_in_db: StudentTest):
     student = insert_student_in_db
-    async with AsyncClient(base_url=base_url) as client:
+    async with AsyncClient(base_url=BASE_URL) as client:
         # get the student's access token
         token = await get_student_token(client, student)
         
