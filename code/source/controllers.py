@@ -161,9 +161,11 @@ async def company_patch_controller(company_id: int, c: CompanyUpdate, current_us
     authorize_user(company_id, current_user, CompanyInDB)
     
     async with get_async_pool().connection() as conn:
-        sql = """UPDATE companies SET                                                 
-            email=%s, name=%s, field=%s, num_employees=%s, year_founded=%s, website=%s
-            WHERE id=%s RETURNING *;"""
+        sql = (
+            "UPDATE companies SET "
+            "email=%s, name=%s, field=%s, num_employees=%s, year_founded=%s, website=%s "
+            "WHERE id=%s RETURNING *;"
+        )
         await conn.execute(sql, [
                 c.email,
                 c.name,

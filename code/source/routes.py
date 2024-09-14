@@ -126,9 +126,7 @@ async def company_get(request: Request, company_id: int, current_user = Depends(
     )
 
 
-@router.get(
-    "/companies/{company_id}/offers", response_model=list[OfferRead], tags=["companies"]
-)
+@router.get("/companies/{company_id}/offers", response_model=list[OfferRead], tags=["companies"])
 async def company_offers_get(request: Request, company_id: int, current_user = Depends(get_current_user)):
     offers = await company_offers_get_controller(company_id)
     return templates.TemplateResponse(
