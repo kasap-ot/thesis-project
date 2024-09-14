@@ -1,6 +1,10 @@
 import pytest
 import psycopg as pg
 from .database import get_connection_string
+from .enums import Region
+from .security import pwd_context
+from dataclasses import dataclass
+from httpx import AsyncClient
 
 
 BASE_URL = "http://127.0.0.1:8000"
@@ -31,3 +35,183 @@ def db_connection():
 @pytest.fixture(scope="function", autouse=True)
 def reset_database(db_connection: pg.Connection):
     delete_db_data(db_connection)
+
+
+@dataclass
+class CompanyTest:
+    id: int
+    email: str
+    password: str
+    hashed_password: str
+    name: str
+    field: str
+    num_employees: int
+    year_founded: int
+    website: str
+
+
+def create_company() -> CompanyTest:
+    return CompanyTest(
+        id=1,
+        email="company@test.com",
+        password="company-password",
+        hashed_password=pwd_context.hash("company-password"),
+        name="Test LLC",
+        field="Test Field",
+        num_employees=230,
+        year_founded=1999,
+        website="www.test-llc.com",
+    )
+
+
+async def get_company_token(client: AsyncClient, company: CompanyTest) -> dict:
+    response = await client.post(
+        url="/token?user_type_param=company",
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+        data={
+            "username": company.email,
+            "password": company.password,
+    })
+    token = response.json()
+    return token
+
+
+async def get_company_header_token(client: AsyncClient, company: CompanyTest) -> dict:
+    token = await get_company_token(client, company)
+    return {"Authorization": f"Bearer {token['access_token']}"}
+
+
+@pytest.fixture(scope="function")
+def insert_company_in_db(db_connection: pg.Connection) -> CompanyTest:
+    company = create_company()
+    db_connection.execute(
+        "INSERT INTO companies "
+        "(id, email, hashed_password, name, field, num_employees, year_founded, website) "
+        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+        params=[
+            company.id,
+            company.email,
+            company.hashed_password,
+            company.name,
+            company.field,
+            company.num_employees,
+            company.year_founded,
+            company.website,
+    ])
+    db_connection.commit()
+    return company
+
+
+@pytest.fixture(scope="function")
+def insert_offers_in_db(db_connection: pg.Connection, insert_company_in_db: CompanyTest) -> dict:
+    company = insert_company_in_db
+    o1 = create_offer(company.id, 1)
+    o2 = create_offer(company.id, 2)
+    o3 = create_offer(company.id, 3)
+    db_connection.execute(
+        "INSERT INTO offers "
+        "(id, salary, num_weeks, field, deadline, requirements, responsibilities, company_id, region_id) "
+        "VALUES "
+        "(%s, %s, %s, %s, %s, %s, %s, %s, %s), "
+        "(%s, %s, %s, %s, %s, %s, %s, %s, %s), "
+        "(%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+        params=[
+            o1.id, o1.salary, o1.num_weeks, o1.field, o1.deadline, o1.requirements, o1.responsibilities, o1.company_id, o1.region_id,
+            o2.id, o2.salary, o2.num_weeks, o2.field, o2.deadline, o2.requirements, o2.responsibilities, o2.company_id, o2.region_id,
+            o3.id, o3.salary, o3.num_weeks, o3.field, o3.deadline, o3.requirements, o3.responsibilities, o3.company_id, o3.region_id,
+    ])
+    db_connection.commit()
+    return {"offers": [o1, o2, o3], "company": company}
+
+
+@dataclass
+class OfferTest:
+    id: int
+    salary: int
+    num_weeks: int
+    field: str
+    deadline: str
+    requirements: str
+    responsibilities: str
+    company_id: int
+    region_id: int
+
+
+def create_offer(company_id: int, offer_id: int = 1) -> OfferTest:
+    return OfferTest(
+        id=offer_id,
+        salary=2000,
+        num_weeks=20,
+        field="Test Field",
+        deadline="2024-10-01",
+        requirements="Test Requirements",
+        responsibilities="Test Responsibilities",
+        company_id=company_id,
+        region_id=Region.GLOBAL.value,
+    )
+
+
+@dataclass
+class StudentTest:
+    id: int
+    email: str
+    name: str
+    date_of_birth: str
+    university: str
+    major: str
+    credits: int
+    gpa: float
+    region_id: int
+    password: str
+    hashed_password: str
+
+
+def create_student() -> StudentTest:
+    return StudentTest(
+        id = 1,
+        email = "student@test.com",
+        name = "Test Name",
+        date_of_birth = "2000-01-01",
+        university = "Test University",
+        major = "Test Major",
+        credits = 150,
+        gpa = 8.50,
+        region_id = 0,
+        password = "Test Password",
+        hashed_password = pwd_context.hash("Test Password"),
+    )
+
+
+async def get_student_token(client: AsyncClient, student: StudentTest) -> dict:
+    response = await client.post(
+        url="/token?user_type_param=student",
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+        data={
+            "username": student.email,
+            "password": student.password,
+    })
+    token = response.json()
+    return token
+
+
+@pytest.fixture(scope="function")
+def insert_student_in_db(db_connection: pg.Connection) -> StudentTest:
+    student = create_student()
+    db_connection.execute(
+        "INSERT INTO students "
+        "(id, email, hashed_password, name, university, major, credits, gpa, date_of_birth, region_id) "
+        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);",
+        params=[
+            student.id,
+            student.email,
+            student.hashed_password,
+            student.name,
+            student.university,
+            student.major,
+            student.credits,
+            student.gpa,
+            student.date_of_birth,
+            student.region_id,
+    ])
+    db_connection.commit()
+    return student

@@ -1,77 +1,17 @@
-from dataclasses import dataclass, asdict
+from dataclasses import asdict
 from httpx import AsyncClient
-from .utils import pwd_context
 from fastapi import status
-from .database import get_connection_string
-from .test_utils import BASE_URL, delete_db_data, db_connection, reset_database, create_token_header
-import psycopg as pg
+from .test_utils import (
+    BASE_URL, 
+    db_connection,
+    insert_student_in_db,
+    reset_database,
+    create_token_header,
+    get_student_token,
+    create_student,
+    StudentTest
+)
 import pytest
-
-
-@dataclass
-class StudentTest:
-    id: int
-    email: str
-    name: str
-    date_of_birth: str
-    university: str
-    major: str
-    credits: int
-    gpa: float
-    region_id: int
-    password: str
-    hashed_password: str
-
-
-def create_student() -> StudentTest:
-    return StudentTest(
-        id = 1,
-        email = "student@test.com",
-        name = "Test Name",
-        date_of_birth = "2000-01-01",
-        university = "Test University",
-        major = "Test Major",
-        credits = 150,
-        gpa = 8.50,
-        region_id = 0,
-        password = "Test Password",
-        hashed_password = pwd_context.hash("Test Password"),
-    )
-
-
-async def get_student_token(client: AsyncClient, student: StudentTest) -> dict:
-    response = await client.post(
-        url="/token?user_type_param=student",
-        headers={"Content-Type": "application/x-www-form-urlencoded"},
-        data={
-            "username": student.email,
-            "password": student.password,
-    })
-    token = response.json()
-    return token
-
-
-@pytest.fixture(scope="function")
-def insert_student_in_db(db_connection: pg.Connection) -> StudentTest:
-    student = create_student()
-    db_connection.execute(
-        "INSERT INTO students "
-        "(id, email, hashed_password, name, university, major, credits, gpa, date_of_birth, region_id) "
-        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);",
-        params=[
-            student.id,
-            student.email,
-            student.hashed_password,
-            student.name,
-            student.university,
-            student.major,
-            student.credits,
-            student.gpa,
-            student.date_of_birth,
-            student.region_id,
-    ])
-    db_connection.commit()
-    return student
 
 
 @pytest.mark.asyncio
@@ -178,6 +118,34 @@ async def test_student_update(insert_student_in_db: StudentTest):
         )
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == None
+
+        # check if the field was properly updated
+        response = await client.get(
+            url=f"/students/profile/{student.id}",
+            headers=create_token_header(token),
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert student.major in response.text
+
+
+@pytest.mark.asyncio
+async def test_student_update_incorrect_field(insert_student_in_db: StudentTest):
+    student = insert_student_in_db
+    async with AsyncClient(base_url=BASE_URL) as client:
+        # get the token for acces
+        token = await get_student_token(client, student)
+
+        # update a field in the student
+        student.gpa = "This should be a float" # type: ignore
+
+        # test the student put route
+        response = await client.put(
+            url=f"/students/{student.id}",
+            headers=create_token_header(token),
+            json=asdict(student)
+        )
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+        assert "detail"in response.json()
 
         # check if the field was properly updated
         response = await client.get(
