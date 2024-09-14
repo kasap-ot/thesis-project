@@ -298,10 +298,8 @@ async def offer_delete_controller(offer_id: int, current_user) ->None:
         
         authorize_user(record["company_id"], current_user, CompanyInDB)
         
-        # Set the offer foreign key to reference a fake company in the DB
-        fake_company_id = "00000000-0000-0000-0000-000000000000"
-        sql = "UPDATE offers SET company_id = %s WHERE id = %s"
-        await conn.execute(sql, [fake_company_id, offer_id])
+        sql = "UPDATE offers SET company_id = NULL WHERE id = %s"
+        await conn.execute(sql, [offer_id])
 
 
 # Experience controllers

@@ -66,3 +66,8 @@ ON UPDATE CASCADE;
 
 ALTER TABLE offers
 ALTER COLUMN region_id SET DEFAULT -1;
+
+
+-- Drop NOT NULL constraint on company_id for offers
+
+ALTER TABLE offers ALTER COLUMN company_id DROP NOT NULL;
