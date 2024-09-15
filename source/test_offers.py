@@ -223,7 +223,6 @@ async def test_offer_put_incorrect_field(insert_offers_in_db: dict):
 
 @pytest.mark.asyncio
 async def test_offer_put_unauthorized(insert_offers_in_db: dict):
-    company: CompanyTest = insert_offers_in_db["company"]
     offers: list[OfferTest] = insert_offers_in_db["offers"]
     first_offer = offers[0]
     first_offer.field = "This field is updated!"
@@ -233,20 +232,53 @@ async def test_offer_put_unauthorized(insert_offers_in_db: dict):
             json=asdict(first_offer),
         )
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
-        print(response.json())
         assert "detail" in response.json()
 
 
 @pytest.mark.asyncio
-async def test_offer_delete():
-    ...
+async def test_offer_delete(insert_offers_in_db: dict):
+    company = insert_offers_in_db["company"]
+    offers: list[OfferTest] = insert_offers_in_db["offers"]
+    first_offer = offers[0]
+    async with AsyncClient(base_url=BASE_URL) as client:
+        # delete the entity
+        token_header = await get_company_token_header(client, company)
+        response = await client.delete(
+            url=f"/offers/{first_offer.id}",
+            headers=token_header,
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json() == None
+
+        # check if deleted successfully
+        response = await client.get(
+            url=f"/companies/{company.id}/offers",
+            headers=token_header,
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert first_offer.field not in response.text
 
 
 @pytest.mark.asyncio
-async def test_offer_delete_not_found():
-    ...
+async def test_offer_delete_not_found(insert_company_in_db: CompanyTest):
+    company = insert_company_in_db
+    fake_offer = create_offer(company.id)
+    async with AsyncClient(base_url=BASE_URL) as client:
+        token_header = await get_company_token_header(client, company)
+        response = await client.delete(
+            url=f"/offers/{fake_offer.id}",
+            headers=token_header
+        )
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert "detail" in response.json()
 
 
 @pytest.mark.asyncio
-async def test_offer_delete_unauthorized():
-    ...
+async def test_offer_delete_unauthorized(insert_offers_in_db: dict):
+    company = insert_offers_in_db["company"]
+    offers: list[OfferTest] = insert_offers_in_db["offers"]
+    first_offer = offers[0]
+    async with AsyncClient(base_url=BASE_URL) as client:
+        response = await client.delete(url=f"/offers/{first_offer.id}")
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert "detail" in response.json()
