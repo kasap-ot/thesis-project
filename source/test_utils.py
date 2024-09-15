@@ -76,7 +76,7 @@ async def get_company_token(client: AsyncClient, company: CompanyTest) -> dict:
     return token
 
 
-async def get_company_header_token(client: AsyncClient, company: CompanyTest) -> dict:
+async def get_company_token_header(client: AsyncClient, company: CompanyTest) -> dict:
     token = await get_company_token(client, company)
     return {"Authorization": f"Bearer {token['access_token']}"}
 
@@ -105,9 +105,9 @@ def insert_company_in_db(db_connection: pg.Connection) -> CompanyTest:
 @pytest.fixture(scope="function")
 def insert_offers_in_db(db_connection: pg.Connection, insert_company_in_db: CompanyTest) -> dict:
     company = insert_company_in_db
-    o1 = create_offer(company.id, 1)
-    o2 = create_offer(company.id, 2)
-    o3 = create_offer(company.id, 3)
+    o1 = create_offer(company.id, offer_id=1, field="Test Field 1", num_weeks=10)
+    o2 = create_offer(company.id, offer_id=2, field="Test Field 2", num_weeks=20)
+    o3 = create_offer(company.id, offer_id=3, field="Test Field 3", num_weeks=30)
     db_connection.execute(
         "INSERT INTO offers "
         "(id, salary, num_weeks, field, deadline, requirements, responsibilities, company_id, region_id) "
@@ -137,12 +137,12 @@ class OfferTest:
     region_id: int
 
 
-def create_offer(company_id: int, offer_id: int = 1) -> OfferTest:
+def create_offer(company_id: int, offer_id: int = 1, field: str = "Test Field", num_weeks: int = 20) -> OfferTest:
     return OfferTest(
         id=offer_id,
         salary=2000,
         num_weeks=20,
-        field="Test Field",
+        field=field,
         deadline="2024-10-01",
         requirements="Test Requirements",
         responsibilities="Test Responsibilities",
@@ -192,6 +192,11 @@ async def get_student_token(client: AsyncClient, student: StudentTest) -> dict:
     })
     token = response.json()
     return token
+
+
+async def get_student_token_header(client: AsyncClient, student: StudentTest) -> dict:
+    token = await get_student_token(client, student)
+    return {"Authorization": f"Bearer {token['access_token']}"}
 
 
 @pytest.fixture(scope="function")
