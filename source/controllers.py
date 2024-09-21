@@ -411,7 +411,10 @@ async def application_accept_controller(student_id: int, offer_id: int, current_
         record = await cur.fetchone()
         
         if record is None:
-            raise HTTPException(status.HTTP_404_NOT_FOUND)
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Could not find company for offer."
+            )
         
         authorize_user(record["company_id"], current_user, CompanyInDB)
         

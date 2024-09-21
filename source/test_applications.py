@@ -2,15 +2,19 @@ from httpx import AsyncClient
 from fastapi import status
 from dataclasses import asdict
 import pytest
+from .enums import Status
 from .test_utils import (
     create_application,
     create_offer,
     create_student,
+    get_company_token_header,
     get_student_token_header,
+    get_applications_from_db,
     insert_student_in_db,
     insert_company_in_db,
     insert_offers_in_db,
-    insert_applications_in_db,
+    insert_student_applications_in_db,
+    insert_offer_applications_in_db,
     db_connection,
     reset_database,
     ApplicationTest,
@@ -77,9 +81,9 @@ async def test_application_post_unauthorized(insert_offers_in_db: dict):
 
 # test_applications_get
 @pytest.mark.asyncio
-async def test_applications_get(insert_applications_in_db):
-    student = insert_applications_in_db["student"]
-    offers: list[OfferTest] = insert_applications_in_db["offers"]
+async def test_applications_get(insert_student_applications_in_db):
+    student = insert_student_applications_in_db["student"]
+    offers: list[OfferTest] = insert_student_applications_in_db["offers"]
     async with AsyncClient(base_url=BASE_URL) as client:
         token_header = await get_student_token_header(client, student)
         response = await client.get(
@@ -111,9 +115,57 @@ async def test_applications_get_no_application(insert_student_in_db, insert_comp
 
 
 # test application get not authorized
+@pytest.mark.asyncio
+async def test_applications_get_unauthorized(insert_student_applications_in_db):
+    student = insert_student_applications_in_db["student"]
+    offers: list[OfferTest] = insert_student_applications_in_db["offers"]
+    async with AsyncClient(base_url=BASE_URL) as client:
+        response = await client.get(
+            url=f"/applications/view/{student.id}",
+        )
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert "detail" in response.text
 
 
 # test_application_accept
+@pytest.mark.asyncio
+async def test_application_accept(insert_offer_applications_in_db):
+    db_data = insert_offer_applications_in_db
+    students: list[StudentTest] = db_data["students"]
+    first_student = students[0]
+    offer: OfferTest = db_data["offer"]
+    company: CompanyTest = db_data["company"]
+    async with AsyncClient(base_url=BASE_URL) as client:
+        token_header = await get_company_token_header(client, company)
+        response = await client.patch(
+            url=f"/applications/accept/{first_student.id}/{offer.id}",
+            headers=token_header
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json() == None
+
+        # check if application statuses were updated correctly
+        
+        updated_applications = get_applications_from_db(offer.id)
+        accepted_applications = [
+            application for application in updated_applications 
+            if application.status == Status.ACCEPTED.value
+        ]
+        rejected_applications  = [
+            application for application in updated_applications 
+            if application.status == Status.REJECTED.value
+        ]
+        
+        # check that only one student is selected
+        
+        assert len(accepted_applications) == 1
+        accepted_application = accepted_applications[0]
+        assert accepted_application == ApplicationTest(first_student.id, offer.id, Status.ACCEPTED.value)
+        
+        # check that all others are rejected
+        assert len(rejected_applications) == len(updated_applications) - len(accepted_applications)
+
+
 
 
 # test_application_cancel

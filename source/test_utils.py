@@ -1,5 +1,6 @@
 import pytest
 import psycopg as pg
+from psycopg.rows import class_row
 from .database import get_connection_string
 from .enums import Region, Status
 from .security import pwd_context
@@ -73,7 +74,7 @@ def create_offer(company_id: int, offer_id: int = 1, field: str = "Test Field", 
     return OfferTest(
         id=offer_id,
         salary=2000,
-        num_weeks=20,
+        num_weeks=num_weeks,
         field=field,
         deadline="2024-10-01",
         requirements="Test Requirements",
@@ -83,10 +84,10 @@ def create_offer(company_id: int, offer_id: int = 1, field: str = "Test Field", 
     )
 
 
-def create_student() -> StudentTest:
+def create_student(student_id: int = 1, email: str = "student@test.com") -> StudentTest:
     return StudentTest(
-        id = 1,
-        email = "student@test.com",
+        id = student_id,
+        email = email,
         name = "Test Name",
         date_of_birth = "2000-01-01",
         university = "Test University",
@@ -186,6 +187,21 @@ def delete_db_data(db_connection: pg.Connection):
     db_connection.execute("DELETE FROM students;")
     db_connection.execute("DELETE FROM companies;")
     db_connection.commit()
+
+
+def get_applications_from_db(offer_id: int) -> list[ApplicationTest]:
+    db_string = get_connection_string()
+    with pg.connect(db_string) as db_connection:
+        cursor = db_connection.cursor(row_factory=class_row(ApplicationTest))
+        sql = (
+            "SELECT student_id, offer_id, status "
+            "FROM applications "
+            "WHERE offer_id = %s"
+        )
+        cursor.execute(sql, params=[offer_id])
+        applications = cursor.fetchall()
+        cursor.close()
+        return applications
 
 
 @pytest.fixture(scope="module")
@@ -295,7 +311,7 @@ def insert_experience_in_db(
 
 
 @pytest.fixture(scope="function")
-def insert_applications_in_db(
+def insert_student_applications_in_db(
     insert_student_in_db: StudentTest, 
     insert_offers_in_db: dict,
     db_connection: pg.Connection,
@@ -323,4 +339,55 @@ def insert_applications_in_db(
         "student": student,
         "offers": offers,
         "applications": applications,
+    }
+
+
+@pytest.fixture(scope="function")
+def insert_offer_applications_in_db(
+    insert_offers_in_db: dict,
+    db_connection: pg.Connection,
+) -> dict:
+    # We want to create multiple applications for the same offer
+
+    offer: OfferTest = insert_offers_in_db["offers"][0]
+    company: CompanyTest = insert_offers_in_db["company"]
+    
+    s1 = create_student(student_id=1, email="student_1@mail.com")
+    s2 = create_student(student_id=2, email="student_2@mail.com")
+    s3 = create_student(student_id=3, email="student_3@mail.com")
+    
+    a1 = create_application(s1.id, offer.id)
+    a2 = create_application(s2.id, offer.id)
+    a3 = create_application(s3.id, offer.id)
+    
+    insert_students_sql = (
+        "INSERT INTO students "
+        "(id, email, hashed_password, name, university, major, credits, gpa, date_of_birth, region_id) "
+        "VALUES "
+        "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s), "
+        "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s), "
+        "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
+    )
+    insert_applications_sql = (
+        "INSERT INTO applications "
+        "(student_id, offer_id, status) VALUES "
+        "(%s, %s, %s), (%s, %s, %s), (%s, %s, %s);"
+    )
+    db_connection.execute(insert_students_sql, params=[
+        s1.id, s1.email, s1.hashed_password, s1.name, s1.university, s1.major, s1.credits, s1.gpa, s1.date_of_birth, s1.region_id,
+        s2.id, s2.email, s2.hashed_password, s2.name, s2.university, s2.major, s2.credits, s2.gpa, s2.date_of_birth, s2.region_id,
+        s3.id, s3.email, s3.hashed_password, s3.name, s3.university, s3.major, s3.credits, s3.gpa, s3.date_of_birth, s3.region_id,
+    ])
+    db_connection.execute(insert_applications_sql, params=[
+        a1.student_id, a1.offer_id, a1.status,
+        a2.student_id, a2.offer_id, a2.status,
+        a3.student_id, a3.offer_id, a3.status,
+    ])
+    db_connection.commit()
+
+    return {
+        "students": [s1, s2, s3],
+        "applications": [a1, a2, a3],
+        "offer": offer,
+        "company": company,
     }
