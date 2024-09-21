@@ -21,8 +21,9 @@ from .enums import Status, UserType
 from .security import Token, get_token, pwd_context, authorize_user
 from .database import get_async_pool
 from fastapi.security import OAuth2PasswordRequestForm
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from psycopg.rows import dict_row, class_row
+from psycopg import IntegrityError
 
 
 # Token controllers
@@ -97,7 +98,7 @@ async def student_profile_get_controller(student_id: int) -> StudentProfileRead:
         record = await cur.fetchone()
         
         if record is None:
-            raise HTTPException(404)
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
         
         student = StudentRead(**record)
 
@@ -138,7 +139,7 @@ async def company_get_controller(company_id: int) -> CompanyRead:
         await cur.execute(sql, [company_id])
         record = await cur.fetchone()
         if record is None:
-            raise HTTPException(404)
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
         return record
     
 
@@ -256,7 +257,7 @@ async def offer_get_controller(offer_id: int) -> OfferRead:
         await cur.execute(sql, [offer_id])
         record = await cur.fetchone()
         if record is None:
-            raise HTTPException(404)
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
         return record
     
 
@@ -267,7 +268,7 @@ async def offer_put_controller(offer_id: int, o: OfferUpdate, current_user) -> N
         record = await cur.fetchone()
         
         if record is None:
-            raise HTTPException(404)
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
 
         authorize_user(record["company_id"], current_user, CompanyInDB)
         
@@ -294,7 +295,7 @@ async def offer_delete_controller(offer_id: int, current_user) ->None:
         record = await cur.fetchone()
 
         if record is None:
-            raise HTTPException(404)
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
         
         authorize_user(record["company_id"], current_user, CompanyInDB)
         
@@ -333,7 +334,7 @@ async def experience_patch_controller(
         record = await cur.fetchone()
 
         if record is None:
-            raise HTTPException(404)
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
         
         authorize_user(record["student_id"], current_user, StudentInDB)
 
@@ -360,7 +361,7 @@ async def experience_delete_controller(experience_id: int, current_user) -> None
         record = await cur.fetchone()
         
         if record is None:
-            raise HTTPException(404)
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
         
         authorize_user(record["student_id"], current_user, StudentInDB)
 
@@ -378,7 +379,10 @@ async def application_post_controller(student_id: int, offer_id: int, current_us
 
     async with get_async_pool().connection() as conn:
         sql = "INSERT INTO applications (student_id, offer_id, status) VALUES (%s, %s, %s)"
-        await conn.execute(sql, [student_id, offer_id, Status.WAITING.value])
+        try:
+            await conn.execute(sql, [student_id, offer_id, Status.WAITING.value])
+        except IntegrityError as e:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
 async def applications_get_controller(student_id: int, current_user) -> list[OfferApplication]:
@@ -407,7 +411,7 @@ async def application_accept_controller(student_id: int, offer_id: int, current_
         record = await cur.fetchone()
         
         if record is None:
-            raise HTTPException(404)
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
         
         authorize_user(record["company_id"], current_user, CompanyInDB)
         
@@ -434,14 +438,14 @@ async def application_cancel_controller(student_id: int, offer_id: int, current_
         record = await cur.fetchone()
         
         if record is None:
-            raise HTTPException(404)
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
         
-        status = record["status"]
+        application_status = record["status"]
 
         # If the application is already accepted,
         # delete the given application and reset all
         # other applications for the same offer to status 'waiting'
-        if status == Status.ACCEPTED.value:
+        if application_status == Status.ACCEPTED.value:
             async with conn.transaction():
                 sql = """
                     DELETE FROM applications
@@ -456,7 +460,7 @@ async def application_cancel_controller(student_id: int, offer_id: int, current_
                 
         # If the applicant is still waiting, 
         # just delete the application
-        elif status == Status.WAITING.value:
+        elif application_status == Status.WAITING.value:
             sql = "DELETE FROM applications WHERE student_id=%s AND offer_id=%s;"
             await cur.execute(sql, [student_id, offer_id])
 
@@ -471,7 +475,7 @@ async def applicants_get_controller(offer_id: int, current_user) -> list[Applica
         record = await dict_cur.fetchone()
 
         if record is None:
-            raise HTTPException(404)
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
         
         authorize_user(record["company_id"], current_user, CompanyInDB)
 

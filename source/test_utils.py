@@ -1,7 +1,7 @@
 import pytest
 import psycopg as pg
 from .database import get_connection_string
-from .enums import Region
+from .enums import Region, Status
 from .security import pwd_context
 from dataclasses import dataclass
 from httpx import AsyncClient
@@ -62,6 +62,13 @@ class ExperienceTest:
     student_id: int
 
 
+@dataclass
+class ApplicationTest:
+    student_id: int
+    offer_id: int
+    status: int
+
+
 def create_offer(company_id: int, offer_id: int = 1, field: str = "Test Field", num_weeks: int = 20) -> OfferTest:
     return OfferTest(
         id=offer_id,
@@ -116,6 +123,22 @@ def create_experience(student_id: int) -> ExperienceTest:
         description="Test Experience Description",
         student_id=student_id,
     )
+
+
+def create_application(student_id: int, offer_id: int) -> ApplicationTest:
+    return ApplicationTest(
+        student_id=student_id,
+        offer_id=offer_id,
+        status=Status.WAITING.value,
+    )
+
+
+def create_applications(student: StudentTest, offers: list[OfferTest]) -> list[ApplicationTest]:
+    applications = []
+    for offer in offers:
+        application = create_application(student.id, offer.id)
+        applications.append(application)
+    return applications
 
 
 async def get_company_token(client: AsyncClient, company: CompanyTest) -> dict:
@@ -245,7 +268,10 @@ def insert_student_in_db(db_connection: pg.Connection) -> StudentTest:
 
 
 @pytest.fixture(scope="function")
-def insert_experience_in_db(insert_student_in_db: StudentTest, db_connection: pg.Connection) -> dict:
+def insert_experience_in_db(
+    insert_student_in_db: StudentTest, 
+    db_connection: pg.Connection
+) -> dict:
     student = insert_student_in_db
     experience = create_experience(student.id)
     db_connection.execute(
@@ -265,4 +291,36 @@ def insert_experience_in_db(insert_student_in_db: StudentTest, db_connection: pg
     return {
         "student": student,
         "experience": experience,
+    }
+
+
+@pytest.fixture(scope="function")
+def insert_applications_in_db(
+    insert_student_in_db: StudentTest, 
+    insert_offers_in_db: dict,
+    db_connection: pg.Connection,
+) -> dict:
+    student = insert_student_in_db
+    offers: list[OfferTest] = insert_offers_in_db["offers"]
+    applications = create_applications(student, offers)
+    
+    a1 = applications[0]
+    a2 = applications[1]
+    a3 = applications[2]
+
+    db_connection.execute(
+        "INSERT INTO applications "
+        "(student_id, offer_id, status) VALUES "
+        "(%s, %s, %s), (%s, %s, %s), (%s, %s, %s)",
+        params=[
+            a1.student_id, a1.offer_id, a1.status,
+            a2.student_id, a2.offer_id, a2.status,
+            a3.student_id, a3.offer_id, a3.status,
+        ],
+    )
+    db_connection.commit()
+    return {
+        "student": student,
+        "offers": offers,
+        "applications": applications,
     }
