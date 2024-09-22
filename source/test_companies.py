@@ -3,12 +3,12 @@ from dataclasses import asdict
 from .test_utils import (
     BASE_URL, 
     create_token_header, 
-    get_company_token, 
+    company_token, 
     create_company, 
     CompanyTest, 
     OfferTest,
-    insert_company_in_db,
-    insert_offers_in_db,
+    insert_company,
+    insert_offers,
     db_connection,
     reset_database,
 )
@@ -39,8 +39,8 @@ async def test_company_register_error():
 
 
 @pytest.mark.asyncio
-async def test_compeny_log_in(insert_company_in_db: CompanyTest):
-    company = insert_company_in_db
+async def test_compeny_log_in(insert_company: CompanyTest):
+    company = insert_company
     async with AsyncClient(base_url=BASE_URL) as client:
         # test user login
         response = await client.post(
@@ -68,10 +68,10 @@ async def test_compeny_log_in(insert_company_in_db: CompanyTest):
 
 
 @pytest.mark.asyncio
-async def test_company_get(insert_company_in_db: CompanyTest):
-    company = insert_company_in_db
+async def test_company_get(insert_company: CompanyTest):
+    company = insert_company
     async with AsyncClient(base_url=BASE_URL) as client:
-        token = await get_company_token(client, company)
+        token = await company_token(client, company)
         response = await client.get(
             url=f"/companies/{company.id}", 
             headers=create_token_header(token)
@@ -84,8 +84,8 @@ async def test_company_get(insert_company_in_db: CompanyTest):
 
 
 @pytest.mark.asyncio
-async def test_company_get_unauthorized(insert_company_in_db: CompanyTest):
-    company = insert_company_in_db
+async def test_company_get_unauthorized(insert_company: CompanyTest):
+    company = insert_company
     async with AsyncClient(base_url=BASE_URL) as client:
         response = await client.get(url=f"/companies/{company.id}")
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
@@ -94,12 +94,12 @@ async def test_company_get_unauthorized(insert_company_in_db: CompanyTest):
 
 
 @pytest.mark.asyncio
-async def test_company_offers_get(insert_offers_in_db: dict):
-    offers: list[OfferTest] = insert_offers_in_db["offers"]
-    company: CompanyTest = insert_offers_in_db["company"]
+async def test_company_offers_get(insert_offers: dict):
+    offers: list[OfferTest] = insert_offers["offers"]
+    company: CompanyTest = insert_offers["company"]
     first_offer = offers[0]
     async with AsyncClient(base_url=BASE_URL) as client:
-        token = await get_company_token(client, company)
+        token = await company_token(client, company)
         response = await client.get(
             url=f"/companies/{first_offer.company_id}/offers",
             headers=create_token_header(token)
@@ -113,10 +113,10 @@ async def test_company_offers_get(insert_offers_in_db: dict):
 
 
 @pytest.mark.asyncio
-async def test_company_offers_get_no_offers(insert_company_in_db: CompanyTest):
-    company = insert_company_in_db
+async def test_company_offers_get_no_offers(insert_company: CompanyTest):
+    company = insert_company
     async with AsyncClient(base_url=BASE_URL) as client:
-        token = await get_company_token(client, company)
+        token = await company_token(client, company)
         response = await client.get(
             url=f"/companies/{company.id}/offers",
             headers=create_token_header(token)
@@ -127,8 +127,8 @@ async def test_company_offers_get_no_offers(insert_company_in_db: CompanyTest):
 
 
 @pytest.mark.asyncio
-async def test_company_edit_get(insert_company_in_db: CompanyTest):
-    company = insert_company_in_db
+async def test_company_edit_get(insert_company: CompanyTest):
+    company = insert_company
     async with AsyncClient(base_url=BASE_URL) as client:
         response = await client.get(url=f"/companies/{company.id}/edit")
         assert response.status_code == status.HTTP_200_OK
@@ -149,11 +149,11 @@ async def test_company_edit_get_no_company():
 
 
 @pytest.mark.asyncio
-async def test_company_patch(insert_company_in_db: CompanyTest):
-    company = insert_company_in_db
+async def test_company_patch(insert_company: CompanyTest):
+    company = insert_company
     company.website = "www.updated-website.com"
     async with AsyncClient(base_url=BASE_URL) as client:
-        token = await get_company_token(client, company)
+        token = await company_token(client, company)
         # update the field
         response = await client.put(
             url=f"/companies/{company.id}",
@@ -182,11 +182,11 @@ async def test_company_patch_no_company():
 
 
 @pytest.mark.asyncio
-async def test_company_patch_incorrect_field(insert_company_in_db: CompanyTest):
-    company = insert_company_in_db
+async def test_company_patch_incorrect_field(insert_company: CompanyTest):
+    company = insert_company
     company.num_employees = "This should be an integer" # type: ignore
     async with AsyncClient(base_url=BASE_URL) as client:
-        token = await get_company_token(client, company)
+        token = await company_token(client, company)
         response = await client.put(
             url=f"/companies/{company.id}",
             headers=create_token_header(token),
@@ -197,11 +197,11 @@ async def test_company_patch_incorrect_field(insert_company_in_db: CompanyTest):
 
 
 @pytest.mark.asyncio
-async def test_company_delete(insert_company_in_db: CompanyTest):
-    company = insert_company_in_db
+async def test_company_delete(insert_company: CompanyTest):
+    company = insert_company
     async with AsyncClient(base_url=BASE_URL) as client:
         # delete the entity
-        token = await get_company_token(client, company)
+        token = await company_token(client, company)
         token_header = create_token_header(token)
         response = await client.delete(
             url=f"/companies/{company.id}",
@@ -229,8 +229,8 @@ async def test_company_delete_no_company():
 
 
 @pytest.mark.asyncio
-async def test_company_delete_unauthorized(insert_company_in_db: CompanyTest):
-    company = insert_company_in_db
+async def test_company_delete_unauthorized(insert_company: CompanyTest):
+    company = insert_company
     async with AsyncClient(base_url=BASE_URL) as client:
         response = await client.delete(url=f"/companies/{company.id}")
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
@@ -238,10 +238,10 @@ async def test_company_delete_unauthorized(insert_company_in_db: CompanyTest):
 
 
 @pytest.mark.asyncio
-async def test_company_home_get(insert_company_in_db: CompanyTest):
-    company = insert_company_in_db
+async def test_company_home_get(insert_company: CompanyTest):
+    company = insert_company
     async with AsyncClient(base_url=BASE_URL) as client:
-        token = await get_company_token(client, company)
+        token = await company_token(client, company)
         response = await client.get(
            url="/companies-home",
            headers=create_token_header(token)

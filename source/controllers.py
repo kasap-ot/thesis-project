@@ -43,11 +43,11 @@ async def student_post_controller(s: StudentCreate) -> None:
     hashed_password = pwd_context.hash(s.password)
     
     async with get_async_pool().connection() as conn:
-        sql = """
-            INSERT INTO students 
-            (email, hashed_password, name, date_of_birth, university, major, credits, gpa, region_id) 
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """
+        sql = (
+            "INSERT INTO students "
+            "(email, hashed_password, name, date_of_birth, university, major, credits, gpa, region_id) "
+            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        )
         await conn.execute(sql, params=[
             s.email, 
             hashed_password, 
@@ -65,10 +65,12 @@ async def student_put_controller(student_id: int, s: StudentUpdate, current_user
     authorize_user(student_id, current_user, StudentInDB)
     
     async with get_async_pool().connection() as conn:
-        sql = """UPDATE students SET 
-                email=%s, name=%s, date_of_birth=%s, university=%s, 
-                major=%s, credits=%s, gpa=%s WHERE id=%s 
-                RETURNING *;"""
+        sql = (
+            "UPDATE students SET "
+            "email=%s, name=%s, date_of_birth=%s, university=%s, "
+            "major=%s, credits=%s, gpa=%s WHERE id=%s "
+            "RETURNING *;"
+        )
         await conn.execute(sql, [
                 s.email,
                 s.name,
@@ -117,9 +119,11 @@ async def student_profile_get_controller(student_id: int) -> StudentProfileRead:
 async def company_post_controller(c: CompanyCreate) -> None:
     hashed_password = pwd_context.hash(c.password)
     async with get_async_pool().connection() as conn:
-        sql = """INSERT INTO companies 
-                (email, hashed_password, name, field, num_employees, year_founded, website) 
-                VALUES (%s, %s, %s, %s, %s, %s, %s)"""
+        sql = (
+            "INSERT INTO companies "
+            "(email, hashed_password, name, field, num_employees, year_founded, website) "
+            "VALUES (%s, %s, %s, %s, %s, %s, %s)"
+        )
         await conn.execute(sql, params=[
                 c.email,
                 hashed_password,
@@ -193,9 +197,11 @@ async def offer_post_controller(o: OfferCreate, current_user) -> None:
     authorize_user(o.company_id, current_user, CompanyInDB)
 
     async with get_async_pool().connection() as conn:
-        sql = """INSERT INTO offers 
-                (salary, num_weeks, field, deadline, requirements, responsibilities, company_id, region_id)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"""
+        sql = (
+            "INSERT INTO offers "
+            "(salary, num_weeks, field, deadline, requirements, responsibilities, company_id, region_id) "
+            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+        )
         await conn.execute(sql, params=[
                 o.salary,
                 o.num_weeks,
@@ -272,10 +278,12 @@ async def offer_put_controller(offer_id: int, o: OfferUpdate, current_user) -> N
 
         authorize_user(record["company_id"], current_user, CompanyInDB)
         
-        sql = """UPDATE offers SET 
-                salary=%s, num_weeks=%s, field=%s, deadline=%s, requirements=%s, responsibilities=%s 
-                WHERE id=%s 
-                RETURNING *;"""
+        sql = (
+            "UPDATE offers SET "
+            "salary=%s, num_weeks=%s, field=%s, deadline=%s, requirements=%s, responsibilities=%s "
+            "WHERE id=%s "
+            "RETURNING *;"
+        )
         
         await conn.execute(sql, [
                 o.salary,
@@ -310,9 +318,11 @@ async def experience_post_controller(e: ExperienceCreate, current_user) -> None:
     authorize_user(e.student_id, current_user, StudentInDB)
 
     async with get_async_pool().connection() as conn:
-        sql = """INSERT INTO experiences 
-                (from_date, to_date, company, position, description, student_id) 
-                VALUES (%s, %s, %s, %s, %s, %s)"""
+        sql = (
+            "INSERT INTO experiences "
+            "(from_date, to_date, company, position, description, student_id) "
+            "VALUES (%s, %s, %s, %s, %s, %s)"
+        )
         await conn.execute(sql, params=[
                 e.from_date,
                 e.to_date,
@@ -338,12 +348,12 @@ async def experience_patch_controller(
         
         authorize_user(record["student_id"], current_user, StudentInDB)
 
-        sql = """
-            UPDATE experiences SET 
-            from_date=%s, to_date=%s, company=%s, position=%s, description=%s 
-            WHERE id=%s 
-            RETURNING *;
-        """
+        sql = (
+            "UPDATE experiences SET "
+            "from_date=%s, to_date=%s, company=%s, position=%s, description=%s "
+            "WHERE id=%s "
+            "RETURNING *;"
+        )
         await conn.execute(sql, [
                 s.from_date,
                 s.to_date,
@@ -391,14 +401,14 @@ async def applications_get_controller(student_id: int, current_user) -> list[Off
     async with get_async_pool().connection() as conn, conn.cursor(
         row_factory=class_row(OfferApplication)
     ) as cur:
-        sql = """
-            SELECT 
-                o.field, o.salary, o.num_weeks, 
-                a.status, a.student_id, a.offer_id
-            FROM offers o
-            JOIN applications a ON o.id = a.offer_id
-            WHERE a.student_id = %s;
-        """
+        sql = (
+            "SELECT "
+                "o.field, o.salary, o.num_weeks, "
+                "a.status, a.student_id, a.offer_id "
+            "FROM offers o "
+            "JOIN applications a ON o.id = a.offer_id "
+            "WHERE a.student_id = %s;"
+        )
         await cur.execute(sql, [student_id])
         records = await cur.fetchall()
         return records
@@ -419,15 +429,15 @@ async def application_accept_controller(student_id: int, offer_id: int, current_
         authorize_user(record["company_id"], current_user, CompanyInDB)
         
         async with conn.transaction():
-            sql = """
-                UPDATE applications SET status = 1
-                WHERE student_id = %s AND offer_id = %s AND status = 0;
-            """
+            sql = (
+                "UPDATE applications SET status = 1 "
+                "WHERE student_id = %s AND offer_id = %s AND status = 0;"
+            )
             await conn.execute(sql, [student_id, offer_id])
-            sql = """
-                UPDATE applications SET status = 2
-                WHERE student_id <> %s AND offer_id = %s AND status = 0;
-            """
+            sql = (
+                "UPDATE applications SET status = 2 "
+                "WHERE student_id <> %s AND offer_id = %s AND status = 0;"
+            )
             await conn.execute(sql, [student_id, offer_id])
         
 
@@ -448,21 +458,23 @@ async def application_cancel_controller(student_id: int, offer_id: int, current_
         # If the application is already accepted,
         # delete the given application and reset all
         # other applications for the same offer to status 'waiting'
+
         if application_status == Status.ACCEPTED.value:
             async with conn.transaction():
-                sql = """
-                    DELETE FROM applications
-                    WHERE student_id=%s AND offer_id=%s;
-                """
+                sql = (
+                    "DELETE FROM applications "
+                    "WHERE student_id=%s AND offer_id=%s;"
+                )
                 await conn.execute(sql, [student_id, offer_id])
-                sql = """
-                    UPDATE applications SET status = 0 
-                    WHERE student_id <> %s AND offer_id = %s;
-                """
+                sql = (
+                    "UPDATE applications SET status = 0 "
+                    "WHERE student_id <> %s AND offer_id = %s;"
+                )
                 await conn.execute(sql, [student_id, offer_id])
                 
         # If the applicant is still waiting, 
         # just delete the application
+
         elif application_status == Status.WAITING.value:
             sql = "DELETE FROM applications WHERE student_id=%s AND offer_id=%s;"
             await cur.execute(sql, [student_id, offer_id])
@@ -478,19 +490,22 @@ async def applicants_get_controller(offer_id: int, current_user) -> list[Applica
         record = await dict_cur.fetchone()
 
         if record is None:
-            raise HTTPException(status.HTTP_404_NOT_FOUND)
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Could not find offer for the given id.",
+            )
         
         authorize_user(record["company_id"], current_user, CompanyInDB)
 
-        sql = """
-            SELECT 
-                s.id, s.email, s.name, s.date_of_birth, 
-                s.university, s.major, s.credits, s.gpa, 
-                a.status
-            FROM students s
-            JOIN applications a ON s.id = a.student_id
-            WHERE a.offer_id = %s;
-        """
+        sql = (
+            "SELECT "
+                "s.id, s.email, s.name, s.date_of_birth, "
+                "s.university, s.major, s.credits, s.gpa, "
+                "s.region_id, a.status "
+            "FROM students s "
+            "JOIN applications a ON s.id = a.student_id "
+            "WHERE a.offer_id = %s;"
+        )
         await applicant_cur.execute(sql, [offer_id])
         records = await applicant_cur.fetchall()
         return records

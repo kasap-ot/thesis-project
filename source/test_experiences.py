@@ -6,9 +6,9 @@ from .test_utils import (
     ExperienceTest,
     StudentTest,
     create_experience,
-    get_student_token_header,
-    insert_student_in_db,
-    insert_experience_in_db,
+    student_token_header,
+    insert_student,
+    insert_experience,
     db_connection,
     reset_database,
     OfferTest,
@@ -17,11 +17,11 @@ from .test_utils import (
 
 
 @pytest.mark.asyncio
-async def test_experience_post(insert_student_in_db: StudentTest):
-    student = insert_student_in_db
+async def test_experience_post(insert_student: StudentTest):
+    student = insert_student
     experience = create_experience(student.id)
     async with AsyncClient(base_url=BASE_URL) as client:
-        headers = await get_student_token_header(client, student)
+        headers = await student_token_header(client, student)
         response = await client.post(
             url="/experiences",
             headers=headers,
@@ -41,12 +41,12 @@ async def test_experience_post(insert_student_in_db: StudentTest):
 
 
 @pytest.mark.asyncio
-async def test_experience_post_incorrect(insert_student_in_db: StudentTest):
-    student = insert_student_in_db
+async def test_experience_post_incorrect(insert_student: StudentTest):
+    student = insert_student
     experience = create_experience(student.id)
     experience.from_date = "This should be a date string..."
     async with AsyncClient(base_url=BASE_URL) as client:
-        headers = await get_student_token_header(client, student)
+        headers = await student_token_header(client, student)
         response = await client.post(
             url="/experiences",
             headers=headers,
@@ -57,8 +57,8 @@ async def test_experience_post_incorrect(insert_student_in_db: StudentTest):
 
 
 @pytest.mark.asyncio
-async def test_experience_post_unauthorized(insert_student_in_db: StudentTest):
-    student = insert_student_in_db
+async def test_experience_post_unauthorized(insert_student: StudentTest):
+    student = insert_student
     experience = create_experience(student.id)
     async with AsyncClient(base_url=BASE_URL) as client:
         response = await client.post(
@@ -70,13 +70,13 @@ async def test_experience_post_unauthorized(insert_student_in_db: StudentTest):
 
 
 @pytest.mark.asyncio
-async def test_experience_patch(insert_experience_in_db: dict):
-    student: StudentTest = insert_experience_in_db["student"]
-    experience: ExperienceTest = insert_experience_in_db["experience"]
+async def test_experience_patch(insert_experience: dict):
+    student: StudentTest = insert_experience["student"]
+    experience: ExperienceTest = insert_experience["experience"]
     experience.description = "Test Updated Experience Description"
     async with AsyncClient(base_url=BASE_URL) as client:
         # update the experience
-        headers = await get_student_token_header(client, student)
+        headers = await student_token_header(client, student)
         response = await client.put(
             url=f"/experiences/{experience.id}",
             headers=headers,
@@ -95,12 +95,12 @@ async def test_experience_patch(insert_experience_in_db: dict):
 
 
 @pytest.mark.asyncio
-async def test_experience_patch_incorrect(insert_experience_in_db: dict):
-    student: StudentTest = insert_experience_in_db["student"]
-    experience: ExperienceTest = insert_experience_in_db["experience"]
+async def test_experience_patch_incorrect(insert_experience: dict):
+    student: StudentTest = insert_experience["student"]
+    experience: ExperienceTest = insert_experience["experience"]
     experience.from_date = "This should be a date string..."
     async with AsyncClient(base_url=BASE_URL) as client:
-        headers = await get_student_token_header(client, student)
+        headers = await student_token_header(client, student)
         response = await client.put(
             url=f"/experiences/{experience.id}",
             headers=headers,
@@ -111,11 +111,11 @@ async def test_experience_patch_incorrect(insert_experience_in_db: dict):
 
 
 @pytest.mark.asyncio
-async def test_experience_patch_not_found(insert_student_in_db: StudentTest):
-    student = insert_student_in_db
+async def test_experience_patch_not_found(insert_student: StudentTest):
+    student = insert_student
     fake_experience = create_experience(student.id)
     async with AsyncClient(base_url=BASE_URL) as client:
-        headers = await get_student_token_header(client, student)
+        headers = await student_token_header(client, student)
         response = await client.put(
             url=f"/experiences/{fake_experience.id}",
             headers=headers,
@@ -126,8 +126,8 @@ async def test_experience_patch_not_found(insert_student_in_db: StudentTest):
 
 
 @pytest.mark.asyncio
-async def test_experience_patch_unauthorized(insert_experience_in_db: dict):
-    experience: ExperienceTest = insert_experience_in_db["experience"]
+async def test_experience_patch_unauthorized(insert_experience: dict):
+    experience: ExperienceTest = insert_experience["experience"]
     experience.description = "Test Updated Experience Description"
     async with AsyncClient(base_url=BASE_URL) as client:
         response = await client.put(
@@ -139,11 +139,11 @@ async def test_experience_patch_unauthorized(insert_experience_in_db: dict):
 
 
 @pytest.mark.asyncio
-async def test_experience_delete(insert_experience_in_db: dict):
-    student: StudentTest = insert_experience_in_db["student"]
-    experience: ExperienceTest = insert_experience_in_db["experience"]
+async def test_experience_delete(insert_experience: dict):
+    student: StudentTest = insert_experience["student"]
+    experience: ExperienceTest = insert_experience["experience"]
     async with AsyncClient(base_url=BASE_URL) as client:
-        headers = await get_student_token_header(client, student)
+        headers = await student_token_header(client, student)
         response = await client.delete(
             url=f"/experiences/{experience.id}",
             headers=headers,
@@ -161,11 +161,11 @@ async def test_experience_delete(insert_experience_in_db: dict):
 
 
 @pytest.mark.asyncio
-async def test_experience_delete_not_found(insert_student_in_db: StudentTest):
-    student = insert_student_in_db
+async def test_experience_delete_not_found(insert_student: StudentTest):
+    student = insert_student
     experience = create_experience(student.id)
     async with AsyncClient(base_url=BASE_URL) as client:
-        headers = await get_student_token_header(client, student)
+        headers = await student_token_header(client, student)
         response = await client.delete(
             url=f"/experiences/{experience.id}",
             headers=headers,
@@ -175,8 +175,8 @@ async def test_experience_delete_not_found(insert_student_in_db: StudentTest):
 
 
 @pytest.mark.asyncio
-async def test_experience_delete_unauthorized(insert_experience_in_db: dict):
-    experience: ExperienceTest = insert_experience_in_db["experience"]
+async def test_experience_delete_unauthorized(insert_experience: dict):
+    experience: ExperienceTest = insert_experience["experience"]
     async with AsyncClient(base_url=BASE_URL) as client:
         response = await client.delete(
             url=f"/experiences/{experience.id}",

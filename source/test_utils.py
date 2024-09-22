@@ -84,11 +84,11 @@ def create_offer(company_id: int, offer_id: int = 1, field: str = "Test Field", 
     )
 
 
-def create_student(student_id: int = 1, email: str = "student@test.com") -> StudentTest:
+def create_student(student_id: int = 1, email: str = "student@test.com", name: str = "Test Name") -> StudentTest:
     return StudentTest(
         id = student_id,
         email = email,
-        name = "Test Name",
+        name = name,
         date_of_birth = "2000-01-01",
         university = "Test University",
         major = "Test Major",
@@ -126,11 +126,11 @@ def create_experience(student_id: int) -> ExperienceTest:
     )
 
 
-def create_application(student_id: int, offer_id: int) -> ApplicationTest:
+def create_application(student_id: int, offer_id: int, status: int = Status.WAITING.value) -> ApplicationTest:
     return ApplicationTest(
         student_id=student_id,
         offer_id=offer_id,
-        status=Status.WAITING.value,
+        status=status,
     )
 
 
@@ -142,7 +142,7 @@ def create_applications(student: StudentTest, offers: list[OfferTest]) -> list[A
     return applications
 
 
-async def get_company_token(client: AsyncClient, company: CompanyTest) -> dict:
+async def company_token(client: AsyncClient, company: CompanyTest) -> dict:
     response = await client.post(
         url="/token?user_type_param=company",
         headers={"Content-Type": "application/x-www-form-urlencoded"},
@@ -154,12 +154,12 @@ async def get_company_token(client: AsyncClient, company: CompanyTest) -> dict:
     return token
 
 
-async def get_company_token_header(client: AsyncClient, company: CompanyTest) -> dict:
-    token = await get_company_token(client, company)
+async def company_token_header(client: AsyncClient, company: CompanyTest) -> dict:
+    token = await company_token(client, company)
     return {"Authorization": f"Bearer {token['access_token']}"}
 
 
-async def get_student_token(client: AsyncClient, student: StudentTest) -> dict:
+async def student_token(client: AsyncClient, student: StudentTest) -> dict:
     response = await client.post(
         url="/token?user_type_param=student",
         headers={"Content-Type": "application/x-www-form-urlencoded"},
@@ -171,8 +171,8 @@ async def get_student_token(client: AsyncClient, student: StudentTest) -> dict:
     return token
 
 
-async def get_student_token_header(client: AsyncClient, student: StudentTest) -> dict:
-    token = await get_student_token(client, student)
+async def student_token_header(client: AsyncClient, student: StudentTest) -> dict:
+    token = await student_token(client, student)
     return {"Authorization": f"Bearer {token['access_token']}"}
 
 
@@ -189,7 +189,7 @@ def delete_db_data(db_connection: pg.Connection):
     db_connection.commit()
 
 
-def get_applications_from_db(offer_id: int) -> list[ApplicationTest]:
+def applications_from_db(offer_id: int) -> list[ApplicationTest]:
     db_string = get_connection_string()
     with pg.connect(db_string) as db_connection:
         cursor = db_connection.cursor(row_factory=class_row(ApplicationTest))
@@ -218,7 +218,7 @@ def reset_database(db_connection: pg.Connection):
 
 
 @pytest.fixture(scope="function")
-def insert_company_in_db(db_connection: pg.Connection) -> CompanyTest:
+def insert_company(db_connection: pg.Connection) -> CompanyTest:
     company = create_company()
     db_connection.execute(
         "INSERT INTO companies "
@@ -239,8 +239,8 @@ def insert_company_in_db(db_connection: pg.Connection) -> CompanyTest:
 
 
 @pytest.fixture(scope="function")
-def insert_offers_in_db(db_connection: pg.Connection, insert_company_in_db: CompanyTest) -> dict:
-    company = insert_company_in_db
+def insert_offers(db_connection: pg.Connection, insert_company: CompanyTest) -> dict:
+    company = insert_company
     o1 = create_offer(company.id, offer_id=1, field="Test Field 1", num_weeks=10)
     o2 = create_offer(company.id, offer_id=2, field="Test Field 2", num_weeks=20)
     o3 = create_offer(company.id, offer_id=3, field="Test Field 3", num_weeks=30)
@@ -261,7 +261,7 @@ def insert_offers_in_db(db_connection: pg.Connection, insert_company_in_db: Comp
 
 
 @pytest.fixture(scope="function")
-def insert_student_in_db(db_connection: pg.Connection) -> StudentTest:
+def insert_student(db_connection: pg.Connection) -> StudentTest:
     student = create_student()
     db_connection.execute(
         "INSERT INTO students "
@@ -284,11 +284,11 @@ def insert_student_in_db(db_connection: pg.Connection) -> StudentTest:
 
 
 @pytest.fixture(scope="function")
-def insert_experience_in_db(
-    insert_student_in_db: StudentTest, 
+def insert_experience(
+    insert_student: StudentTest, 
     db_connection: pg.Connection
 ) -> dict:
-    student = insert_student_in_db
+    student = insert_student
     experience = create_experience(student.id)
     db_connection.execute(
         "INSERT INTO experiences "
@@ -311,13 +311,13 @@ def insert_experience_in_db(
 
 
 @pytest.fixture(scope="function")
-def insert_student_applications_in_db(
-    insert_student_in_db: StudentTest, 
-    insert_offers_in_db: dict,
+def insert_student_applications(
+    insert_student: StudentTest, 
+    insert_offers: dict,
     db_connection: pg.Connection,
 ) -> dict:
-    student = insert_student_in_db
-    offers: list[OfferTest] = insert_offers_in_db["offers"]
+    student = insert_student
+    offers: list[OfferTest] = insert_offers["offers"]
     applications = create_applications(student, offers)
     
     a1 = applications[0]
@@ -343,27 +343,71 @@ def insert_student_applications_in_db(
 
 
 @pytest.fixture(scope="function")
-def insert_offer_applications_in_db(
-    insert_offers_in_db: dict,
+def insert_offer_applications(
+    insert_offers: dict,
     db_connection: pg.Connection,
 ) -> dict:
+    
     # We want to create multiple applications for the same offer
 
-    offer: OfferTest = insert_offers_in_db["offers"][0]
-    company: CompanyTest = insert_offers_in_db["company"]
+    statuses: list[int] = [
+        Status.WAITING.value, 
+        Status.WAITING.value, 
+        Status.WAITING.value
+    ]
+    company: CompanyTest = insert_offers["company"]
+    offer: OfferTest = insert_offers["offers"][0]
+    data = insert_applications_helper(db_connection, offer, statuses)
+    students = data["students"]
+    applications = data["applications"]
+    return {
+        "company": company,
+        "offer": offer,
+        "students": students,
+        "applications": applications,
+    }
+
+
+@pytest.fixture(scope="function")
+def insert_accepted_rejected_applications(
+    insert_offers: dict,
+    db_connection: pg.Connection,
+) -> dict:
     
-    s1 = create_student(student_id=1, email="student_1@mail.com")
-    s2 = create_student(student_id=2, email="student_2@mail.com")
-    s3 = create_student(student_id=3, email="student_3@mail.com")
+    # We want to create multiple applications for the same offer
     
-    a1 = create_application(s1.id, offer.id)
-    a2 = create_application(s2.id, offer.id)
-    a3 = create_application(s3.id, offer.id)
+    statuses: list[int] = [
+        Status.ACCEPTED.value, 
+        Status.REJECTED.value, 
+        Status.REJECTED.value
+    ]
+    company: CompanyTest = insert_offers["company"]
+    offer: OfferTest = insert_offers["offers"][0]
+    data = insert_applications_helper(db_connection, offer, statuses)
+    students = data["students"]
+    applications = data["applications"]
+    return {
+        "company": company,
+        "offer": offer,
+        "students": students,
+        "applications": applications,
+    }
+
+
+def insert_applications_helper(db_connection: pg.Connection, offer: OfferTest, statuses: list[int]) -> dict:
+    students: list[StudentTest] = list()
+    applications: list[ApplicationTest] = list()
+    for index, status in enumerate(statuses):
+        i = index + 1
+        student = create_student(student_id=i, email=f"student_{i}@test.com", name=f"Test Name {i}")
+        application = create_application(student.id, offer.id, status)
+        applications.append(application)
+        students.append(student)
     
     insert_students_sql = (
         "INSERT INTO students "
         "(id, email, hashed_password, name, university, major, credits, gpa, date_of_birth, region_id) "
-        "VALUES "
+        "VALUES " 
         "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s), "
         "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s), "
         "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
@@ -373,21 +417,36 @@ def insert_offer_applications_in_db(
         "(student_id, offer_id, status) VALUES "
         "(%s, %s, %s), (%s, %s, %s), (%s, %s, %s);"
     )
-    db_connection.execute(insert_students_sql, params=[
-        s1.id, s1.email, s1.hashed_password, s1.name, s1.university, s1.major, s1.credits, s1.gpa, s1.date_of_birth, s1.region_id,
-        s2.id, s2.email, s2.hashed_password, s2.name, s2.university, s2.major, s2.credits, s2.gpa, s2.date_of_birth, s2.region_id,
-        s3.id, s3.email, s3.hashed_password, s3.name, s3.university, s3.major, s3.credits, s3.gpa, s3.date_of_birth, s3.region_id,
-    ])
-    db_connection.execute(insert_applications_sql, params=[
-        a1.student_id, a1.offer_id, a1.status,
-        a2.student_id, a2.offer_id, a2.status,
-        a3.student_id, a3.offer_id, a3.status,
-    ])
+    insert_student_params = [
+        value for student in 
+        students for value in 
+        (
+            student.id, 
+            student.email, 
+            student.hashed_password, 
+            student.name, 
+            student.university, 
+            student.major, 
+            student.credits, 
+            student.gpa, 
+            student.date_of_birth, 
+            student.region_id,
+        )
+    ]
+    insert_applications_params = [
+        value for application in 
+        applications for value in 
+        (
+            application.student_id, 
+            application.offer_id, 
+            application.status
+        )
+    ]
+    db_connection.execute(insert_students_sql, params=insert_student_params)
+    db_connection.execute(insert_applications_sql, params=insert_applications_params)
     db_connection.commit()
 
     return {
-        "students": [s1, s2, s3],
-        "applications": [a1, a2, a3],
-        "offer": offer,
-        "company": company,
+        "students": students,
+        "applications": applications,
     }

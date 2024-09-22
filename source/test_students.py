@@ -4,10 +4,10 @@ from fastapi import status
 from .test_utils import (
     BASE_URL, 
     db_connection,
-    insert_student_in_db,
+    insert_student,
     reset_database,
     create_token_header,
-    get_student_token,
+    student_token,
     create_student,
     StudentTest
 )
@@ -45,8 +45,8 @@ async def test_student_registration_error():
 
 
 @pytest.mark.asyncio
-async def test_student_login(insert_student_in_db: StudentTest):   
-    student = insert_student_in_db
+async def test_student_login(insert_student: StudentTest):   
+    student = insert_student
     async with AsyncClient(base_url=BASE_URL) as client:
         # test user login
         response = await client.post(
@@ -74,11 +74,11 @@ async def test_student_login(insert_student_in_db: StudentTest):
 
 
 @pytest.mark.asyncio
-async def test_student_profile(insert_student_in_db: StudentTest):
-    student = insert_student_in_db
+async def test_student_profile(insert_student: StudentTest):
+    student = insert_student
     async with AsyncClient(base_url=BASE_URL) as client:
         # get the token for acces
-        token = await get_student_token(client, student)
+        token = await student_token(client, student)
         
         # test the student profile route
         response = await client.get(
@@ -101,11 +101,11 @@ async def test_student_profile(insert_student_in_db: StudentTest):
 
 
 @pytest.mark.asyncio
-async def test_student_update(insert_student_in_db: StudentTest):
-    student = insert_student_in_db
+async def test_student_update(insert_student: StudentTest):
+    student = insert_student
     async with AsyncClient(base_url=BASE_URL) as client:
         # get the token for acces
-        token = await get_student_token(client, student)
+        token = await student_token(client, student)
 
         # update a field in the student
         student.major = "__New__Updated__Major__"
@@ -129,11 +129,11 @@ async def test_student_update(insert_student_in_db: StudentTest):
 
 
 @pytest.mark.asyncio
-async def test_student_update_incorrect_field(insert_student_in_db: StudentTest):
-    student = insert_student_in_db
+async def test_student_update_incorrect_field(insert_student: StudentTest):
+    student = insert_student
     async with AsyncClient(base_url=BASE_URL) as client:
         # get the token for acces
-        token = await get_student_token(client, student)
+        token = await student_token(client, student)
 
         # update a field in the student
         student.gpa = "This should be a float" # type: ignore
@@ -157,11 +157,11 @@ async def test_student_update_incorrect_field(insert_student_in_db: StudentTest)
 
 
 @pytest.mark.asyncio
-async def test_student_delete(insert_student_in_db: StudentTest):
-    student = insert_student_in_db
+async def test_student_delete(insert_student: StudentTest):
+    student = insert_student
     async with AsyncClient(base_url=BASE_URL) as client:
         # get the student's access token
-        token = await get_student_token(client, student)
+        token = await student_token(client, student)
         
         # check the student-delete route
         response = await client.delete(
