@@ -35,5 +35,5 @@ def get_connection_string() -> str:
 
 
 @lru_cache()
-def get_async_pool() -> AsyncConnectionPool:
+def async_pool() -> AsyncConnectionPool:
     return AsyncConnectionPool(conninfo=get_connection_string())

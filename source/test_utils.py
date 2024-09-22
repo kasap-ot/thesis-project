@@ -94,7 +94,7 @@ def create_student(student_id: int = 1, email: str = "student@test.com", name: s
         major = "Test Major",
         credits = 150,
         gpa = 8.50,
-        region_id = 0,
+        region_id = Region.GLOBAL.value,
         password = "Test Password",
         hashed_password = pwd_context.hash("Test Password"),
     )

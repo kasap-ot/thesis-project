@@ -1,5 +1,5 @@
 from .enums import UserType
-from .database import get_async_pool
+from .database import async_pool
 from .utils import pwd_context
 from .schemas import StudentInDB, CompanyInDB
 from jose import JWTError, jwt
@@ -62,7 +62,7 @@ async def get_user_by_email(email: str, user_type: UserType) -> StudentInDB | Co
         table_name = "companies"
         schema = CompanyInDB
 
-    pool = get_async_pool()
+    pool = async_pool()
     
     async with pool.connection() as conn, conn.cursor(row_factory=class_row(schema)) as cur:
         sql = f"SELECT * FROM {table_name} WHERE email = %s"

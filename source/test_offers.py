@@ -217,7 +217,6 @@ async def test_offer_put_incorrect_field(insert_offers: dict):
             json=asdict(first_offer),
         )
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
-        print(response.json())
         assert "detail" in response.json()
 
 

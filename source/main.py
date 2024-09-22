@@ -1,7 +1,7 @@
 import asyncio
 from .routes import router
 from fastapi import FastAPI
-from .database import get_async_pool
+from .database import async_pool
 from contextlib import asynccontextmanager
 from fastapi.staticfiles import StaticFiles
 from psycopg_pool import AsyncConnectionPool
@@ -15,7 +15,7 @@ async def check_async_connections(db_pool: AsyncConnectionPool):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    db_pool = get_async_pool()
+    db_pool = async_pool()
     asyncio.create_task(check_async_connections(db_pool))
     yield
     await db_pool.close()

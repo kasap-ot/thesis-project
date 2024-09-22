@@ -19,7 +19,7 @@ from .schemas import (
 )
 from .enums import Status, UserType
 from .security import Token, get_token, pwd_context, authorize_user
-from .database import get_async_pool
+from .database import async_pool
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import HTTPException, status
 from psycopg.rows import dict_row, class_row
@@ -42,7 +42,7 @@ async def token_controller(user_type_param: str, form_data: OAuth2PasswordReques
 async def student_post_controller(s: StudentCreate) -> None:
     hashed_password = pwd_context.hash(s.password)
     
-    async with get_async_pool().connection() as conn:
+    async with async_pool().connection() as conn:
         sql = (
             "INSERT INTO students "
             "(email, hashed_password, name, date_of_birth, university, major, credits, gpa, region_id) "
@@ -64,7 +64,7 @@ async def student_post_controller(s: StudentCreate) -> None:
 async def student_put_controller(student_id: int, s: StudentUpdate, current_user) -> None:
     authorize_user(student_id, current_user, StudentInDB)
     
-    async with get_async_pool().connection() as conn:
+    async with async_pool().connection() as conn:
         sql = (
             "UPDATE students SET "
             "email=%s, name=%s, date_of_birth=%s, university=%s, "
@@ -86,13 +86,13 @@ async def student_put_controller(student_id: int, s: StudentUpdate, current_user
 async def student_delete_controller(student_id: int, current_user) -> None:
     authorize_user(student_id, current_user, StudentInDB)
     
-    async with get_async_pool().connection() as conn:
+    async with async_pool().connection() as conn:
         sql = "DELETE FROM students WHERE id = %s"
         await conn.execute(sql, [student_id])
 
 
 async def student_profile_get_controller(student_id: int) -> StudentProfileRead:
-    async with get_async_pool().connection() as conn:
+    async with async_pool().connection() as conn:
         cur = conn.cursor(row_factory=dict_row)
         
         sql = "SELECT * FROM students WHERE id = %s;"
@@ -118,7 +118,7 @@ async def student_profile_get_controller(student_id: int) -> StudentProfileRead:
 
 async def company_post_controller(c: CompanyCreate) -> None:
     hashed_password = pwd_context.hash(c.password)
-    async with get_async_pool().connection() as conn:
+    async with async_pool().connection() as conn:
         sql = (
             "INSERT INTO companies "
             "(email, hashed_password, name, field, num_employees, year_founded, website) "
@@ -136,7 +136,7 @@ async def company_post_controller(c: CompanyCreate) -> None:
         
 
 async def company_get_controller(company_id: int) -> CompanyRead:
-    async with get_async_pool().connection() as conn, conn.cursor(
+    async with async_pool().connection() as conn, conn.cursor(
         row_factory=class_row(CompanyRead)
     ) as cur:
         sql = "SELECT * FROM companies WHERE id = %s;"
@@ -148,7 +148,7 @@ async def company_get_controller(company_id: int) -> CompanyRead:
     
 
 async def company_offers_get_controller(company_id: int) -> list[OfferRead]:
-    async with get_async_pool().connection() as conn, conn.cursor(
+    async with async_pool().connection() as conn, conn.cursor(
         row_factory=class_row(OfferRead)
     ) as cur:
         sql = (
@@ -165,7 +165,7 @@ async def company_offers_get_controller(company_id: int) -> list[OfferRead]:
 async def company_patch_controller(company_id: int, c: CompanyUpdate, current_user) -> None:
     authorize_user(company_id, current_user, CompanyInDB)
     
-    async with get_async_pool().connection() as conn:
+    async with async_pool().connection() as conn:
         sql = (
             "UPDATE companies SET "
             "email=%s, name=%s, field=%s, num_employees=%s, year_founded=%s, website=%s "
@@ -185,7 +185,7 @@ async def company_patch_controller(company_id: int, c: CompanyUpdate, current_us
 async def company_delete_controller(company_id: int, current_user) -> None:
     authorize_user(company_id, current_user, CompanyInDB)
     
-    async with get_async_pool().connection() as conn:
+    async with async_pool().connection() as conn:
         sql = "DELETE FROM companies WHERE id = %s"
         await conn.execute(sql, [company_id])
 
@@ -196,7 +196,7 @@ async def company_delete_controller(company_id: int, current_user) -> None:
 async def offer_post_controller(o: OfferCreate, current_user) -> None:
     authorize_user(o.company_id, current_user, CompanyInDB)
 
-    async with get_async_pool().connection() as conn:
+    async with async_pool().connection() as conn:
         sql = (
             "INSERT INTO offers "
             "(salary, num_weeks, field, deadline, requirements, responsibilities, company_id, region_id) "
@@ -224,7 +224,7 @@ async def offers_get_controller(
 ) -> list[OfferBriefRead]:
     authorize_user(current_user.id, current_user, StudentInDB)
 
-    async with get_async_pool().connection() as conn, conn.cursor(
+    async with async_pool().connection() as conn, conn.cursor(
         row_factory=class_row(OfferBriefRead)
     ) as cur:
         sql = (
@@ -242,16 +242,13 @@ async def offers_get_controller(
             sql += " AND o.field = %s"
             parameters.append(field)
 
-        print(sql)
-        print(parameters)
-
         await cur.execute(sql, parameters)
         records = await cur.fetchall()
         return records
     
 
 async def offer_get_controller(offer_id: int) -> OfferRead:
-    async with get_async_pool().connection() as conn, conn.cursor(
+    async with async_pool().connection() as conn, conn.cursor(
         row_factory=class_row(OfferRead)
     ) as cur:
         sql = (
@@ -268,7 +265,7 @@ async def offer_get_controller(offer_id: int) -> OfferRead:
     
 
 async def offer_put_controller(offer_id: int, o: OfferUpdate, current_user) -> None:
-    async with get_async_pool().connection() as conn, conn.cursor(row_factory=dict_row) as cur:
+    async with async_pool().connection() as conn, conn.cursor(row_factory=dict_row) as cur:
         sql = "SELECT company_id FROM offers WHERE id = %s;"
         await cur.execute(sql, [offer_id])
         record = await cur.fetchone()
@@ -297,7 +294,7 @@ async def offer_put_controller(offer_id: int, o: OfferUpdate, current_user) -> N
         
 
 async def offer_delete_controller(offer_id: int, current_user) ->None:
-    async with get_async_pool().connection() as conn, conn.cursor(row_factory=dict_row) as cur:
+    async with async_pool().connection() as conn, conn.cursor(row_factory=dict_row) as cur:
         sql = "SELECT company_id FROM offers WHERE id = %s;"
         await cur.execute(sql, [offer_id])
         record = await cur.fetchone()
@@ -317,7 +314,7 @@ async def offer_delete_controller(offer_id: int, current_user) ->None:
 async def experience_post_controller(e: ExperienceCreate, current_user) -> None:
     authorize_user(e.student_id, current_user, StudentInDB)
 
-    async with get_async_pool().connection() as conn:
+    async with async_pool().connection() as conn:
         sql = (
             "INSERT INTO experiences "
             "(from_date, to_date, company, position, description, student_id) "
@@ -338,7 +335,7 @@ async def experience_patch_controller(
         s: ExperienceUpdate, 
         current_user
 ) -> None:
-    async with get_async_pool().connection() as conn, conn.cursor(row_factory=dict_row) as cur:
+    async with async_pool().connection() as conn, conn.cursor(row_factory=dict_row) as cur:
         sql = "SELECT student_id FROM experiences WHERE id = %s"
         await cur.execute(sql, [experience_id])
         record = await cur.fetchone()
@@ -365,7 +362,7 @@ async def experience_patch_controller(
 
 
 async def experience_delete_controller(experience_id: int, current_user) -> None:
-    async with get_async_pool().connection() as conn, conn.cursor(row_factory=dict_row) as cur:
+    async with async_pool().connection() as conn, conn.cursor(row_factory=dict_row) as cur:
         sql = "SELECT student_id FROM experiences WHERE id = %s"
         await cur.execute(sql, [experience_id])
         record = await cur.fetchone()
@@ -384,10 +381,16 @@ async def experience_delete_controller(experience_id: int, current_user) -> None
 
 async def application_post_controller(student_id: int, offer_id: int, current_user) -> None:
     authorize_user(student_id, current_user, StudentInDB)
-    
-    # TODO: Fix error-500 (for invalid offer_id)?
 
-    async with get_async_pool().connection() as conn:
+    # TODO:
+    # Add logic to verify that the student is applying for 
+    # an offer in his region or for a global offer
+    # Get the offer from the database - from the offer_id
+    # Compare the region of the student with the region of the offer
+    # If the regions match or if the offer has a global region, insert the application
+    # If there's a mismatch, raise an HTTP error - check which status code 
+    
+    async with async_pool().connection() as conn:
         sql = "INSERT INTO applications (student_id, offer_id, status) VALUES (%s, %s, %s)"
         try:
             await conn.execute(sql, [student_id, offer_id, Status.WAITING.value])
@@ -398,7 +401,7 @@ async def application_post_controller(student_id: int, offer_id: int, current_us
 async def applications_get_controller(student_id: int, current_user) -> list[OfferApplication]:
     authorize_user(student_id, current_user, StudentInDB)
 
-    async with get_async_pool().connection() as conn, conn.cursor(
+    async with async_pool().connection() as conn, conn.cursor(
         row_factory=class_row(OfferApplication)
     ) as cur:
         sql = (
@@ -415,7 +418,7 @@ async def applications_get_controller(student_id: int, current_user) -> list[Off
     
 
 async def application_accept_controller(student_id: int, offer_id: int, current_user) -> None:
-    async with get_async_pool().connection() as conn, conn.cursor(row_factory=dict_row) as cur:
+    async with async_pool().connection() as conn, conn.cursor(row_factory=dict_row) as cur:
         sql = "SELECT company_id FROM offers WHERE id = %s"
         await cur.execute(sql, [offer_id])
         record = await cur.fetchone()
@@ -444,7 +447,7 @@ async def application_accept_controller(student_id: int, offer_id: int, current_
 async def application_cancel_controller(student_id: int, offer_id: int, current_user) -> None:
     authorize_user(student_id, current_user, StudentInDB)
 
-    async with get_async_pool().connection() as conn, conn.cursor(row_factory=dict_row) as cur:
+    async with async_pool().connection() as conn, conn.cursor(row_factory=dict_row) as cur:
         # Check the status of the given application
         sql = "SELECT status FROM applications WHERE student_id=%s AND offer_id=%s;"
         await cur.execute(sql, [student_id, offer_id])
@@ -481,7 +484,7 @@ async def application_cancel_controller(student_id: int, offer_id: int, current_
 
 
 async def applicants_get_controller(offer_id: int, current_user) -> list[ApplicantRead]:
-    async with get_async_pool().connection() as conn:
+    async with async_pool().connection() as conn:
         applicant_cur = conn.cursor(row_factory=class_row(ApplicantRead))
         dict_cur = conn.cursor(row_factory=dict_row)
         

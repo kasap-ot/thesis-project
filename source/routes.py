@@ -1,4 +1,4 @@
-from .database import get_async_pool
+from .database import async_pool
 from .controllers import (
     applicants_get_controller,
     application_accept_controller,
@@ -364,6 +364,6 @@ async def log_in_get(request: Request):
 
 @router.get("/cockroach-db/1", tags=["cockroach"])
 async def cockroach_1():
-    async with get_async_pool().connection() as conn:
+    async with async_pool().connection() as conn:
         sql = "USE test_connection; INSERT INTO test_table (id, name, age) VALUES (16, 'John Doe', 34);"
         await conn.execute(sql)
