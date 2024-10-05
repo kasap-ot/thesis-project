@@ -433,13 +433,13 @@ async def application_accept_controller(student_id: int, offer_id: int, current_
         
         async with conn.transaction():
             sql = (
-                "UPDATE applications SET status = 1 "
-                "WHERE student_id = %s AND offer_id = %s AND status = 0;"
+                f"UPDATE applications SET status = '{Status.ACCEPTED.value}' "
+                f"WHERE student_id = %s AND offer_id = %s AND status = '{Status.WAITING.value}';"
             )
             await conn.execute(sql, [student_id, offer_id])
             sql = (
-                "UPDATE applications SET status = 2 "
-                "WHERE student_id <> %s AND offer_id = %s AND status = 0;"
+                f"UPDATE applications SET status = '{Status.REJECTED.value}' "
+                f"WHERE student_id <> %s AND offer_id = %s AND status = '{Status.WAITING.value}';"
             )
             await conn.execute(sql, [student_id, offer_id])
         
@@ -470,7 +470,7 @@ async def application_cancel_controller(student_id: int, offer_id: int, current_
                 )
                 await conn.execute(sql, [student_id, offer_id])
                 sql = (
-                    "UPDATE applications SET status = 0 "
+                    f"UPDATE applications SET status = '{Status.WAITING.value}' "
                     "WHERE student_id <> %s AND offer_id = %s;"
                 )
                 await conn.execute(sql, [student_id, offer_id])

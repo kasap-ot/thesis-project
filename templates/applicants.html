@@ -25,13 +25,13 @@
             * status == 1 - status is 'accepted'
             * status == 2 - status is 'rejected'
          -->
-        {% if status == 0 %}
+        {% if status == 'WAITING' %}
             {% set list_item_color = 'warning' %}
             {% set status_text = 'Waiting' %}
-        {% elif status == 1 %}
+        {% elif status == 'ACCEPTED' %}
             {% set list_item_color = 'success' %}
             {% set status_text = 'Accepted' %}
-        {% elif status == 2 %}
+        {% elif status == 'REJECTED' %}
             {% set list_item_color = 'danger' %}
             {% set status_text = 'Rejected' %}
         {% endif %}

@@ -25,13 +25,13 @@
             * status == 1 - status is 'accepted'
             * status == 2 - status is 'rejected'
          -->
-        {% if status == 0 %}
+        {% if status == 'WAITING' %}
             {% set list_item_color = "warning" %}
             {% set button_styles = "btn btn-danger cancel-btn" %}
             {% set button_id = "cancel_btn_" ~ application.student_id ~ "_" ~ application.offer_id %}
             {% set button_text = "Cancel" %}
             {% set status_text = "Waiting" %}
-        {% elif status == 1 %}
+        {% elif status == 'ACCEPTED' %}
             {% set list_item_color = "success" %}
             {% set button_styles = "btn btn-danger cancel-btn" %}
             {% set button_id = "cancel_btn_" ~ application.student_id ~ "_" ~ application.offer_id %}

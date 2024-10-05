@@ -67,7 +67,7 @@ class ExperienceTest:
 class ApplicationTest:
     student_id: int
     offer_id: int
-    status: int
+    status: str
 
 
 def create_offer(company_id: int, offer_id: int = 1, field: str = "Test Field", num_weeks: int = 20) -> OfferTest:
@@ -126,7 +126,7 @@ def create_experience(student_id: int) -> ExperienceTest:
     )
 
 
-def create_application(student_id: int, offer_id: int, status: int = Status.WAITING.value) -> ApplicationTest:
+def create_application(student_id: int, offer_id: int, status: str = Status.WAITING.value) -> ApplicationTest:
     return ApplicationTest(
         student_id=student_id,
         offer_id=offer_id,
@@ -350,7 +350,7 @@ def insert_offer_applications(
     
     # We want to create multiple applications for the same offer
 
-    statuses: list[int] = [
+    statuses: list[str] = [
         Status.WAITING.value, 
         Status.WAITING.value, 
         Status.WAITING.value
@@ -376,7 +376,7 @@ def insert_accepted_rejected_applications(
     
     # We want to create multiple applications for the same offer
     
-    statuses: list[int] = [
+    statuses: list[str] = [
         Status.ACCEPTED.value, 
         Status.REJECTED.value, 
         Status.REJECTED.value
@@ -394,7 +394,7 @@ def insert_accepted_rejected_applications(
     }
 
 
-def insert_applications_helper(db_connection: pg.Connection, offer: OfferTest, statuses: list[int]) -> dict:
+def insert_applications_helper(db_connection: pg.Connection, offer: OfferTest, statuses: list[str]) -> dict:
     students: list[StudentTest] = list()
     applications: list[ApplicationTest] = list()
     for index, status in enumerate(statuses):
