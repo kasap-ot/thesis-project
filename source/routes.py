@@ -1,3 +1,4 @@
+from source.notifications import send_email_profile_created
 from .database import async_pool
 from .controllers import (
     applicants_get_controller,
@@ -38,7 +39,7 @@ from .schemas import (
     ExperienceUpdate,
     StudentProfileRead,
 )
-from fastapi import APIRouter, status, Depends, Request
+from fastapi import APIRouter, BackgroundTasks, status, Depends, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
@@ -65,8 +66,9 @@ async def token(user_type_param: str, form_data: OAuth2PasswordRequestForm = Dep
 
 
 @router.post("/students", status_code=status.HTTP_201_CREATED, tags=["students"])
-async def student_post(s: StudentCreate):
+async def student_post(s: StudentCreate, background_tasks: BackgroundTasks):
     await student_post_controller(s)
+    background_tasks.add_task(send_email_profile_created, s.email, s.name)
 
 
 @router.put("/students/{student_id}", tags=["students"])
