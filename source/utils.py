@@ -138,7 +138,8 @@ def delete_application_query() -> LiteralString:
 def update_applications_waiting_query() -> LiteralString:
     return (
         f"UPDATE applications SET status = '{Status.WAITING.value}' "
-        "WHERE student_id <> %s AND offer_id = %s;"
+        "WHERE student_id <> %s AND offer_id = %s "
+        "RETURNING student_id;"
     )
 
 def select_applicants_query() -> LiteralString:
@@ -188,18 +189,19 @@ def select_application_status_query() -> LiteralString:
 def select_application_email_and_field_query() -> LiteralString:
     return (
         "SELECT students.email, offers.field "
-        "FROM students "
-        "JOIN offers"
-        "WHERE students.id = %s "
-        "AND offers.id = %s"
+        "FROM applications "
+        "JOIN offers ON applications.offer_id = offers.id "
+        "JOIN students ON applications.student_id = students.id "
+        "WHERE applications.student_id = %s AND applications.offer_id = %s"
     )
 
 def select_applications_emails_and_fields_query() -> LiteralString:
     return (
         "SELECT students.email, offers.field "
-        "FROM students "
-        "JOIN offers"
-        "WHERE students.id IN %s"
+        "FROM applications "
+        "JOIN offers ON applications.offer_id = offers.id "
+        "JOIN students ON applications.student_id = students.id "
+        "WHERE applications.student_id = ANY(%s) AND applications.offer_id = %s"
     )
 
 def select_offer_email_and_field_query() -> LiteralString:

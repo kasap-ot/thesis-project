@@ -354,9 +354,21 @@ async def application_cancel(
     If the student's application has been accepted, then delete his application and
     reset all other applications (for the same offer) to status - waiting.
     """
-    await application_cancel_controller(student_id, offer_id, current_user)
+    updated_student_ids = await application_cancel_controller(student_id, offer_id, current_user)
+    
     is_new_applicant = False
-    background_tasks.add_task(notify_company_applicants_change, offer_id, is_new_applicant)
+    background_tasks.add_task(
+        notify_company_applicants_change, 
+        offer_id, 
+        is_new_applicant
+    )
+    
+    background_tasks.add_task(
+        notify_students_application_status_change, 
+        updated_student_ids,
+        offer_id,
+        Status.WAITING,
+    )
 
 
 @router.get("/applications/applicants/{offer_id}", tags=["applications"], response_model=list[StudentRead])

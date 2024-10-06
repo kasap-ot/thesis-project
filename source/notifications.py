@@ -44,7 +44,7 @@ def send_email_cancelled_applicant(to_address: str, offer_field: str) -> None:
 
 
 def send_email_application_update(to_address: str | list[str], offer_field: str, new_status: Status) -> None:
-    subject = f"Application Status Update - {new_status}"
+    subject = f"Application Status Update - {new_status.value}"
     body = f"Your application for the '{offer_field}' has been updated to {new_status.value}"
     send_email(to_address, subject, body)
 
@@ -83,8 +83,8 @@ async def notify_students_application_status_change(student_ids: list[int], offe
         async with conn.transaction():
             query = select_applications_emails_and_fields_query()
             await cur.execute(query, [student_ids, offer_id])
-            record = await cur.fetchall()
+            records = await cur.fetchall()
     
-    student_emails = record["email"]
-    offer_field = record["field"]
+    student_emails = [item["email"] for item in records]
+    offer_field = records[0]["field"]
     send_email_application_update(student_emails, offer_field, new_status)

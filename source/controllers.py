@@ -421,9 +421,8 @@ async def retrieve_offer_company_id(offer_id: int, cursor: AsyncCursor):
     return record["company_id"]
 
 
-async def application_cancel_controller(student_id: int, offer_id: int, current_user) -> None:
+async def application_cancel_controller(student_id: int, offer_id: int, current_user) -> list[int]:
     authorize_user(student_id, current_user, StudentInDB)
-
     async with async_pool().connection() as conn, conn.cursor(row_factory=dict_row) as cur:
         # Check the status of the given application
         sql = select_application_status_query()
@@ -434,6 +433,7 @@ async def application_cancel_controller(student_id: int, offer_id: int, current_
             raise HTTPException(status.HTTP_404_NOT_FOUND)
         
         application_status = record["status"]
+        updated_student_ids = []
 
         # If the application is already accepted,
         # delete the given application and reset all
@@ -444,7 +444,9 @@ async def application_cancel_controller(student_id: int, offer_id: int, current_
                 sql = delete_application_query()
                 await conn.execute(sql, [student_id, offer_id])
                 sql = update_applications_waiting_query()
-                await conn.execute(sql, [student_id, offer_id])
+                await cur.execute(sql, [student_id, offer_id])
+                records = await cur.fetchall()
+                updated_student_ids = [item["student_id"] for item in records]
                 
         # If the applicant is still waiting, 
         # just delete the application
@@ -452,6 +454,8 @@ async def application_cancel_controller(student_id: int, offer_id: int, current_
         elif application_status == Status.WAITING.value:
             sql = delete_application_query()
             await cur.execute(sql, [student_id, offer_id])
+        
+    return updated_student_ids
 
 
 async def applicants_get_controller(offer_id: int, current_user) -> list[ApplicantRead]:
