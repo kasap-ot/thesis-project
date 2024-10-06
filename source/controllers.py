@@ -20,22 +20,30 @@ from .schemas import (
 from .utils import (
     accept_student_query,
     delete_application_query,
+    delete_company_query,
+    delete_experience_query,
     delete_student_query,
+    insert_application_query,
     insert_company_query,
     insert_experience_query,
     insert_offer_query,
     insert_student_query, 
     reject_students_query, 
     select_applicants_query,
+    select_application_status_query,
     select_applications_query,
     select_company_offers_query,
+    select_company_query,
+    select_experience_student_id_query,
     select_offer_company_id_query,
     select_offer_query,
     select_offers_query,
+    select_student_experiences_query,
     select_student_query,
     update_applications_waiting_query,
     update_company_query,
     update_experience_query,
+    update_offer_company_id_null_query,
     update_offer_query,
     update_student_query
 )
@@ -117,7 +125,7 @@ async def student_profile_get_controller(student_id: int) -> StudentProfileRead:
         
         student = StudentRead(**record)
 
-        sql = "SELECT * FROM experiences WHERE student_id = %s;"
+        sql = select_student_experiences_query()
         await cur.execute(sql, [student_id])
         experiences: list = await cur.fetchall()
 
@@ -148,7 +156,7 @@ async def company_get_controller(company_id: int) -> CompanyRead:
     async with async_pool().connection() as conn, conn.cursor(
         row_factory=class_row(CompanyRead)
     ) as cur:
-        sql = "SELECT * FROM companies WHERE id = %s;"
+        sql = select_company_query()
         await cur.execute(sql, [company_id])
         record = await cur.fetchone()
         if record is None:
@@ -186,7 +194,7 @@ async def company_delete_controller(company_id: int, current_user) -> None:
     authorize_user(company_id, current_user, CompanyInDB)
     
     async with async_pool().connection() as conn:
-        sql = "DELETE FROM companies WHERE id = %s"
+        sql = delete_company_query()
         await conn.execute(sql, [company_id])
 
 
@@ -223,11 +231,10 @@ async def offers_get_controller(
     async with async_pool().connection() as conn, conn.cursor(
         row_factory=class_row(OfferBriefRead)
     ) as cur:
-        sql = select_offers_query()
+        sql = select_offers_query(field)
         parameters: list = [min_num_weeks, max_num_weeks, min_salary, max_salary, current_user.region_id]
 
         if field is not None:
-            sql += " AND o.field = %s"
             parameters.append(field)
 
         await cur.execute(sql, parameters)
@@ -281,7 +288,7 @@ async def offer_delete_controller(offer_id: int, current_user) ->None:
         
         authorize_user(record["company_id"], current_user, CompanyInDB)
         
-        sql = "UPDATE offers SET company_id = NULL WHERE id = %s"
+        sql = update_offer_company_id_null_query()
         await conn.execute(sql, [offer_id])
 
 
@@ -309,7 +316,7 @@ async def experience_patch_controller(
         current_user
 ) -> None:
     async with async_pool().connection() as conn, conn.cursor(row_factory=dict_row) as cur:
-        sql = "SELECT student_id FROM experiences WHERE id = %s"
+        sql = select_experience_student_id_query()
         await cur.execute(sql, [experience_id])
         record = await cur.fetchone()
 
@@ -331,7 +338,7 @@ async def experience_patch_controller(
 
 async def experience_delete_controller(experience_id: int, current_user) -> None:
     async with async_pool().connection() as conn, conn.cursor(row_factory=dict_row) as cur:
-        sql = "SELECT student_id FROM experiences WHERE id = %s"
+        sql = select_experience_student_id_query()
         await cur.execute(sql, [experience_id])
         record = await cur.fetchone()
         
@@ -340,7 +347,7 @@ async def experience_delete_controller(experience_id: int, current_user) -> None
         
         authorize_user(record["student_id"], current_user, StudentInDB)
 
-        sql = "DELETE FROM experiences WHERE id = %s"
+        sql = delete_experience_query()
         await conn.execute(sql, [experience_id])
 
 
@@ -359,7 +366,7 @@ async def application_post_controller(
     # an offer in his region or for a global offer
     
     async with async_pool().connection() as conn:
-        sql = "INSERT INTO applications (student_id, offer_id, status) VALUES (%s, %s, %s)"
+        sql = insert_application_query()
         try:
             await conn.execute(sql, [student_id, offer_id, Status.WAITING.value])
         except IntegrityError as e:
@@ -419,7 +426,7 @@ async def application_cancel_controller(student_id: int, offer_id: int, current_
 
     async with async_pool().connection() as conn, conn.cursor(row_factory=dict_row) as cur:
         # Check the status of the given application
-        sql = "SELECT status FROM applications WHERE student_id=%s AND offer_id=%s;"
+        sql = select_application_status_query()
         await cur.execute(sql, [student_id, offer_id])
         record = await cur.fetchone()
         

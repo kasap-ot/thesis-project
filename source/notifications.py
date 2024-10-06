@@ -1,3 +1,4 @@
+from source.utils import select_application_email_and_field_query, select_applications_emails_and_fields_query, select_offer_email_and_field_query
 from .enums import Status
 from .database import async_pool
 from psycopg.rows import dict_row
@@ -51,13 +52,7 @@ def send_email_application_update(to_address: str | list[str], offer_field: str,
 async def notify_company_applicants_change(offer_id: int, is_new_applicant: bool):
     pool = async_pool()
     async with pool.connection() as conn, conn.cursor(row_factory=dict_row) as cur:
-        query = (
-            "SELECT companies.email, offers.field "
-            "FROM offers "
-            "JOIN companies "
-            "ON companies.id = offers.company_id "
-            "WHERE offers.id = %s"
-        )
+        query = select_offer_email_and_field_query()
         await cur.execute(query, [offer_id])
         record = await cur.fetchone()
     
@@ -73,13 +68,7 @@ async def notify_company_applicants_change(offer_id: int, is_new_applicant: bool
 async def notify_student_application_status_change(student_id: int, offer_id: int, new_status: Status):
     pool = async_pool()
     async with pool.connection() as conn, conn.cursor(row_factory=dict_row) as cur:
-        query = (
-            "SELECT students.email, offers.field "
-            "FROM students "
-            "JOIN offers"
-            "WHERE students.id = %s "
-            "AND offers.id = %s"
-        )
+        query = select_application_email_and_field_query()
         await cur.execute(query, [student_id, offer_id])
         record = await cur.fetchone()
     
@@ -92,12 +81,7 @@ async def notify_students_application_status_change(student_ids: list[int], offe
     pool = async_pool()
     async with pool.connection() as conn, conn.cursor(row_factory=dict_row) as cur:
         async with conn.transaction():
-            query = (
-                "SELECT students.email, offers.field "
-                "FROM students "
-                "JOIN offers"
-                "WHERE students.id IN %s"
-            )
+            query = select_applications_emails_and_fields_query()
             await cur.execute(query, [student_ids, offer_id])
             record = await cur.fetchall()
     

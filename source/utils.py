@@ -84,8 +84,8 @@ def insert_offer_query() -> LiteralString:
         "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
     )
 
-def select_offers_query() -> LiteralString:
-    return (
+def select_offers_query(field: str | None) -> LiteralString:
+    query = (
         "SELECT o.id, o.salary, o.num_weeks, o.field, o.deadline, r.name as region, c.name AS company_name "
         "FROM offers AS o "
         "JOIN companies AS c ON o.company_id = c.id "
@@ -94,6 +94,9 @@ def select_offers_query() -> LiteralString:
         "AND o.salary >= %s AND o.salary <= %s "
         "AND (r.id = %s OR r.name = 'Global')"
     )
+    if field is not None:
+        query += " AND o.field = %s"
+    return query
 
 def select_offer_query() -> LiteralString:
     return (
@@ -157,3 +160,53 @@ def delete_student_query() -> LiteralString:
 
 def select_student_query() -> LiteralString:
     return "SELECT * FROM students WHERE id = %s;"
+
+def select_student_experiences_query() -> LiteralString:
+    return "SELECT * FROM experiences WHERE student_id = %s;"
+
+def select_company_query() -> LiteralString:
+    return "SELECT * FROM companies WHERE id = %s;"
+
+def delete_company_query() -> LiteralString:
+    return "DELETE FROM companies WHERE id = %s"
+
+def update_offer_company_id_null_query() -> LiteralString:
+    return "UPDATE offers SET company_id = NULL WHERE id = %s"
+
+def select_experience_student_id_query() -> LiteralString:
+    return "SELECT student_id FROM experiences WHERE id = %s"
+
+def delete_experience_query() -> LiteralString:
+    return "DELETE FROM experiences WHERE id = %s"
+
+def insert_application_query() -> LiteralString:
+    return "INSERT INTO applications (student_id, offer_id, status) VALUES (%s, %s, %s)"
+
+def select_application_status_query() -> LiteralString:
+    return "SELECT status FROM applications WHERE student_id=%s AND offer_id=%s;"
+
+def select_application_email_and_field_query() -> LiteralString:
+    return (
+        "SELECT students.email, offers.field "
+        "FROM students "
+        "JOIN offers"
+        "WHERE students.id = %s "
+        "AND offers.id = %s"
+    )
+
+def select_applications_emails_and_fields_query() -> LiteralString:
+    return (
+        "SELECT students.email, offers.field "
+        "FROM students "
+        "JOIN offers"
+        "WHERE students.id IN %s"
+    )
+
+def select_offer_email_and_field_query() -> LiteralString:
+    return (
+        "SELECT companies.email, offers.field "
+        "FROM offers "
+        "JOIN companies "
+        "ON companies.id = offers.company_id "
+        "WHERE offers.id = %s"
+    )
