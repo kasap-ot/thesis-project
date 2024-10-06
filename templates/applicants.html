@@ -19,12 +19,6 @@
 
         {% for student in students %}
         {% set status = student.status.value %}
-        <!-- 
-            * Status types:
-            * status == 0 - status is 'waiting'
-            * status == 1 - status is 'accepted'
-            * status == 2 - status is 'rejected'
-         -->
         {% if status == 'WAITING' %}
             {% set list_item_color = 'warning' %}
             {% set status_text = 'Waiting' %}

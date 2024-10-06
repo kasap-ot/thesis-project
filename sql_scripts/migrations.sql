@@ -71,3 +71,24 @@ ALTER COLUMN region_id SET DEFAULT -1;
 -- Drop NOT NULL constraint on company_id for offers
 
 ALTER TABLE offers ALTER COLUMN company_id DROP NOT NULL;
+
+
+-- Modify staus domain to have text fields instead of integers
+
+ALTER TABLE applications
+DROP COLUMN status
+
+DROP PROCEDURE accept_student;
+DROP PROCEDURE cancel_application;
+DROP FUNCTION applicants;
+
+DROP DOMAIN status;
+
+CREATE DOMAIN status TEXT 
+CHECK (VALUE IN ('WAITING', 'ACCEPTED', 'REJECTED'));
+
+ALTER TABLE applications
+ADD COLUMN status status NOT NULL;
+
+-- Don't forget to recreate the 
+-- dropped procedures and functions

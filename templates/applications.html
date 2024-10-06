@@ -20,11 +20,6 @@
         </li>
         {% for application in applications %}
         {% set status = application.status.value %}
-        <!-- 
-            * status == 0 - status is 'waiting'
-            * status == 1 - status is 'accepted'
-            * status == 2 - status is 'rejected'
-         -->
         {% if status == 'WAITING' %}
             {% set list_item_color = "warning" %}
             {% set button_styles = "btn btn-danger cancel-btn" %}
