@@ -1,4 +1,9 @@
-from source.notifications import send_email_profile_created
+from source.notifications import (
+    notify_company_applicants_change, 
+    notify_student_application_status_change,
+    notify_students_application_status_change, 
+    send_email_profile_created,
+)
 from .database import async_pool
 from .controllers import (
     applicants_get_controller,
@@ -39,6 +44,7 @@ from .schemas import (
     ExperienceUpdate,
     StudentProfileRead,
 )
+from .enums import Status
 from fastapi import APIRouter, BackgroundTasks, status, Depends, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
@@ -274,12 +280,19 @@ async def experience_delete(experience_id: int, current_user = Depends(get_curre
 
 
 @router.post("/applications/apply/{student_id}/{offer_id}", tags=["applications"])
-async def application_post(student_id: int, offer_id: int, current_user = Depends(get_current_user)):
+async def application_post(
+    student_id: int, 
+    offer_id: int, 
+    background_tasks: BackgroundTasks,
+    current_user = Depends(get_current_user)
+):
     """
     Add an application from the student for the given offer. Students 
     will be authorized to create applications for themselves only.
     """
     await application_post_controller(student_id, offer_id, current_user)
+    is_new_applicant = True
+    background_tasks.add_task(notify_company_applicants_change, offer_id, is_new_applicant)
 
 
 @router.get(
@@ -301,23 +314,49 @@ async def applications_get(request: Request, student_id: int, current_user = Dep
 
 
 @router.patch("/applications/accept/{student_id}/{offer_id}", tags=["applications"])
-async def application_accept(student_id: int, offer_id: int, current_user = Depends(get_current_user)):
+async def application_accept(
+    student_id: int, 
+    offer_id: int,
+    background_tasks: BackgroundTasks,
+    current_user = Depends(get_current_user)
+):
     """
     If a student has status - waiting for a given application,
     set his his status to - accepted. Change all other applications
     to status - rejected.
     """
-    await application_accept_controller(student_id, offer_id, current_user)
+    results = await application_accept_controller(student_id, offer_id, current_user)
+    
+    background_tasks.add_task(
+        notify_student_application_status_change, 
+        results["accepted_student_id"], 
+        offer_id, 
+        Status.ACCEPTED
+    )
+    
+    background_tasks.add_task(
+        notify_students_application_status_change,
+        results["rejected_student_ids"],
+        offer_id,
+        Status.REJECTED,
+    )
 
 
 @router.delete("/applications/cancel/{student_id}/{offer_id}", tags=["applications"])
-async def application_cancel(student_id: int, offer_id: int, current_user = Depends(get_current_user)):
+async def application_cancel(
+    student_id: int, 
+    offer_id: int,
+    background_tasks: BackgroundTasks,
+    current_user = Depends(get_current_user)
+):
     """
     If a student is still waiting for his application, simply delete his application.
     If the student's application has been accepted, then delete his application and
     reset all other applications (for the same offer) to status - waiting.
     """
     await application_cancel_controller(student_id, offer_id, current_user)
+    is_new_applicant = False
+    background_tasks.add_task(notify_company_applicants_change, offer_id, is_new_applicant)
 
 
 @router.get("/applications/applicants/{offer_id}", tags=["applications"], response_model=list[StudentRead])
