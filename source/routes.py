@@ -372,11 +372,17 @@ async def application_cancel(
 
 
 @router.get("/applications/applicants/{offer_id}", tags=["applications"], response_model=list[StudentRead])
-async def applicants_get(request: Request, offer_id: int, current_user = Depends(get_current_user)):
+async def applicants_get(
+    request: Request, 
+    offer_id: int, 
+    university: str | None = None,
+    current_user = Depends(get_current_user)
+):
     """
     Get all student-applicants that have applied for the given offer.
+    Return a subset of applicants if filter parameters are provided.
     """
-    students = await applicants_get_controller(offer_id, current_user)
+    students = await applicants_get_controller(offer_id, university, current_user)
     return templates.TemplateResponse(
         name = "applicants.html",
         context = {"request": request, "students": students},

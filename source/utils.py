@@ -142,16 +142,19 @@ def update_applications_waiting_query() -> LiteralString:
         "RETURNING student_id;"
     )
 
-def select_applicants_query() -> LiteralString:
-    return (
+def select_applicants_query(university: str | None) -> LiteralString:
+    query = (
         "SELECT "
             "s.id, s.email, s.name, s.date_of_birth, "
             "s.university, s.major, s.credits, s.gpa, "
             "s.region_id, a.status "
         "FROM students s "
         "JOIN applications a ON s.id = a.student_id "
-        "WHERE a.offer_id = %s;"
+        "WHERE a.offer_id = %s"
     )
+    if university is not None:
+        university += "AND s.university = %s"
+    return query
 
 def select_offer_company_id_query() -> LiteralString:
     return ("SELECT company_id FROM offers WHERE id = %s")
