@@ -385,7 +385,7 @@ async def applicants_get(
     students = await applicants_get_controller(offer_id, university, current_user)
     return templates.TemplateResponse(
         name = "applicants.html",
-        context = {"request": request, "students": students},
+        context = {"request": request, "students": students, "offer_id": offer_id},
         headers = {"Content-Type": "text/html"}
     )
     

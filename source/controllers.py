@@ -467,8 +467,8 @@ async def applicants_get_controller(
         applicant_cur = conn.cursor(row_factory=class_row(ApplicantRead))
         dict_cur = conn.cursor(row_factory=dict_row)
         
-        sql = select_offer_company_id_query()
-        await dict_cur.execute(sql, [offer_id])
+        query = select_offer_company_id_query()
+        await dict_cur.execute(query, [offer_id])
         record = await dict_cur.fetchone()
 
         if record is None:
@@ -479,12 +479,8 @@ async def applicants_get_controller(
         
         authorize_user(record["company_id"], current_user, CompanyInDB)
 
-        sql = select_applicants_query(university)
-        params: list = [offer_id]
+        query, params = select_applicants_query(university, [offer_id])
         
-        if university is not None:
-            params.append(university)
-        
-        await applicant_cur.execute(sql, params)
+        await applicant_cur.execute(query, params)
         records = await applicant_cur.fetchall()
         return records

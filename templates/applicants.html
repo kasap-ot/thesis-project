@@ -111,14 +111,9 @@
             const minCredits = document.getElementById("min-credits-search").value
             const maxCredits = document.getElementById("max-credits-search").value
 
-            "<!-- TODO: Finish code for filtering applicants by parameters -->"
-            // let targetUrl = "/offers?"
-            // if (field != "") targetUrl += `field=${field}&`
-            // if (minSalary != "") targetUrl += `min_salary=${minSalary}&`
-            // if (maxSalary != "") targetUrl += `max_salary=${maxSalary}&`
-            // if (minNumWeeks != "") targetUrl += `min_num_weeks=${minNumWeeks}&`
-            // if (maxNumWeeks != "") targetUrl += `max_num_weeks=${maxNumWeeks}&`
-            // await access(targetUrl, "GET")
+            let targetUrl = "/applications/applicants/{{offer_id}}?"
+            if (university != "") targetUrl += `university=${university}&`
+            await access(targetUrl, "GET")
         })
     </script>
 </div>

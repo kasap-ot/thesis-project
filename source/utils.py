@@ -142,7 +142,7 @@ def update_applications_waiting_query() -> LiteralString:
         "RETURNING student_id;"
     )
 
-def select_applicants_query(university: str | None) -> LiteralString:
+def select_applicants_query(university: str | None, params: list) -> tuple[LiteralString, list]:
     query = (
         "SELECT "
             "s.id, s.email, s.name, s.date_of_birth, "
@@ -153,8 +153,10 @@ def select_applicants_query(university: str | None) -> LiteralString:
         "WHERE a.offer_id = %s"
     )
     if university is not None:
-        university += "AND s.university = %s"
-    return query
+        query += " AND s.university LIKE %s"
+        params.append(f"%{university}%")
+
+    return query, params
 
 def select_offer_company_id_query() -> LiteralString:
     return ("SELECT company_id FROM offers WHERE id = %s")
