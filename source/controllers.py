@@ -461,7 +461,11 @@ async def application_cancel_controller(student_id: int, offer_id: int, current_
 async def applicants_get_controller(
     offer_id: int, 
     university: str | None, 
-    current_user
+    min_gpa: float,
+    max_gpa: float,
+    min_credits: int,
+    max_credits: int,
+    current_user,
 ) -> list[ApplicantRead]:
     async with async_pool().connection() as conn:
         applicant_cur = conn.cursor(row_factory=class_row(ApplicantRead))
@@ -479,7 +483,7 @@ async def applicants_get_controller(
         
         authorize_user(record["company_id"], current_user, CompanyInDB)
 
-        query, params = select_applicants_query(university, [offer_id])
+        query, params = select_applicants_query(offer_id, university, min_gpa, max_gpa, min_credits, max_credits)
         
         await applicant_cur.execute(query, params)
         records = await applicant_cur.fetchall()

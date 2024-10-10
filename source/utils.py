@@ -142,7 +142,14 @@ def update_applications_waiting_query() -> LiteralString:
         "RETURNING student_id;"
     )
 
-def select_applicants_query(university: str | None, params: list) -> tuple[LiteralString, list]:
+def select_applicants_query(
+    offer_id: int, 
+    university: str | None, 
+    min_gpa: float, 
+    max_gpa: float, 
+    min_credits: int, 
+    max_credits: int,
+) -> tuple[LiteralString, list]:
     query = (
         "SELECT "
             "s.id, s.email, s.name, s.date_of_birth, "
@@ -150,8 +157,11 @@ def select_applicants_query(university: str | None, params: list) -> tuple[Liter
             "s.region_id, a.status "
         "FROM students s "
         "JOIN applications a ON s.id = a.student_id "
-        "WHERE a.offer_id = %s"
+        "WHERE a.offer_id = %s "
+        "AND s.gpa >= %s AND s.gpa <= %s "
+        "AND s.credits >= %s AND s.credits <= %s "
     )
+    params = [offer_id, min_gpa, max_gpa, min_credits, max_credits]
     if university is not None:
         query += " AND s.university LIKE %s"
         params.append(f"%{university}%")

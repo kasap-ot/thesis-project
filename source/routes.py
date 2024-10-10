@@ -376,13 +376,25 @@ async def applicants_get(
     request: Request, 
     offer_id: int, 
     university: str | None = None,
+    min_gpa: float = MIN_GPA,
+    max_gpa: float = MAX_GPA,
+    min_credits: int = MIN_CREDITS,
+    max_credits: int = MAX_CREDITS,
     current_user = Depends(get_current_user)
 ):
     """
     Get all student-applicants that have applied for the given offer.
     Return a subset of applicants if filter parameters are provided.
     """
-    students = await applicants_get_controller(offer_id, university, current_user)
+    students = await applicants_get_controller(
+        offer_id, 
+        university, 
+        min_gpa,
+        max_gpa,
+        min_credits,
+        max_credits,
+        current_user,
+    )
     return templates.TemplateResponse(
         name = "applicants.html",
         context = {"request": request, "students": students, "offer_id": offer_id},
@@ -416,13 +428,3 @@ async def register_company_get(request: Request):
 @router.get("/log-in", response_class=HTMLResponse, tags=["static-templates"])
 async def log_in_get(request: Request):
     return templates.TemplateResponse("log-in.html", {"request": request})
-
-
-# Routes for testing Cockroach DB connection
-
-
-@router.get("/cockroach-db/1", tags=["cockroach"])
-async def cockroach_1():
-    async with async_pool().connection() as conn:
-        sql = "USE test_connection; INSERT INTO test_table (id, name, age) VALUES (16, 'John Doe', 34);"
-        await conn.execute(sql)

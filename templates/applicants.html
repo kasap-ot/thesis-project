@@ -113,6 +113,10 @@
 
             let targetUrl = "/applications/applicants/{{offer_id}}?"
             if (university != "") targetUrl += `university=${university}&`
+            if (minGPA != "") targetUrl += `min_gpa=${minGPA}&`
+            if (maxGPA != "") targetUrl += `max_gpa=${maxGPA}&`
+            if (minCredits != "") targetUrl += `min_credits=${minCredits}&`
+            if (maxCredits != "") targetUrl += `max_credits=${maxCredits}&`
             await access(targetUrl, "GET")
         })
     </script>
