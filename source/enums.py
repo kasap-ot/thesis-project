@@ -17,3 +17,17 @@ class Region(Enum):
     EUROPE = 1
     ASIA = 2
     AMERICAS = 3
+
+
+MIN_GPA = 0.00
+MAX_GPA = 10.00
+MIN_CREDITS = 0
+MAX_CREDITS = 300
+
+
+class Environment:
+    TESTING = "TESTING"
+    EMAIL_ADDRESS = "EMAIL_ADDRESS"
+    EMAIL_PASSWORD = "EMAIL_PASSWORD"
+    TRUE = "TRUE"
+    FALSE = "FALSE"

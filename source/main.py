@@ -5,6 +5,7 @@ from .database import async_pool
 from contextlib import asynccontextmanager
 from fastapi.staticfiles import StaticFiles
 from psycopg_pool import AsyncConnectionPool
+from dotenv import load_dotenv
 
 
 async def check_async_connections(db_pool: AsyncConnectionPool):
@@ -16,6 +17,7 @@ async def check_async_connections(db_pool: AsyncConnectionPool):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     db_pool = async_pool()
+    load_dotenv()
     asyncio.create_task(check_async_connections(db_pool))
     yield
     await db_pool.close()

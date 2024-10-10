@@ -4,7 +4,6 @@ from source.notifications import (
     notify_students_application_status_change, 
     send_email_profile_created,
 )
-from .database import async_pool
 from .controllers import (
     applicants_get_controller,
     application_accept_controller,
@@ -44,11 +43,12 @@ from .schemas import (
     ExperienceUpdate,
     StudentProfileRead,
 )
-from .enums import Status
+from .enums import MAX_CREDITS, MAX_GPA, MIN_CREDITS, MIN_GPA, Status, Environment
 from fastapi import APIRouter, BackgroundTasks, status, Depends, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
+from os import getenv
 
 
 router = APIRouter()
@@ -74,6 +74,8 @@ async def token(user_type_param: str, form_data: OAuth2PasswordRequestForm = Dep
 @router.post("/students", status_code=status.HTTP_201_CREATED, tags=["students"])
 async def student_post(s: StudentCreate, background_tasks: BackgroundTasks):
     await student_post_controller(s)
+    if getenv(Environment.TESTING) == Environment.TRUE:
+        return
     background_tasks.add_task(send_email_profile_created, s.email, s.name)
 
 
@@ -123,6 +125,7 @@ async def student_profile_edit_get(
 @router.post("/companies", status_code=status.HTTP_201_CREATED, tags=["companies"])
 async def company_post(c: CompanyCreate):
     await company_post_controller(c)
+    # TODO - Add email background taks
 
 
 @router.get("/companies/{company_id}", response_class=HTMLResponse, tags=["companies"])
@@ -291,6 +294,10 @@ async def application_post(
     will be authorized to create applications for themselves only.
     """
     await application_post_controller(student_id, offer_id, current_user)
+    
+    if getenv(Environment.TESTING) == Environment.TRUE:
+        return
+    
     is_new_applicant = True
     background_tasks.add_task(notify_company_applicants_change, offer_id, is_new_applicant)
 
@@ -326,6 +333,9 @@ async def application_accept(
     to status - rejected.
     """
     results = await application_accept_controller(student_id, offer_id, current_user)
+
+    if getenv(Environment.TESTING) == Environment.TRUE:
+        return
     
     background_tasks.add_task(
         notify_student_application_status_change, 
@@ -355,6 +365,9 @@ async def application_cancel(
     reset all other applications (for the same offer) to status - waiting.
     """
     updated_student_ids = await application_cancel_controller(student_id, offer_id, current_user)
+
+    if getenv(Environment.TESTING) == Environment.TRUE:
+        return
     
     is_new_applicant = False
     background_tasks.add_task(

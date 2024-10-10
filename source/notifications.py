@@ -2,13 +2,11 @@ from source.utils import select_application_email_and_field_query, select_applic
 from .enums import Status
 from .database import async_pool
 from psycopg.rows import dict_row
-from dotenv import load_dotenv
 from os import getenv
 import smtplib
 
 
 def send_email(to_address: str | list[str], subject: str, body: str) -> None:
-    load_dotenv()
     EMAIL_ADDRESS = getenv("EMAIL_ADDRESS", "")
     EMAIL_PASSWORD = getenv("EMAIL_PASSWORD", "")
     SMTP_SERVER = "smtp.gmail.com"
