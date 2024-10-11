@@ -47,6 +47,22 @@
             <p class="fst-italic">({{experience.from_date}} to {{experience.to_date}})</p>
             <p>{{experience.description}}</p>
             {% endfor %}
+
+            <hr class="mt-4">
+
+            <h5 class="my-4 fs-4">SUBJECTS</h5>
+
+            <table class="table table-striped">
+                <thead><tr><th>Name</th><th>Grade</th></tr></thead>
+                <tbody>
+                    {% for subject in student.subjects %}
+                    <tr>
+                        <td>{{ subject.name }}</td>
+                        <td>{{ subject.grade }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -81,32 +97,10 @@
             </button>
         </div>
         <div>
-            <!-- <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal">
-                <i class="bi bi-x-circle-fill"></i> Reject
-            </button> -->
             <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#acceptModal">
                 <i class="bi bi-check-circle-fill"></i> Accept
             </button>
         </div>
-
-        <!-- Reject - modal -->
-        <!-- <div class="modal fade" id="rejectModal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h1 class="modal-title fs-5">Reject applicant?</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        The student will be marked as rejected. They will be able to see this action.
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                        <button class="btn btn-success" id="modalRejectBtn">I'm sure</button>
-                    </div>
-                </div>
-            </div>
-        </div> -->
 
         <!-- Accept - modal -->
         <div class="modal fade" id="acceptModal" tabindex="-1">

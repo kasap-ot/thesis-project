@@ -153,12 +153,20 @@ class ApplicationCreate(ApplicationBase):
 """ STUDENT PROFILE SCHEMAS """
 
 
+class Subject(BaseModel):
+    student_id: int
+    name: str
+    grade: int
+
+
 class StudentProfileRead(StudentRead):
     experiences: list[ExperienceRead]
+    subjects: list[Subject]
 
 
 class StudentProfileUpdate(StudentUpdate):
     experiences: list[ExperienceUpdate]
+    # subjects: list[Subject]
 
 
 class ApplicantRead(StudentRead):

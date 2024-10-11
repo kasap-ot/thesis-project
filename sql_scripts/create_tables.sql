@@ -61,3 +61,13 @@ CREATE TABLE IF NOT EXISTS regions (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL
 );
+
+
+-- Add table for subjects
+
+CREATE TABLE IF NOT EXISTS subjects (
+    student_id INT REFERENCES students(id),
+    name VARCHAR(255),
+    grade INT NOT NULL,
+    PRIMARY KEY (student_id, name)
+);

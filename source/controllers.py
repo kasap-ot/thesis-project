@@ -40,6 +40,7 @@ from .utils import (
     select_offers_query,
     select_student_experiences_query,
     select_student_query,
+    select_student_subjects_query,
     update_applications_waiting_query,
     update_company_query,
     update_experience_query,
@@ -129,7 +130,15 @@ async def student_profile_get_controller(student_id: int) -> StudentProfileRead:
         await cur.execute(sql, [student_id])
         experiences: list = await cur.fetchall()
 
-        student_profile = StudentProfileRead(experiences=experiences, **student.model_dump())
+        sql = select_student_subjects_query()
+        await cur.execute(sql, [student_id])
+        subjects: list = await cur.fetchall()
+
+        student_profile = StudentProfileRead(
+            subjects=subjects,
+            experiences=experiences, 
+            **student.model_dump(),
+        )
 
         return student_profile
     

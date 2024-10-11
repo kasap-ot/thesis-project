@@ -180,6 +180,9 @@ def select_student_query() -> LiteralString:
 def select_student_experiences_query() -> LiteralString:
     return "SELECT * FROM experiences WHERE student_id = %s;"
 
+def select_student_subjects_query() -> LiteralString:
+    return "SELECT * FROM subjects WHERE student_id = %s;"
+
 def select_company_query() -> LiteralString:
     return "SELECT * FROM companies WHERE id = %s;"
 
