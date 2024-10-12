@@ -9,7 +9,8 @@
 <h3>Edit your profile</h3>
 
 <div class="row mt-1">
-    <div class="col-5">
+
+    <div class="col-4">
         <p class="fs-5 ">General information</p>
 
         <div class="bg-primary-subtle px-4 pt-3 rounded border border-4 border-light">
@@ -46,9 +47,10 @@
             </button>
         </div>
     </div>
-    <div class="col-5">
+
+    <div class="col-4">
         <p class="fs-5 ">Experiences</p>
-        <div class="accordion" id="accordionExample">
+        <div class="accordion" id="experiencesAccordion">
             {% for experience in student_profile.experiences %}
             <div class="accordion-item">
                 <h2 class="accordion-header">
@@ -58,19 +60,23 @@
                     </button>
                 </h2>
                 <div id="collapse-{{experience.id}}" class="accordion-collapse collapse"
-                    data-bs-parent="#accordionExample">
+                    data-bs-parent="#experiencesAccordion">
                     <div class="accordion-body">
                         <label class="form-label">Experience Title</label>
-                        <input id="position-{{experience.id}}" type="text" class="form-control shadow" value="{{experience.position}}">
+                        <input id="position-{{experience.id}}" type="text" class="form-control shadow"
+                            value="{{experience.position}}">
 
                         <label class="form-label mt-2">Company</label>
-                        <input id="company-{{experience.id}}" type="text" class="form-control shadow" value="{{experience.company}}">
+                        <input id="company-{{experience.id}}" type="text" class="form-control shadow"
+                            value="{{experience.company}}">
 
                         <label class="form-label mt-2">From</label>
-                        <input id="from-date-{{experience.id}}" type="text" class="form-control shadow" value="{{experience.from_date}}">
+                        <input id="from-date-{{experience.id}}" type="text" class="form-control shadow"
+                            value="{{experience.from_date}}">
 
                         <label class="form-label mt-2">To</label>
-                        <input id="to-date-{{experience.id}}" type="text" class="form-control shadow" value="{{experience.to_date}}">
+                        <input id="to-date-{{experience.id}}" type="text" class="form-control shadow"
+                            value="{{experience.to_date}}">
 
                         <label class="form-label mt-2">Description</label>
                         <textarea id="description-{{experience.id}}" name="" class="form-control shadow"
@@ -96,11 +102,50 @@
             <strong>+</strong> Add experience
         </button>
     </div>
-    <div class="col-2">
-        <p class="fs-5">Edit profile photo</p>
-        <img src="{{ url_for('static', path='img/no-image.PNG') }}" alt="Some image"
-            class="img-fluid shadow rounded mb-2">
-        <input type="file" class="form-control shadow">
+
+    <div class="col-4">
+        <p class="fs-5">Subjects</p>
+        <table class="table table-striped">
+            <thead class="table-primary">
+                <tr>
+                    <th>Subject</th>
+                    <th class="text-center">Grade</th>
+                    <th class="text-end">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for subject in student_profile.subjects %}
+                <tr>
+                    <td>{{ subject.name }}</td>
+                    <td class="d-flex justify-content-center">
+                        <input 
+                            id="grade-{{subject.student_id}}-{{subject.name}}" 
+                            type="number"
+                            class="form-control w-50 text-center" 
+                            value="{{subject.grade}}"
+                            style="background-color: transparent;"
+                        >
+                    </td>
+                    <td class="text-end">
+                        <button 
+                            class="btn btn-primary btn-sm confirm-subject-btn"
+                            id="confirm-subject-btn-{{subject.student_id}}-{{subject.name}}">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </button>
+                        <button 
+                            class="btn btn-danger btn-sm delete-subject-btn" 
+                            id="deltete-subject-btn-{{subject.student_id}}-{{subject.name}}">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <button class="btn btn-light mt-2" data-bs-toggle="modal" data-bs-target="#addSubjectModal">
+            <strong>+</strong> Add subject
+        </button>
     </div>
 
     <!-- Main Modal -->
@@ -159,6 +204,43 @@
             </div>
         </div>
     </div>
+
+    <!-- Add subject modal -->
+    <div class="modal fade" id="addSubjectModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5">Add new subject</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <label class="form-label">Subject</label>
+                        <input type="text" id="newSubjectName" class="form-control shadow">
+
+                        <label class="form-label mt-2">Grade</label>
+                        <input type="number" id="newGrade" class="form-control shadow">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button class="btn btn-primary" id="add-subject-btn" data-bs-toggle="modal"
+                        data-bs-target="#addSubjectModal">
+                        Add subject
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-1">
+    <div class="col-2">
+        <p class="fs-5">Edit profile photo</p>
+        <img src="{{ url_for('static', path='img/no-image.PNG') }}" alt="Some image"
+            class="img-fluid shadow rounded mb-2">
+        <input type="file" class="form-control shadow">
+    </div>
 </div>
 
 <script>
@@ -189,12 +271,20 @@
         })
     })
 
+    document.querySelectorAll('.delete-subject-btn').forEach(async button => {
+        button.addEventListener('click', async () => {
+            const btnIdParts = button.id.split('-')
+            const studentId = btnIdParts.at(-2)
+            const name = btnIdParts.at(-1)
+            await access(`/subjects/${studentId}/${name}`, 'DELETE')
+            await access(`/students/profile/{{student_profile.id}}/edit`, 'GET')
+        })
+    })
+
     document.querySelectorAll('.confirm-experience-btn').forEach(async button => {
         button.addEventListener('click', async () => {
             const btnIdParts = button.id.split('_')
             const experienceId = btnIdParts[2]
-            console.log(btnIdParts)
-            console.log(experienceId)
             updatedExperience = {
                 from_date: document.getElementById(`from-date-${experienceId}`).value,
                 to_date: document.getElementById(`to-date-${experienceId}`).value,
@@ -202,11 +292,33 @@
                 position: document.getElementById(`position-${experienceId}`).value,
                 description: document.getElementById(`description-${experienceId}`).value,
             }
-            console.log(updatedExperience)
             await access(`/experiences/${experienceId}`, 'PUT', updatedExperience)
             await access('/students/profile/{{student_profile.id}}/edit', 'GET')
         })
     })
+
+    document.querySelectorAll('.confirm-subject-btn').forEach(async button => {
+        button.addEventListener('click', async () => {
+            const btnIdParts = button.id.split('-')
+            const studentId = btnIdParts.at(-2)
+            const name = btnIdParts.at(-1)
+            const gradeString = document.getElementById(`grade-${studentId}-${name}`).value
+            const grade = parseInt(gradeString)
+            updatedSubject = {
+                student_id: studentId,
+                name: name,
+                grade: grade,
+            }
+            const url = `/subjects/${studentId}/${name}`
+            await access(url, 'PUT', updatedSubject)
+            await access('/students/profile/{{student_profile.id}}/edit', 'GET')
+        })
+    })
+
+    /*
+    @router.put("/subjects/{student_id}/{name}")
+    async def subject_patch(student_id: int, name: str, grade: int, current_user = Depends(get_current_user)):
+    */
 
     document.getElementById('add-experience-btn').addEventListener('click', async () => {
         const newExperience = {
@@ -218,6 +330,16 @@
             student_id: '{{student_profile.id}}',
         }
         await access('/experiences', 'POST', newExperience)
+        await access('/students/profile/{{student_profile.id}}/edit', 'GET')
+    })
+
+    document.getElementById('add-subject-btn').addEventListener('click', async () => {
+        const newSubject = {
+            name: document.getElementById('newSubjectName').value,
+            grade: document.getElementById('newGrade').value,
+            student_id: '{{student_profile.id}}',
+        }
+        await access('/subjects', 'POST', newSubject)
         await access('/students/profile/{{student_profile.id}}/edit', 'GET')
     })
 </script>

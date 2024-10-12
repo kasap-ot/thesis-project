@@ -15,6 +15,9 @@ from .controllers import (
     experience_post_controller,
     offer_delete_controller,
     offer_put_controller,
+    subject_delete_controller,
+    subject_patch_controller,
+    subject_post_controller,
     token_controller,
     student_post_controller,
     student_put_controller,
@@ -42,6 +45,7 @@ from .schemas import (
     ExperienceCreate,
     ExperienceUpdate,
     StudentProfileRead,
+    Subject,
 )
 from .enums import MAX_CREDITS, MAX_GPA, MIN_CREDITS, MIN_GPA, Status, Environment
 from fastapi import APIRouter, BackgroundTasks, status, Depends, Request
@@ -63,7 +67,7 @@ async def test():
 # Routes for TOKENS
 
 
-@router.post("/token", response_model=Token, tags=["security"])
+@router.post("/token", response_model=Token)
 async def token(user_type_param: str, form_data: OAuth2PasswordRequestForm = Depends()):
     return await token_controller(user_type_param, form_data)
 
@@ -71,7 +75,7 @@ async def token(user_type_param: str, form_data: OAuth2PasswordRequestForm = Dep
 # Routes for STUDENTS
 
 
-@router.post("/students", status_code=status.HTTP_201_CREATED, tags=["students"])
+@router.post("/students", status_code=status.HTTP_201_CREATED)
 async def student_post(s: StudentCreate, background_tasks: BackgroundTasks):
     await student_post_controller(s)
     if getenv(Environment.TESTING) == Environment.TRUE:
@@ -79,7 +83,7 @@ async def student_post(s: StudentCreate, background_tasks: BackgroundTasks):
     background_tasks.add_task(send_email_profile_created, s.email, s.name)
 
 
-@router.put("/students/{student_id}", tags=["students"])
+@router.put("/students/{student_id}")
 async def student_put(
     student_id: int, s: StudentUpdate, 
     current_user = Depends(get_current_user),
@@ -87,12 +91,12 @@ async def student_put(
     await student_put_controller(student_id, s, current_user)
 
 
-@router.delete("/students/{student_id}", tags=["students"])
+@router.delete("/students/{student_id}")
 async def student_delete(student_id: int, current_user = Depends(get_current_user)):
     await student_delete_controller(student_id, current_user)
 
 
-@router.get("/students/profile/{student_id}", response_model=StudentProfileRead, tags=["students"])
+@router.get("/students/profile/{student_id}", response_model=StudentProfileRead)
 async def student_profile_get(request: Request, student_id: int, current_user = Depends(get_current_user)):
     student = await student_profile_get_controller(student_id)
     return templates.TemplateResponse(
@@ -101,12 +105,12 @@ async def student_profile_get(request: Request, student_id: int, current_user = 
     )
 
 
-@router.get("/students-home", response_class=HTMLResponse, tags=["static-templates"])
+@router.get("/students-home", response_class=HTMLResponse)
 async def students_home_get(request: Request, current_user = Depends(get_current_user)):
     return templates.TemplateResponse("student-home.html", {"request": request, "current_user": current_user})
 
 
-@router.get("/students/profile/{student_id}/edit", response_class=HTMLResponse, tags=["students"])
+@router.get("/students/profile/{student_id}/edit", response_class=HTMLResponse)
 async def student_profile_edit_get(
     request: Request, 
     student_id: int, 
@@ -122,13 +126,13 @@ async def student_profile_edit_get(
 # Routes for COMPANIES
 
 
-@router.post("/companies", status_code=status.HTTP_201_CREATED, tags=["companies"])
+@router.post("/companies", status_code=status.HTTP_201_CREATED)
 async def company_post(c: CompanyCreate):
     await company_post_controller(c)
     # TODO - Add email background taks
 
 
-@router.get("/companies/{company_id}", response_class=HTMLResponse, tags=["companies"])
+@router.get("/companies/{company_id}", response_class=HTMLResponse)
 async def company_get(request: Request, company_id: int, current_user = Depends(get_current_user)):
     company = await company_get_controller(company_id)
     return templates.TemplateResponse(
@@ -137,7 +141,7 @@ async def company_get(request: Request, company_id: int, current_user = Depends(
     )
 
 
-@router.get("/companies/{company_id}/offers", response_model=list[OfferRead], tags=["companies"])
+@router.get("/companies/{company_id}/offers", response_model=list[OfferRead])
 async def company_offers_get(request: Request, company_id: int, current_user = Depends(get_current_user)):
     offers = await company_offers_get_controller(company_id)
     return templates.TemplateResponse(
@@ -146,7 +150,7 @@ async def company_offers_get(request: Request, company_id: int, current_user = D
     )
 
 
-@router.get("/companies/{company_id}/edit", response_class=HTMLResponse, tags=["companies"])
+@router.get("/companies/{company_id}/edit", response_class=HTMLResponse)
 async def company_edit_get(request: Request, company_id: int):
     company = await company_get_controller(company_id)
     return templates.TemplateResponse(
@@ -155,17 +159,17 @@ async def company_edit_get(request: Request, company_id: int):
     )
 
 
-@router.put("/companies/{company_id}", tags=["companies"])
+@router.put("/companies/{company_id}")
 async def company_patch(company_id: int, c: CompanyUpdate, current_user = Depends(get_current_user)):
     await company_patch_controller(company_id, c, current_user)
 
 
-@router.delete("/companies/{company_id}", tags=["companies"])
+@router.delete("/companies/{company_id}")
 async def company_delete(company_id: int, current_user = Depends(get_current_user)):
     await company_delete_controller(company_id, current_user)
 
 
-@router.get("/companies-home", response_class=HTMLResponse, tags=["static-templates"])
+@router.get("/companies-home", response_class=HTMLResponse)
 async def companies_home_get(request: Request, current_user = Depends(get_current_user)):
     return templates.TemplateResponse("company-home.html", {"request": request, "current_user": current_user})
 
@@ -173,12 +177,12 @@ async def companies_home_get(request: Request, current_user = Depends(get_curren
 # Routes for OFFERS
 
 
-@router.get("/offers-create", response_class=HTMLResponse, tags=["offers"])
+@router.get("/offers-create", response_class=HTMLResponse)
 async def offer_create_get(request: Request):
     return templates.TemplateResponse("offer-create.html", {"request": request})
 
 
-@router.post("/offers", status_code=status.HTTP_201_CREATED, tags=["offers"])
+@router.post("/offers", status_code=status.HTTP_201_CREATED)
 async def offer_post(o: OfferCreate, current_user = Depends(get_current_user)):
     """
     Create a new offer. Companies can create offers only for themselves.
@@ -186,7 +190,7 @@ async def offer_post(o: OfferCreate, current_user = Depends(get_current_user)):
     await offer_post_controller(o, current_user)
 
 
-@router.get("/offers", response_class=HTMLResponse, tags=["offers"])
+@router.get("/offers", response_class=HTMLResponse)
 async def offers_get(
     request: Request,
     field: str | None = None,
@@ -217,7 +221,7 @@ async def offers_get(
     )
 
 
-@router.get("/offers/{offer_id}", response_class=HTMLResponse, tags=["offers"])
+@router.get("/offers/{offer_id}", response_class=HTMLResponse)
 async def offer_get(request: Request, offer_id: int, current_user = Depends(get_current_user)):
     """
     Get a given offer. Anyone can view the offer.
@@ -229,13 +233,13 @@ async def offer_get(request: Request, offer_id: int, current_user = Depends(get_
     )
 
 
-@router.get("/offers/{offer_id}/edit", response_class=HTMLResponse, tags=["offers"])
+@router.get("/offers/{offer_id}/edit", response_class=HTMLResponse)
 async def offer_edit_get(request: Request, offer_id: int):
     offer = await offer_get_controller(offer_id)
     return templates.TemplateResponse("offer-edit.html", {"request": request, "offer": offer})
 
 
-@router.put("/offers/{offer_id}", tags=["offers"])
+@router.put("/offers/{offer_id}")
 async def offer_put(offer_id: int, o: OfferUpdate, current_user = Depends(get_current_user)):
     """
     Update a given offer. Only offer-owners are authorized.
@@ -243,7 +247,7 @@ async def offer_put(offer_id: int, o: OfferUpdate, current_user = Depends(get_cu
     await offer_put_controller(offer_id, o, current_user)
 
 
-@router.delete("/offers/{offer_id}", tags=["offers"])
+@router.delete("/offers/{offer_id}")
 async def offer_delete(offer_id: int, current_user = Depends(get_current_user)):
     """
     Delete a given offer. Only offer-owners are authorized.
@@ -254,7 +258,7 @@ async def offer_delete(offer_id: int, current_user = Depends(get_current_user)):
 # Routes for EXPERIENCES
 
 
-@router.post("/experiences", status_code=status.HTTP_201_CREATED, tags=["experiences"])
+@router.post("/experiences", status_code=status.HTTP_201_CREATED)
 async def experience_post(e: ExperienceCreate, current_user = Depends(get_current_user)):
     """ 
     Create a new experience item. Students can 
@@ -263,7 +267,7 @@ async def experience_post(e: ExperienceCreate, current_user = Depends(get_curren
     await experience_post_controller(e, current_user)
 
 
-@router.put("/experiences/{experience_id}", tags=["experiences"])
+@router.put("/experiences/{experience_id}")
 async def experience_patch(experience_id: int, s: ExperienceUpdate, current_user = Depends(get_current_user)):
     """
     Update a given experience item. Only student-owners of the experience are allowed.
@@ -271,18 +275,45 @@ async def experience_patch(experience_id: int, s: ExperienceUpdate, current_user
     await experience_patch_controller(experience_id, s, current_user)
 
 
-@router.delete("/experiences/{experience_id}", tags=["experiences"])
+@router.delete("/experiences/{experience_id}")
 async def experience_delete(experience_id: int, current_user = Depends(get_current_user)):
     """
-    Delete a give experience item. Only student-owners of the experience are allowed.
+    Delete a given experience item. Only student-owners of the experience are allowed.
     """
     await experience_delete_controller(experience_id, current_user)
+
+
+# Routes for SUBJECTS
+
+
+@router.post("/subjects", status_code=status.HTTP_201_CREATED)
+async def subject_post(s: Subject, current_user = Depends(get_current_user)):
+    """
+    Create a new subject entry for the currently logged in student.
+    """
+    await subject_post_controller(s, current_user)
+
+
+@router.put("/subjects/{student_id}/{name}")
+async def subject_patch(student_id: int, name: str, subject: Subject, current_user = Depends(get_current_user)):
+    """
+    Update a given subject entry. Only student-owners of the experience are authorized.
+    """
+    await subject_patch_controller(student_id, name, subject, current_user)
+
+
+@router.delete("/subjects/{student_id}/{name}")
+async def subject_delete(student_id: int, name: str, current_user = Depends(get_current_user)):
+    """
+    Delete a subject entry. Only the student owner is authorized.
+    """
+    await subject_delete_controller(student_id, name, current_user)
 
 
 # Routes for APPLICATIONS
 
 
-@router.post("/applications/apply/{student_id}/{offer_id}", tags=["applications"])
+@router.post("/applications/apply/{student_id}/{offer_id}")
 async def application_post(
     student_id: int, 
     offer_id: int, 
@@ -320,7 +351,7 @@ async def applications_get(request: Request, student_id: int, current_user = Dep
     )
 
 
-@router.patch("/applications/accept/{student_id}/{offer_id}", tags=["applications"])
+@router.patch("/applications/accept/{student_id}/{offer_id}")
 async def application_accept(
     student_id: int, 
     offer_id: int,
@@ -352,7 +383,7 @@ async def application_accept(
     )
 
 
-@router.delete("/applications/cancel/{student_id}/{offer_id}", tags=["applications"])
+@router.delete("/applications/cancel/{student_id}/{offer_id}")
 async def application_cancel(
     student_id: int, 
     offer_id: int,
@@ -384,7 +415,7 @@ async def application_cancel(
     )
 
 
-@router.get("/applications/applicants/{offer_id}", tags=["applications"], response_model=list[StudentRead])
+@router.get("/applications/applicants/{offer_id}")
 async def applicants_get(
     request: Request, 
     offer_id: int, 
@@ -418,26 +449,26 @@ async def applicants_get(
 # Routes for STATIC TEMPLATES
 
 
-@router.get("/", response_class=HTMLResponse, tags=["static-templates"])
+@router.get("/", response_class=HTMLResponse)
 async def welcome_get(request: Request):
     return templates.TemplateResponse("welcome.html", {"request": request})
 
 
-@router.get("/register", response_class=HTMLResponse, tags=["static-templates"])
+@router.get("/register", response_class=HTMLResponse)
 async def register_get(request: Request):
     return templates.TemplateResponse("register.html", {"request": request})
 
 
-@router.get("/register-student", response_class=HTMLResponse, tags=["static-templates"])
+@router.get("/register-student", response_class=HTMLResponse)
 async def register_student_get(request: Request):
     return templates.TemplateResponse("register-student.html", {"request": request})
 
 
-@router.get("/register-company", response_class=HTMLResponse, tags=["static-templates"])
+@router.get("/register-company", response_class=HTMLResponse)
 async def register_company_get(request: Request):
     return templates.TemplateResponse("register-company.html", {"request": request})
 
 
-@router.get("/log-in", response_class=HTMLResponse, tags=["static-templates"])
+@router.get("/log-in", response_class=HTMLResponse)
 async def log_in_get(request: Request):
     return templates.TemplateResponse("log-in.html", {"request": request})

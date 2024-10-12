@@ -126,7 +126,7 @@ def update_experience_query() -> LiteralString:
         "UPDATE experiences SET "
         "from_date=%s, to_date=%s, company=%s, position=%s, description=%s "
         "WHERE id=%s "
-        "RETURNING *;"
+        "RETURNING *;" # ? Do we need this query to return anything?
     )
 
 def delete_application_query() -> LiteralString:
@@ -168,8 +168,11 @@ def select_applicants_query(
 
     return query, params
 
+def insert_subject_query() -> LiteralString:
+    return "INSERT INTO subjects (student_id, name, grade) VALUES (%s, %s, %s);"
+
 def select_offer_company_id_query() -> LiteralString:
-    return ("SELECT company_id FROM offers WHERE id = %s")
+    return "SELECT company_id FROM offers WHERE id = %s"
 
 def delete_student_query() -> LiteralString:
     return "DELETE FROM students WHERE id = %s"
@@ -230,3 +233,16 @@ def select_offer_email_and_field_query() -> LiteralString:
         "ON companies.id = offers.company_id "
         "WHERE offers.id = %s"
     )
+
+def select_subject_student_id_query() -> LiteralString:
+    return "SELECT student_id FROM subjects WHERE student_id = %s and name = %s;"
+
+def update_subject_query() -> LiteralString:
+    return (
+        "UPDATE subjects "
+        "SET grade = %s "
+        "WHERE student_id = %s and name = %s;"
+    )
+
+def delete_subject_query() -> LiteralString:
+    return "DELETE FROM subjects WHERE student_id = %s AND name = %s"

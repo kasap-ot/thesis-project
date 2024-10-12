@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from datetime import date
 
 
-""" STUDENT SCHEMAS """
+# STUDENT SCHEMAS
 
 
 class StudentBase(BaseModel):
@@ -34,7 +34,7 @@ class StudentInDB(StudentBase):
     hashed_password: str
 
 
-""" COMPANY SCHEMAS """
+# COMPANY SCHEMAS
 
 
 class CompanyBase(BaseModel):
@@ -63,7 +63,7 @@ class CompanyInDB(CompanyBase):
     hashed_password: str
 
 
-""" OFFER SCHEMAS """
+# OFFER SCHEMAS
 
 
 class OfferBase(BaseModel):
@@ -109,7 +109,7 @@ class OfferApplication(BaseModel):
     offer_id: int
 
 
-""" EXPERIENCE SCHEMAS """
+# EXPERIENCE SCHEMAS
 
 
 class ExperienceBase(BaseModel):
@@ -133,7 +133,7 @@ class ExperienceUpdate(ExperienceBase):
     ...
 
 
-""" APPLICATION SCHEMAS """
+# APPLICATION SCHEMAS
 
 
 class ApplicationBase(BaseModel):
@@ -150,13 +150,18 @@ class ApplicationCreate(ApplicationBase):
     ...
 
 
-""" STUDENT PROFILE SCHEMAS """
+# SUBJECT SCHEMAS
 
+
+# ? Should we create a separate id field for the subjects or this is too much ?
 
 class Subject(BaseModel):
     student_id: int
     name: str
     grade: int
+
+
+# STUDENT PROFILE SCHEMAS
 
 
 class StudentProfileRead(StudentRead):
@@ -166,7 +171,6 @@ class StudentProfileRead(StudentRead):
 
 class StudentProfileUpdate(StudentUpdate):
     experiences: list[ExperienceUpdate]
-    # subjects: list[Subject]
 
 
 class ApplicantRead(StudentRead):

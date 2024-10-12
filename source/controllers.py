@@ -16,6 +16,7 @@ from .schemas import (
     OfferCreate,
     OfferBriefRead,
     OfferApplication,
+    Subject,
 )
 from .utils import (
     accept_student_query,
@@ -23,11 +24,13 @@ from .utils import (
     delete_company_query,
     delete_experience_query,
     delete_student_query,
+    delete_subject_query,
     insert_application_query,
     insert_company_query,
     insert_experience_query,
     insert_offer_query,
-    insert_student_query, 
+    insert_student_query,
+    insert_subject_query, 
     reject_students_query, 
     select_applicants_query,
     select_application_status_query,
@@ -41,12 +44,14 @@ from .utils import (
     select_student_experiences_query,
     select_student_query,
     select_student_subjects_query,
+    select_subject_student_id_query,
     update_applications_waiting_query,
     update_company_query,
     update_experience_query,
     update_offer_company_id_null_query,
     update_offer_query,
-    update_student_query
+    update_student_query,
+    update_subject_query
 )
 from .enums import Status, UserType
 from .security import Token, get_token, pwd_context, authorize_user
@@ -358,6 +363,58 @@ async def experience_delete_controller(experience_id: int, current_user) -> None
 
         sql = delete_experience_query()
         await conn.execute(sql, [experience_id])
+
+
+# Subject controllers
+
+
+async def subject_post_controller(subject: Subject, current_user) -> None:
+    authorize_user(subject.student_id, current_user, StudentInDB)
+
+    async with async_pool().connection() as conn:
+        sql = insert_subject_query()
+        await conn.execute(sql, [
+                subject.student_id, 
+                subject.name,
+                subject.grade,
+        ])
+
+
+async def subject_patch_controller(student_id: int, name: str, subject: Subject, current_user) -> None:
+    pool = async_pool()
+    async with pool.connection() as conn:
+        cursor: AsyncCursor = conn.cursor(row_factory=dict_row)
+        sql = select_subject_student_id_query()
+        await cursor.execute(sql, [student_id, name])
+        record = await cursor.fetchone()
+
+        if record is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
+        
+        authorize_user(record["student_id"], current_user, StudentInDB)
+
+        sql = update_subject_query()
+        await conn.execute(sql, [
+            subject.grade, 
+            subject.student_id, 
+            subject.name,
+        ])
+
+
+async def subject_delete_controller(student_id: int, name: str, current_user) -> None:
+    pool = async_pool()
+    async with pool.connection() as conn, conn.cursor(row_factory=dict_row) as cur:
+        sql = select_subject_student_id_query()
+        await cur.execute(sql, [student_id, name])
+        record = await cur.fetchone()
+
+        if record is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
+        
+        authorize_user(record["student_id"], current_user, StudentInDB)
+
+        sql = delete_subject_query()
+        await conn.execute(sql, [student_id, name])
 
 
 # Application controllers
