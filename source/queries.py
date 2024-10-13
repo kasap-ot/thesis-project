@@ -173,31 +173,26 @@ def select_applicants_query(
         query += " AND s.university LIKE %s"
         params.append(f"%{university}%")
     
-    if len(subjects) == 0:
+    if not subjects:
         return query, params
         
     subjects_query, params = select_student_ids_by_subjects_query(subjects, params)
-    query += f" AND student_id IN ({subjects_query})"
+    query += f" AND s.id IN ({subjects_query})"
     
-    print(query, params)
-
     return query, params
 
 
-def select_student_ids_by_subjects_query(subjects: list[tuple], params: list):
-    # Generate the main part of the query
+def select_student_ids_by_subjects_query(subjects: list[tuple], params: list) -> tuple[LiteralString, list]:
     query = (
         "SELECT DISTINCT(student_id) "
         "FROM subjects "
         "GROUP BY student_id HAVING "
     )
-    # Generate the query conditions
     for index, subject in enumerate(subjects):
-        query += "COUNT(DISTINCT CASE WHERE name = %s AND grade >= %s THEN 1 END) > 0"
+        query += "COUNT(DISTINCT CASE WHEN name = %s AND grade >= %s THEN 1 END) > 0"
         if index != len(subjects) - 1:
             query += " AND "
 
-        # Add the subject to the parameters
         params.extend(subject)
 
     return query, params
