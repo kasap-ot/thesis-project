@@ -170,20 +170,19 @@
                     subjects.push({ name: subjectName, grade: subjectGrade })
                 }
             })
-            
-            let targetUrl = "/applications/applicants/{{offer_id}}?"
 
-            // TODO - Test if HTTP request modifications will work
-            applicantFilters = {
+            const filters = {
                 university: university,
-                min_gpa: minGPA,
+                min_gpa: minGPA, 
                 max_gpa: maxGPA,
                 min_credits: minCredits,
                 max_credits: maxCredits,
                 subjects: subjects,
             }
 
-            await access(targetUrl, "GET", applicantFilters)
+            const baseUrl = "/applications/applicants/{{offer_id}}"
+            const targetUrl = createSearchUrl(baseUrl, filters)
+            await access(targetUrl, "GET")
         })
 
         // Add a new subject row
@@ -207,6 +206,24 @@
             const modal = bootstrap.Modal.getInstance(modalElement)
             modal.hide()
         })
+
+        // Helper function for creating query parameters
+        function createSearchUrl(baseUrl, filters) {
+            const queryString = new URLSearchParams();
+            for (const [key, value] of Object.entries(filters)) {
+                if (value) 
+                {
+                    if (Array.isArray(value) && key === "subjects" && value.length > 0) 
+                    {
+                        const formattedSubjects = value.map(subject => `${subject.name},${subject.grade}`).join(';');
+                        queryString.append(key, formattedSubjects);
+                    } 
+                    else if (!Array.isArray(value) && key != "subjects")
+                        queryString.append(key, value);
+                }
+            }
+            return `${baseUrl}?${queryString.toString()}`;
+        }
     </script>
 </div>
 

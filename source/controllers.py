@@ -1,3 +1,4 @@
+from typing import Optional
 from .schemas import (
     ApplicantFilters,
     ApplicantRead,
@@ -20,6 +21,9 @@ from .schemas import (
     Subject,
 )
 from .utils import (
+    extract_subjects_from,
+)
+from .queries import (
     accept_student_query,
     delete_application_query,
     delete_company_query,
@@ -527,9 +531,15 @@ async def application_cancel_controller(student_id: int, offer_id: int, current_
 
 async def applicants_get_controller(
     offer_id: int, 
-    applicant_filters: ApplicantFilters,
+    university: Optional[str],
+    min_gpa: float,
+    max_gpa: float,
+    min_credits: int,
+    max_credits: int,
+    subjects_string: Optional[str],
     current_user,
 ) -> list[ApplicantRead]:
+    
     async with async_pool().connection() as conn:
         applicant_cur = conn.cursor(row_factory=class_row(ApplicantRead))
         dict_cur = conn.cursor(row_factory=dict_row)
@@ -546,8 +556,21 @@ async def applicants_get_controller(
         
         authorize_user(record["company_id"], current_user, CompanyInDB)
 
-        query, params = select_applicants_query(offer_id, applicant_filters)
-        
+        if subjects_string:
+            subjects_list = extract_subjects_from(subjects_string)
+        else:
+            subjects_list = list()
+
+        query, params = select_applicants_query(
+            offer_id, 
+            university,
+            min_gpa,
+            max_gpa,
+            min_credits,
+            max_credits,
+            subjects_list,
+        )
         await applicant_cur.execute(query, params)
         records = await applicant_cur.fetchall()
+
         return records

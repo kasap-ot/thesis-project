@@ -1,3 +1,4 @@
+from typing import Optional
 from source.notifications import (
     notify_company_applicants_change, 
     notify_student_application_status_change,
@@ -36,7 +37,6 @@ from .security import get_current_user, Token
 from .schemas import (
     ApplicantFilters,
     StudentCreate,
-    StudentRead,
     StudentUpdate,
     CompanyCreate,
     CompanyUpdate,
@@ -420,7 +420,12 @@ async def application_cancel(
 async def applicants_get(
     request: Request, 
     offer_id: int, 
-    applicant_filters: ApplicantFilters,
+    university: Optional[str] = None,
+    min_gpa: float = MIN_GPA,
+    max_gpa: float = MAX_GPA,
+    min_credits: int = MIN_CREDITS,
+    max_credits: int = MAX_CREDITS,
+    subjects: Optional[str] = None,
     current_user = Depends(get_current_user)
 ):
     """
@@ -429,7 +434,12 @@ async def applicants_get(
     """
     students = await applicants_get_controller(
         offer_id, 
-        applicant_filters,
+        university,
+        min_gpa,
+        max_gpa,
+        min_credits,
+        max_credits,
+        subjects,
         current_user,
     )
     return templates.TemplateResponse(

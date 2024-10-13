@@ -1,6 +1,6 @@
 from typing import Optional
 from .enums import Status
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import date
 
 
@@ -185,9 +185,9 @@ class SubjectFilter(BaseModel):
 
 
 class ApplicantFilters(BaseModel):
-    university: Optional[str]
+    university: Optional[str] = None
     min_gpa: float = 0.00
     max_gpa: float = 10.00
     min_credits: float = 0
     max_credits: float = 300
-    subjects: list[SubjectFilter]
+    subjects: list[SubjectFilter] = Field(default_factory=list)

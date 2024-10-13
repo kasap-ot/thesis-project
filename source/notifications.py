@@ -1,4 +1,4 @@
-from source.utils import select_application_email_and_field_query, select_applications_emails_and_fields_query, select_offer_email_and_field_query
+from source.queries import select_application_email_and_field_query, select_applications_emails_and_fields_query, select_offer_email_and_field_query
 from .enums import Status
 from .database import async_pool
 from psycopg.rows import dict_row
