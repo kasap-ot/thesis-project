@@ -1,3 +1,4 @@
+from typing import Optional
 from .enums import Status
 from pydantic import BaseModel
 from datetime import date
@@ -153,8 +154,6 @@ class ApplicationCreate(ApplicationBase):
 # SUBJECT SCHEMAS
 
 
-# ? Should we create a separate id field for the subjects or this is too much ?
-
 class Subject(BaseModel):
     student_id: int
     name: str
@@ -175,3 +174,20 @@ class StudentProfileUpdate(StudentUpdate):
 
 class ApplicantRead(StudentRead):
     status: Status
+
+
+# FILTRATION SCHEMAS
+
+
+class SubjectFilter(BaseModel):
+    name: str
+    grade: int
+
+
+class ApplicantFilters(BaseModel):
+    university: Optional[str]
+    min_gpa: float = 0.00
+    max_gpa: float = 10.00
+    min_credits: float = 0
+    max_credits: float = 300
+    subjects: list[SubjectFilter]

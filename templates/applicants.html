@@ -13,6 +13,7 @@
                 <div class="col">Max GPA</div>
                 <div class="col">Min Credits</div>
                 <div class="col">Max Credits</div>
+                <div class="col">Subjects</div>
                 <label class="col">Action</label>
             </div>
         </li>
@@ -34,7 +35,17 @@
                     <input type="text" class="form-control" id="max-credits-search">
                 </div>
                 <div class="col d-flex justify-content-center">
-                    <button class="btn btn-success rounded-pill px-3 d-flex justify-content-center" id="search-btn" style="width: 50%;">
+                    <button 
+                        class="btn btn-success px-3 d-flex justify-content-center" 
+                        id="subjects-btn" 
+                        style="width: 70%;"
+                        data-bs-toggle="modal"
+                        data-bs-target="#subjectsModal">
+                        <i class="bi bi-card-list"></i>
+                    </button>
+                </div>
+                <div class="col d-flex justify-content-center">
+                    <button class="btn btn-success px-3" id="search-btn" style="width: 70%;">
                         <i class="bi bi-search"></i>
                     </button>
                 </div>
@@ -85,16 +96,54 @@
         </li>
         {% endfor %}
     </ul>
+
+    <div class="modal fade" id="subjectsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Subject Information</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="subjectForm">
+                        <div id="subjectList">
+                            <template id="subjectTemplate">
+                                <div class="subject-entry row mb-3">
+                                    <div class="col">
+                                        <input type="text" class="form-control" name="subjectName" placeholder="Subject Name" required>
+                                    </div>
+                                    <div class="col">
+                                        <input type="text" class="form-control" name="subjectGrade" placeholder="Min. Grade" required>
+                                    </div>
+                                    <div class="col-auto">
+                                        <button type="button" class="btn btn-danger remove-subject-btn">Remove</button>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                        <button type="button" class="btn btn-secondary mt-3" id="addSubjectBtn">Add Subject</button>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="subjectsConfirmBtn">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <button class="btn btn-secondary mt-2" id="backBtn">
         <i class="bi bi-arrow-left"></i> Back to offer
     </button>
 
     <script>
+        // Go back to the offers-page
         document.getElementById("backBtn").addEventListener("click", async () => {
             const offerId = sessionStorage.getItem("offerId")
             await access(`/offers/${offerId}`, "GET")
         })
 
+        // View the applicant's profile
         document.querySelectorAll(".student-btn").forEach(button => {
             button.addEventListener("click", async () => {
                 const studentId = button.id.split("_")[1]
@@ -102,6 +151,7 @@
             })
         })
 
+        // Send a request with the filtering parameters
         document.getElementById("search-btn").addEventListener("click", async (event) => {
             event.preventDefault()
 
@@ -111,13 +161,51 @@
             const minCredits = document.getElementById("min-credits-search").value
             const maxCredits = document.getElementById("max-credits-search").value
 
+            // TODO - Add the subject values in the filter-parameters
+            const subjects = []
+            document.querySelectorAll('.subject-entry').forEach(entry => {
+                const subjectName = entry.querySelector('input[name="subjectName"]').value
+                const subjectGrade = entry.querySelector('input[name="subjectGrade"]').value
+                if (subjectName && subjectGrade) {
+                    subjects.push({ name: subjectName, grade: subjectGrade })
+                }
+            })
+            
             let targetUrl = "/applications/applicants/{{offer_id}}?"
-            if (university != "") targetUrl += `university=${university}&`
-            if (minGPA != "") targetUrl += `min_gpa=${minGPA}&`
-            if (maxGPA != "") targetUrl += `max_gpa=${maxGPA}&`
-            if (minCredits != "") targetUrl += `min_credits=${minCredits}&`
-            if (maxCredits != "") targetUrl += `max_credits=${maxCredits}&`
-            await access(targetUrl, "GET")
+
+            // TODO - Test if HTTP request modifications will work
+            applicantFilters = {
+                university: university,
+                min_gpa: minGPA,
+                max_gpa: maxGPA,
+                min_credits: minCredits,
+                max_credits: maxCredits,
+                subjects: subjects,
+            }
+
+            await access(targetUrl, "GET", applicantFilters)
+        })
+
+        // Add a new subject row
+        document.getElementById('addSubjectBtn').addEventListener('click', () => {
+            const subjectTemplate = document.getElementById('subjectTemplate')
+            const subjectList = document.getElementById('subjectList')
+            const newEntry = subjectTemplate.content.cloneNode(true)
+            subjectList.appendChild(newEntry)
+        })
+
+        // Remove a subject row
+        document.getElementById('subjectList').addEventListener('click', function(e) {
+            if (e.target && e.target.matches('.remove-subject-btn')) {
+                e.target.closest('.subject-entry').remove()
+            }
+        })
+
+        // Modal confirm action - close modal
+        document.getElementById("subjectsConfirmBtn").addEventListener("click", () => {
+            const modalElement = document.getElementById("subjectsModal")
+            const modal = bootstrap.Modal.getInstance(modalElement)
+            modal.hide()
         })
     </script>
 </div>

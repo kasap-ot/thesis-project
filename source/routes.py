@@ -34,6 +34,7 @@ from .controllers import (
 )
 from .security import get_current_user, Token
 from .schemas import (
+    ApplicantFilters,
     StudentCreate,
     StudentRead,
     StudentUpdate,
@@ -419,11 +420,7 @@ async def application_cancel(
 async def applicants_get(
     request: Request, 
     offer_id: int, 
-    university: str | None = None,
-    min_gpa: float = MIN_GPA,
-    max_gpa: float = MAX_GPA,
-    min_credits: int = MIN_CREDITS,
-    max_credits: int = MAX_CREDITS,
+    applicant_filters: ApplicantFilters,
     current_user = Depends(get_current_user)
 ):
     """
@@ -432,11 +429,7 @@ async def applicants_get(
     """
     students = await applicants_get_controller(
         offer_id, 
-        university, 
-        min_gpa,
-        max_gpa,
-        min_credits,
-        max_credits,
+        applicant_filters,
         current_user,
     )
     return templates.TemplateResponse(
