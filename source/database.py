@@ -9,7 +9,6 @@ class Settings(BaseSettings):
     db_host: str
     db_port: str
     db_name: str
-    db_url: str
     email_address: str
     email_password: str
     testing: str
