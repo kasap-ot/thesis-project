@@ -1,4 +1,4 @@
-async function access(url, method, data) 
+async function access(url, method, data, isFormData = false) 
 /**
  * After the user has successfully logged in and 
  * saved his JWT in the session storage, the user
@@ -18,15 +18,21 @@ async function access(url, method, data)
     }
 
     try {
+        const headers = {'Authorization': `Bearer ${token}`}
+
+        let body = data
+        
+        if (!isFormData) {
+            headers['Content-Type'] = 'application/json'
+            body = JSON.stringify(data)
+        }
+
         const response = await fetch(
             url,
             {
                 method: method,
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
+                headers: headers,
+                body: body,
             }
         );
 

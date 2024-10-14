@@ -5,6 +5,19 @@
 <h3 class="mb-4">Offer information</h3>
 
 <form>
+    <div class="row mb-3">
+        <label class="form-label">Input Type</label>
+        <select class="form-select" id="inputTypeSelect">
+            <option value="form" selected>Fill Form</option>
+            <option value="pdf">Upload PDF</option>
+        </select>
+    </div>
+
+    <div class="row mb-3">
+        <label class="form-label">Upload offer via PDF</label>
+        <input type="file" class="form-control" id="pdfInput" accept="application/pdf">
+    </div>
+
     <div class="row">
         <div class="col">
             <div class="mb-3">
@@ -63,27 +76,47 @@
     document.getElementById("submitBtn").addEventListener("click", async (event) => {
         event.preventDefault()
 
-        const field = document.getElementById("fieldInput").value
-        const salary = document.getElementById("salaryInput").value
-        const numWeeks = document.getElementById("numWeeksInput").value
-        const deadline = document.getElementById("deadlineInput").value
-        const requirements = document.getElementById("requirementsInput").value
-        const responsibilities = document.getElementById("responsibilitiesInput").value
-        const regionId = document.getElementById("regionInput").value
-        const companyId = sessionStorage.getItem("companyId")
+        // Check the selected input type
 
-        newOffer = {
-            field: field,
-            salary: salary,
-            num_weeks: numWeeks,
-            deadline: deadline,
-            requirements: requirements,
-            responsibilities: responsibilities,
-            company_id: companyId,
-            region_id: regionId,
+        const inputType = document.getElementById("inputTypeSelect").value
+        const companyId = sessionStorage.getItem("companyId")
+        
+        // Create offer through file upload
+
+        if (inputType == "form") {
+            const field = document.getElementById("fieldInput").value
+            const salary = document.getElementById("salaryInput").value
+            const numWeeks = document.getElementById("numWeeksInput").value
+            const deadline = document.getElementById("deadlineInput").value
+            const requirements = document.getElementById("requirementsInput").value
+            const responsibilities = document.getElementById("responsibilitiesInput").value
+            const regionId = document.getElementById("regionInput").value
+            
+            const newOffer = {
+                field: field,
+                salary: salary,
+                num_weeks: numWeeks,
+                deadline: deadline,
+                requirements: requirements,
+                responsibilities: responsibilities,
+                company_id: companyId,
+                region_id: regionId,
+            }
+            
+            await access("/offers", "POST", newOffer)
+        }
+        
+        // Create offer through form fields
+
+        else if (inputType == "pdf") {
+            const pdf = document.getElementById("pdfInput").files[0]
+            const formData = new FormData()
+            formData.append("company_id", companyId)
+            formData.append("pdf", pdf)
+
+            await access("/offers", "POST", formData, true)
         }
 
-        await access("/offers", "POST", newOffer)
         await access(`/companies/${companyId}/offers`, "GET")
     })
 </script>
