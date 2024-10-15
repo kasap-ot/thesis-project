@@ -1,7 +1,0 @@
-Regional / global offer display
-- Display only regional or global offers for student - DONE
-- Write tests for this route
-
-Regional / Global applications
-- Allow only regional or global applications for offers
-- Write tests for this route

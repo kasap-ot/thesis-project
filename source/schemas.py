@@ -184,6 +184,7 @@ class SubjectFilter(BaseModel):
     grade: int
 
 
+# TODO - Remove schema
 class ApplicantFilters(BaseModel):
     university: Optional[str] = None
     min_gpa: float = 0.00

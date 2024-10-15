@@ -1,4 +1,6 @@
-from typing import Optional
+from io import BytesIO
+from typing import Annotated, Optional
+from pypdf import PdfReader
 from source.notifications import (
     notify_company_applicants_change, 
     notify_student_application_status_change,
@@ -35,7 +37,6 @@ from .controllers import (
 )
 from .security import get_current_user, Token
 from .schemas import (
-    ApplicantFilters,
     StudentCreate,
     StudentUpdate,
     CompanyCreate,
@@ -49,7 +50,7 @@ from .schemas import (
     Subject,
 )
 from .enums import MAX_CREDITS, MAX_GPA, MIN_CREDITS, MIN_GPA, Status, Environment
-from fastapi import APIRouter, BackgroundTasks, status, Depends, Request
+from fastapi import APIRouter, BackgroundTasks, File, status, Depends, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
@@ -189,6 +190,13 @@ async def offer_post(o: OfferCreate, current_user = Depends(get_current_user)):
     Create a new offer. Companies can create offers only for themselves.
     """
     await offer_post_controller(o, current_user)
+
+
+@router.post("/offers/file", status_code=status.HTTP_201_CREATED, tags=["testing"])
+async def offer_file_post(offer_file_bytes: Annotated[bytes, File()]):
+    offer_file = PdfReader(BytesIO(offer_file_bytes))
+    for page in offer_file.pages:
+        return page.extract_text()
 
 
 @router.get("/offers", response_class=HTMLResponse)
