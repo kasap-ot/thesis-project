@@ -1,6 +1,5 @@
 from typing import Optional
 from .schemas import (
-    ApplicantFilters,
     ApplicantRead,
     ExperienceCreate,
     ExperienceUpdate,
@@ -220,21 +219,26 @@ async def company_delete_controller(company_id: int, current_user) -> None:
 # Offer controllers
 
 
-async def offer_post_controller(o: OfferCreate, current_user) -> None:
-    authorize_user(o.company_id, current_user, CompanyInDB)
+async def offer_post_controller(offer: OfferCreate, current_user) -> None:
+    authorize_user(offer.company_id, current_user, CompanyInDB)
 
     async with async_pool().connection() as conn:
         sql = insert_offer_query()
         await conn.execute(sql, params=[
-                o.salary,
-                o.num_weeks,
-                o.field,
-                o.deadline,
-                o.requirements,
-                o.responsibilities,
-                o.company_id,
-                o.region_id,
+                offer.salary,
+                offer.num_weeks,
+                offer.field,
+                offer.deadline,
+                offer.requirements,
+                offer.responsibilities,
+                offer.company_id,
+                offer.region_id,
             ])
+        
+
+async def offer_file_post_controller(offer_file_bytes: bytes, current_user) -> None:
+    offer = extract_offer_from_file(offer_file_bytes)
+
         
 
 async def offers_get_controller(

@@ -1,6 +1,5 @@
-from io import BytesIO
+
 from typing import Annotated, Optional
-from pypdf import PdfReader
 from source.notifications import (
     notify_company_applicants_change, 
     notify_student_application_status_change,
@@ -185,18 +184,26 @@ async def offer_create_get(request: Request):
 
 
 @router.post("/offers", status_code=status.HTTP_201_CREATED)
-async def offer_post(o: OfferCreate, current_user = Depends(get_current_user)):
+async def offer_post(offer: OfferCreate, current_user = Depends(get_current_user)):
     """
-    Create a new offer. Companies can create offers only for themselves.
+    Create a new offer via form fields. 
+    Companies can create offers only for themselves.
     """
-    await offer_post_controller(o, current_user)
+    await offer_post_controller(offer, current_user)
+
+
+# TODO - Add PyPDF to requirements file
 
 
 @router.post("/offers/file", status_code=status.HTTP_201_CREATED, tags=["testing"])
-async def offer_file_post(offer_file_bytes: Annotated[bytes, File()]):
-    offer_file = PdfReader(BytesIO(offer_file_bytes))
-    for page in offer_file.pages:
-        return page.extract_text()
+async def offer_file_post(offer_file_bytes: Annotated[bytes, File()], current_user = Depends(get_current_user)):
+    """
+    Create a new offer via an uploaded file.
+    Only companies can create offers - for themselves.
+    """
+    await offer_file_post_controller(offer_file_bytes, current_user)
+    
+    
 
 
 @router.get("/offers", response_class=HTMLResponse)

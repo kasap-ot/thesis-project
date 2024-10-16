@@ -182,13 +182,3 @@ class ApplicantRead(StudentRead):
 class SubjectFilter(BaseModel):
     name: str
     grade: int
-
-
-# TODO - Remove schema
-class ApplicantFilters(BaseModel):
-    university: Optional[str] = None
-    min_gpa: float = 0.00
-    max_gpa: float = 10.00
-    min_credits: float = 0
-    max_credits: float = 300
-    subjects: list[SubjectFilter] = Field(default_factory=list)

@@ -31,6 +31,7 @@ pycparser==2.21
 pydantic==2.8.2
 pydantic-settings==2.4.0
 pydantic_core==2.20.1
+pypdf==5.0.1
 pytest==7.4.3
 pytest-asyncio==0.23.8
 python-dotenv==1.0.1
