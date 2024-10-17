@@ -81,7 +81,7 @@
         const inputType = document.getElementById("inputTypeSelect").value
         const companyId = sessionStorage.getItem("companyId")
         
-        // Create offer through file upload
+        // Create offer through form fields
 
         if (inputType == "form") {
             const field = document.getElementById("fieldInput").value
@@ -106,15 +106,15 @@
             await access("/offers", "POST", newOffer)
         }
         
-        // Create offer through form fields
+        // Create offer through file upload
 
         else if (inputType == "pdf") {
             const pdf = document.getElementById("pdfInput").files[0]
             const formData = new FormData()
             formData.append("company_id", companyId)
-            formData.append("pdf", pdf)
-
-            await access("/offers", "POST", formData, true)
+            formData.append("offer_file_bytes", pdf)
+            
+            await access("/offers/file", "POST", formData, true)
         }
 
         await access(`/companies/${companyId}/offers`, "GET")

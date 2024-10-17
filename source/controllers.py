@@ -243,8 +243,6 @@ async def offer_file_post_controller(offer_file_bytes: bytes, company_id: int, c
     file_offer_info = extract_file_offer(offer_file_bytes)
     offer = OfferCreate(company_id=company_id, **file_offer_info)
 
-    print(offer)
-
     async with async_pool().connection() as conn:
         sql = insert_offer_query()
         await conn.execute(sql, params=[

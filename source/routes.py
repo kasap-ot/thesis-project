@@ -50,7 +50,7 @@ from .schemas import (
     Subject,
 )
 from .enums import MAX_CREDITS, MAX_GPA, MIN_CREDITS, MIN_GPA, Status, Environment
-from fastapi import APIRouter, BackgroundTasks, File, status, Depends, Request
+from fastapi import APIRouter, BackgroundTasks, File, Form, status, Depends, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
@@ -193,10 +193,10 @@ async def offer_post(offer: OfferCreate, current_user = Depends(get_current_user
     await offer_post_controller(offer, current_user)
 
 
-@router.post("/offers/file/{company_id}", status_code=status.HTTP_201_CREATED, tags=["testing"])
+@router.post("/offers/file", status_code=status.HTTP_201_CREATED, tags=["testing"])
 async def offer_file_post(
     offer_file_bytes: Annotated[bytes, File()], 
-    company_id: int,
+    company_id: Annotated[int, Form()],
     current_user = Depends(get_current_user),
 ):
     """
