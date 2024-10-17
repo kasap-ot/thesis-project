@@ -16,6 +16,7 @@ from .controllers import (
     experience_patch_controller,
     experience_post_controller,
     offer_delete_controller,
+    offer_file_post_controller,
     offer_put_controller,
     subject_delete_controller,
     subject_patch_controller,
@@ -192,18 +193,17 @@ async def offer_post(offer: OfferCreate, current_user = Depends(get_current_user
     await offer_post_controller(offer, current_user)
 
 
-# TODO - Add PyPDF to requirements file
-
-
-@router.post("/offers/file", status_code=status.HTTP_201_CREATED, tags=["testing"])
-async def offer_file_post(offer_file_bytes: Annotated[bytes, File()], current_user = Depends(get_current_user)):
+@router.post("/offers/file/{company_id}", status_code=status.HTTP_201_CREATED, tags=["testing"])
+async def offer_file_post(
+    offer_file_bytes: Annotated[bytes, File()], 
+    company_id: int,
+    current_user = Depends(get_current_user),
+):
     """
     Create a new offer via an uploaded file.
     Only companies can create offers - for themselves.
     """
-    await offer_file_post_controller(offer_file_bytes, current_user)
-    
-    
+    await offer_file_post_controller(offer_file_bytes, company_id, current_user)
 
 
 @router.get("/offers", response_class=HTMLResponse)

@@ -20,6 +20,7 @@ from .schemas import (
     Subject,
 )
 from .utils import (
+    extract_file_offer,
     extract_subjects_from,
 )
 from .queries import (
@@ -225,20 +226,37 @@ async def offer_post_controller(offer: OfferCreate, current_user) -> None:
     async with async_pool().connection() as conn:
         sql = insert_offer_query()
         await conn.execute(sql, params=[
-                offer.salary,
-                offer.num_weeks,
-                offer.field,
-                offer.deadline,
-                offer.requirements,
-                offer.responsibilities,
-                offer.company_id,
-                offer.region_id,
-            ])
+            offer.salary,
+            offer.num_weeks,
+            offer.field,
+            offer.deadline,
+            offer.requirements,
+            offer.responsibilities,
+            offer.company_id,
+            offer.region_id,
+        ])
         
 
-async def offer_file_post_controller(offer_file_bytes: bytes, current_user) -> None:
-    offer = extract_offer_from_file(offer_file_bytes)
+async def offer_file_post_controller(offer_file_bytes: bytes, company_id: int, current_user) -> None:
+    authorize_user(company_id, current_user, CompanyInDB)
+    
+    file_offer_info = extract_file_offer(offer_file_bytes)
+    offer = OfferCreate(company_id=company_id, **file_offer_info)
 
+    print(offer)
+
+    async with async_pool().connection() as conn:
+        sql = insert_offer_query()
+        await conn.execute(sql, params=[
+            offer.salary,
+            offer.num_weeks,
+            offer.field,
+            offer.deadline,
+            offer.requirements,
+            offer.responsibilities,
+            offer.company_id,
+            offer.region_id,
+        ])
         
 
 async def offers_get_controller(

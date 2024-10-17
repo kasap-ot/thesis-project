@@ -29,16 +29,17 @@ def random_string(length=10):
     return random_string
 
 
-def extract_offer_from_file(offer_file_bytes: bytes) -> dict:
+def extract_file_offer(offer_file_bytes: bytes) -> dict:
     offer_bytes_obj = BytesIO(offer_file_bytes)
-    offer_file = PdfReader(offer_bytes_obj)
+    file_reader = PdfReader(offer_bytes_obj)
 
-    # Extract the text from the offer
-    # (The text must be in a specific format / structure)
-    # From the text, extract the offer attributes
-    # Create the offer from the attributes
+    text = ""
+    for page in file_reader.pages:
+        text += page.extract_text()
+
+    offer_info = extract_text_offer_info(text)
     
-    return {}
+    return offer_info
 
 
 def extract_text_offer_info(text: str) -> dict:
@@ -48,8 +49,8 @@ def extract_text_offer_info(text: str) -> dict:
     field_match = re.search(r"Field:\s*([A-Za-z\s]+)\n", text)
     deadline_match = re.search(r"Deadline:\s*(\d{4}-\d{2}-\d{2})", text)
     region_match = re.search(r"Region:\s*([A-Za-z]+)", text)
-    requirements_match = re.search(r"Requirements:\s+([\s\S]+?)\n\nResponsibilities", text)
-    responsibilities_match = re.search(r"Responsibilities:\s+([\s\S]+)\n$", text)
+    requirements_match = re.search(r"Requirements:\s+([\s\S]+?)\nResponsibilities", text)
+    responsibilities_match = re.search(r"Responsibilities:\s+([\s\S]+)$", text)
     
     # check for missing values
     if not salary_match:
@@ -79,7 +80,7 @@ def extract_text_offer_info(text: str) -> dict:
     # post-process values
     salary = int(salary)
     num_weeks = int(num_weeks)
-    region = convert_to_region_id(region)
+    region_id = convert_to_region_id(region)
 
     return {
         "salary": salary,
@@ -88,6 +89,7 @@ def extract_text_offer_info(text: str) -> dict:
         "deadline": deadline,
         "requirements": requirements,
         "responsibilities": responsibilities,
+        "region_id": region_id,
     }
 
 
