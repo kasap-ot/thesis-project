@@ -20,26 +20,39 @@
             <hr class="mb-4">
 
             <div class="row text-center column-gap-5 m-3 fs-5">
-                <div class="col bg-primary-subtle shadow rounded-pill px-2 py-4 mx-5 border border-primary border-3">
+                <div class="col bg-primary text-white shadow px-2 py-4 mx-5">
                     <strong>University:</strong><br>{{student.university}}
                 </div>
-                <div class="col bg-primary-subtle shadow rounded-pill px-2 py-4 mx-5 border border-primary border-3">
+                <div class="col bg-primary text-white shadow px-2 py-4 mx-5">
                     <strong>Major:</strong><br>{{student.major}}
                 </div>
 
             </div>
 
             <div class="row text-center column-gap-5 mt-4 mb-3 mx-3 fs-5">
-                <div class="col bg-primary-subtle shadow rounded-pill px-2 py-4 mx-5 border border-primary border-3">
+                <div class="col bg-primary text-white shadow px-2 py-4 mx-5">
                     <strong>Credits:</strong><br>{{student.credits}}
                 </div>
-                <div class="col bg-primary-subtle shadow rounded-pill px-2 py-4 mx-5 border border-primary border-3">
+                <div class="col bg-primary text-white shadow px-2 py-4 mx-5">
                     <strong>GPA:</strong><br>{{student.gpa}}
                 </div>
             </div>
 
-            <hr class="mt-4">
+            <!-- TODO - Implement logic for displaying the student's motivational letter -->
 
+            <hr class="mt-4">
+            <h5 class="my-4 fs-4">MOTIVATIONAL LETTER</h5>
+
+            <div class="fs-5 mt-3">About me</div>
+            <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam eum odio illum veniam aperiam voluptatibus rerum voluptatem, odit ullam quia fuga at maxime soluta, officia delectus distinctio quibusdam, ab commodi!</div>
+
+            <div class="fs-5 mt-3">What I offer</div>
+            <div>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Deserunt nobis perferendis dolorem soluta doloremque placeat, reiciendis ratione excepturi amet impedit, natus consequatur. Voluptatum expedita totam eaque? Unde perspiciatis rem corrupti!</div>
+
+            <div class="fs-5 mt-3">What I'm looking for</div>
+            <div>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nobis nemo consequuntur, est commodi, ab sed at cupiditate sint quidem laboriosam explicabo. Quaerat facilis saepe deserunt pariatur fugiat beatae ullam debitis.</div>
+
+            <hr class="mt-4">
             <h5 class="my-4 fs-4">EXPERIENCES</h5>
 
             {% for experience in student.experiences %}
@@ -49,7 +62,6 @@
             {% endfor %}
 
             <hr class="mt-4">
-
             <h5 class="my-4 fs-4">SUBJECTS</h5>
 
             <table class="table table-striped">
