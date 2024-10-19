@@ -71,3 +71,14 @@ CREATE TABLE IF NOT EXISTS subjects (
     grade INT NOT NULL,
     PRIMARY KEY (student_id, name)
 );
+
+
+-- Add table for motivational letter
+-- (made as separate table for easier extensibility)
+
+CREATE TABLE IF NOT EXISTS motivational_letters (
+    student_id INT PRIMARY KEY REFERENCES students(id),
+    about_me_section TEXT NOT NULL,
+    skills_section TEXT NOT NULL,
+    looking_for_section TEXT NOT NULL
+);

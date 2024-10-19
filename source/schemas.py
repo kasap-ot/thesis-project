@@ -159,6 +159,11 @@ class Subject(BaseModel):
     grade: int
 
 
+class SubjectFilter(BaseModel):
+    name: str
+    grade: int
+
+
 # STUDENT PROFILE SCHEMAS
 
 
@@ -175,9 +180,11 @@ class ApplicantRead(StudentRead):
     status: Status
 
 
-# FILTRATION SCHEMAS
+# MOTIVATIONAL LETTER SCHEMAS
 
 
-class SubjectFilter(BaseModel):
-    name: str
-    grade: int
+class MotivationalLetter(BaseModel):
+    student_id: int
+    about_me_section: str
+    skills_section: str
+    looking_for_section: str

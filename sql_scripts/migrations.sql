@@ -90,5 +90,6 @@ CHECK (VALUE IN ('WAITING', 'ACCEPTED', 'REJECTED'));
 ALTER TABLE applications
 ADD COLUMN status status NOT NULL;
 
+
 -- Don't forget to recreate the 
 -- dropped procedures and functions
