@@ -302,3 +302,20 @@ def insert_motivational_letter_query() -> LiteralString:
         "(student_id, about_me_section, skills_section, looking_for_section) "
         "VALUES (%s, %s, %s, %s);"
     )
+
+
+def select_motivational_letter_student_id_query() -> LiteralString:
+    return "SELECT student_id FROM motivational_letters WHERE student_id = %s;"
+
+
+def update_motivational_letter_query() -> LiteralString:
+    return (
+        "UPDATE motivational_letters SET "
+        "about_me_section = %s, "
+        "skills_section = %s, "
+        "looking_for_section = %s;"
+    )
+
+
+def delete_motivational_letter_query() -> LiteralString:
+    return "DELETE FROM motivational_letters WHERE student_id = %s;"

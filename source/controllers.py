@@ -29,6 +29,7 @@ from .queries import (
     delete_application_query,
     delete_company_query,
     delete_experience_query,
+    delete_motivational_letter_query,
     delete_student_query,
     delete_subject_query,
     insert_application_query,
@@ -45,6 +46,7 @@ from .queries import (
     select_company_offers_query,
     select_company_query,
     select_experience_student_id_query,
+    select_motivational_letter_student_id_query,
     select_offer_company_id_query,
     select_offer_query,
     select_offers_query,
@@ -55,6 +57,7 @@ from .queries import (
     update_applications_waiting_query,
     update_company_query,
     update_experience_query,
+    update_motivational_letter_query,
     update_offer_company_id_null_query,
     update_offer_query,
     update_student_query,
@@ -66,7 +69,7 @@ from .database import async_pool
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import HTTPException, status
 from psycopg.rows import dict_row, class_row
-from psycopg import IntegrityError, AsyncCursor
+from psycopg import IntegrityError, AsyncCursor, AsyncConnection
 
 
 # Token controllers
@@ -602,7 +605,7 @@ async def applicants_get_controller(
 
 
 async def motivational_letter_post_controller(letter: MotivationalLetter, current_user) -> None:
-    authorize_user(letter.student_id, current_user, StudentInDB)
+    # authorize_user(letter.student_id, current_user, StudentInDB)
     pool = async_pool()
     async with pool.connection() as conn:
         query = insert_motivational_letter_query()
@@ -615,9 +618,42 @@ async def motivational_letter_post_controller(letter: MotivationalLetter, curren
 
 
 async def motivational_letter_put_controller(letter: MotivationalLetter, current_user) -> None:
-    authorize_user(letter.student_id, current_user, StudentInDB)
-    ...
+    pool = async_pool()
+    async with (
+        pool.connection() as conn,
+        conn.cursor(row_factory=dict_row) as cur
+    ):
+        query = select_motivational_letter_student_id_query()
+        await cur.execute(query, [letter.student_id])
+        record = await cur.fetchone()
+
+        if record is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
+        
+        # authorize_user(letter.student_id, current_user, StudentInDB)
+
+        query = update_motivational_letter_query()
+        await conn.execute(query, [
+            letter.about_me_section,
+            letter.skills_section,
+            letter.looking_for_section,
+        ])
 
 
 async def motivational_letter_delete_controller(student_id: int, current_user) -> None:
-    authorize_user(student_id, current_user, StudentInDB)
+    pool = async_pool()
+    async with (
+        pool.connection() as conn,
+        conn.cursor(row_factory=dict_row) as cur
+    ):
+        query = select_motivational_letter_student_id_query()
+        await cur.execute(query, [student_id])
+        record = await cur.fetchone()
+
+        if record is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
+        
+        # authorize_user(student_id, current_user, StudentInDB)
+
+        query = delete_motivational_letter_query()
+        await conn.execute(query, [student_id])
