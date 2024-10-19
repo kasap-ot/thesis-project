@@ -18,6 +18,7 @@ from .schemas import (
     OfferBriefRead,
     OfferApplication,
     Subject,
+    MotivationalLetter,
 )
 from .utils import (
     extract_file_offer,
@@ -33,6 +34,7 @@ from .queries import (
     insert_application_query,
     insert_company_query,
     insert_experience_query,
+    insert_motivational_letter_query,
     insert_offer_query,
     insert_student_query,
     insert_subject_query, 
@@ -594,3 +596,28 @@ async def applicants_get_controller(
         records = await applicant_cur.fetchall()
 
         return records
+    
+
+# Motivational Letter controllers
+
+
+async def motivational_letter_post_controller(letter: MotivationalLetter, current_user) -> None:
+    authorize_user(letter.student_id, current_user, StudentInDB)
+    pool = async_pool()
+    async with pool.connection() as conn:
+        query = insert_motivational_letter_query()
+        await conn.execute(query, [
+            letter.student_id,
+            letter.about_me_section,
+            letter.skills_section,
+            letter.looking_for_section,
+        ])
+
+
+async def motivational_letter_put_controller(letter: MotivationalLetter, current_user) -> None:
+    authorize_user(letter.student_id, current_user, StudentInDB)
+    ...
+
+
+async def motivational_letter_delete_controller(student_id: int, current_user) -> None:
+    authorize_user(student_id, current_user, StudentInDB)

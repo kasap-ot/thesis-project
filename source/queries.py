@@ -294,3 +294,11 @@ def update_subject_query() -> LiteralString:
 
 def delete_subject_query() -> LiteralString:
     return "DELETE FROM subjects WHERE student_id = %s AND name = %s"
+
+
+def insert_motivational_letter_query() -> LiteralString:
+    return (
+        "INSERT INTO motivational_letters "
+        "(student_id, about_me_section, skills_section, looking_for_section) "
+        "VALUES (%s, %s, %s, %s);"
+    )

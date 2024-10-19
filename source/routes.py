@@ -15,6 +15,9 @@ from .controllers import (
     experience_delete_controller,
     experience_patch_controller,
     experience_post_controller,
+    motivational_letter_delete_controller,
+    motivational_letter_post_controller,
+    motivational_letter_put_controller,
     offer_delete_controller,
     offer_file_post_controller,
     offer_put_controller,
@@ -48,6 +51,7 @@ from .schemas import (
     ExperienceUpdate,
     StudentProfileRead,
     Subject,
+    MotivationalLetter,
 )
 from .enums import MAX_CREDITS, MAX_GPA, MIN_CREDITS, MIN_GPA, Status, Environment
 from fastapi import APIRouter, BackgroundTasks, File, Form, status, Depends, Request
@@ -490,3 +494,21 @@ async def register_company_get(request: Request):
 @router.get("/log-in", response_class=HTMLResponse)
 async def log_in_get(request: Request):
     return templates.TemplateResponse("log-in.html", {"request": request})
+
+
+# Routes for MOTIVATION LETTERS
+
+
+@router.post("/students/motivational-letter", status_code=status.HTTP_201_CREATED)
+async def motivational_letter_post(motivational_letter: MotivationalLetter, current_user = Depends(get_current_user)):
+    await motivational_letter_post_controller(motivational_letter, current_user)
+
+
+@router.put("/students/motivational-letter/{student_id}")
+async def motivational_letter_put(motivational_letter: MotivationalLetter, current_user = Depends(get_current_user)):
+    await motivational_letter_put_controller(motivational_letter, current_user)
+
+
+@router.delete("/students/motivational-letter/{student_id}")
+async def motivational_letter_delete(student_id: int, current_user = Depends(get_current_user)):
+    await motivational_letter_delete_controller(student_id, current_user)
