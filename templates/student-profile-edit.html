@@ -240,17 +240,25 @@
             <div class="fs-5 mt-3 mb-3">Motivational Letter</div>
             
             <div class="bg-primary-subtle p-3 rounded shadow">
-                <label class="form-label">Field 1</label>
-                <textarea id="field1" class="form-control shadow" rows="4">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Facere, vitae?</textarea>
+                <label class="form-label">About me</label>
+                <textarea id="about-me-field" class="form-control shadow" rows="4">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Facere, vitae?</textarea>
 
-                <label class="form-label mt-3">Field 2</label>
-                <textarea id="field2" class="form-control shadow" rows="4">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Corporis, alias?</textarea>
+                <label class="form-label mt-3">Skills</label>
+                <textarea id="skills-field" class="form-control shadow" rows="4">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Corporis, alias?</textarea>
 
-                <label class="form-label mt-3">Field 3</label>
-                <textarea id="field3" class="form-control shadow" rows="4">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ex, voluptate.</textarea>
+                <label class="form-label mt-3">Looking for</label>
+                <textarea id="looking-for-field" class="form-control shadow" rows="4">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ex, voluptate.</textarea>
 
-                <button class="btn btn-primary mt-3">
+                <button class="btn btn-primary mt-3" id="update-motivational-letter-btn">
                     <i class="bi bi-check-circle-fill"> Confirm</i>
+                </button>
+
+                <button class="btn btn-success mt-3" id="create-motivational-letter-btn">
+                    <i class="bi bi-check-circle-fill"> Create</i>
+                </button>
+
+                <button class="btn btn-danger mt-3" id="delete-motivational-letter-btn">
+                    <i class="bi bi-trash3-fill"></i> Delete
                 </button>
             </div>
         </div>
@@ -342,11 +350,6 @@
         })
     })
 
-    /*
-    @router.put("/subjects/{student_id}/{name}")
-    async def subject_patch(student_id: int, name: str, grade: int, current_user = Depends(get_current_user)):
-    */
-
     document.getElementById('add-experience-btn').addEventListener('click', async () => {
         const newExperience = {
             position: document.getElementById('newPosition').value,
@@ -369,6 +372,35 @@
         await access('/subjects', 'POST', newSubject)
         await access('/students/profile/{{student_profile.id}}/edit', 'GET')
     })
+
+    document.getElementById('create-motivational-letter-btn').addEventListener('click', async () => {
+        const newLetter = {
+            student_id: '{{student_profile.id}}',
+            about_me_section: document.getElementById('about-me-field').value,
+            skills_section: document.getElementById('skills-field').value,
+            looking_for_section: document.getElementById('looking-for-field').value,
+        }
+        await access('/students/motivational-letter', 'POST', newLetter)
+    })
+
+    document.getElementById('update-motivational-letter-btn').addEventListener('click', async () => {
+        const updatedLetter = {
+            student_id: '{{student_profile.id}}',
+            about_me_section: document.getElementById('about-me-field').value,
+            skills_section: document.getElementById('skills-field').value,
+            looking_for_section: document.getElementById('looking-for-field').value,
+        }
+        await access('/students/motivational-letter/{{student_profile.id}}', 'PUT', updatedLetter)
+    })
+
+    document.getElementById('delete-motivational-letter-btn').addEventListener('click', async () => {
+        await access('/students/motivational-letter/{{student_profile.id}}', 'DELETE')
+    })
+
+    // IDs of motivational letter buttons:
+    // update-motivational-letter-btn
+    // create-motivational-letter-btn
+    // delete-motivational-letter-btn
 </script>
 
 {% endblock %}
