@@ -253,7 +253,11 @@ async def offer_get(request: Request, offer_id: int, current_user = Depends(get_
     offer = await offer_get_controller(offer_id)
     return templates.TemplateResponse(
         "offer.html", 
-        {"request": request, "offer": offer, "current_user": current_user}
+        {
+            "request": request, 
+            "offer": offer, 
+            "current_user": current_user
+        }
     )
 
 

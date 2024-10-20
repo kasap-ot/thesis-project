@@ -195,5 +195,6 @@ class StudentProfileUpdate(StudentUpdate):
     experiences: list[ExperienceUpdate]
 
 
-class ApplicantRead(StudentRead):
-    status: Status
+class ApplicantRead(StudentBase):
+    id: int
+    status: str
