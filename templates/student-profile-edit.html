@@ -10,45 +10,47 @@
     <h3>Edit your profile</h3>
 
     <div class="row mt-3">
-    
+
         <div class="col-4">
             <p class="fs-5 ">General information</p>
-    
+
             <div class="bg-primary-subtle px-4 pt-3 rounded shadow">
                 <form>
                     <label class="form-label">Name</label>
                     <input type="text" id="name" class="form-control shadow" value="{{student_profile.name}}">
-    
+
                     <label class="form-label mt-3">Location</label>
                     <input type="text" id="location" class="form-control shadow" value="NOT IMPLEMENTED">
-    
+
                     <label class="form-label mt-3">Date of birth</label>
                     <input type="text" id="date-of-birth" class="form-control shadow"
                         value="{{student_profile.date_of_birth}}">
-    
+
                     <label class="form-label mt-3">Email</label>
                     <input type="text" id="email" class="form-control shadow" value="{{student_profile.email}}">
-    
+
                     <label class="form-label mt-3">University</label>
-                    <input type="text" id="university" class="form-control shadow" value="{{student_profile.university}}">
-    
+                    <input type="text" id="university" class="form-control shadow"
+                        value="{{student_profile.university}}">
+
                     <label class="form-label mt-3">Major</label>
                     <input type="text" id="major" class="form-control shadow" value="{{student_profile.major}}">
-    
+
                     <label class="form-label mt-3">Credits</label>
                     <input type="text" id="credits" class="form-control shadow" value="{{student_profile.credits}}">
-    
+
                     <label class="form-label mt-3">GPA</label>
                     <input type="text" id="gpa" class="form-control shadow" value="{{student_profile.gpa}}">
                 </form>
-    
+
                 <!-- Button trigger modal -->
-                <button type="button" class="btn btn-primary mb-3 mt-4" data-bs-toggle="modal" data-bs-target="#mainModal">
+                <button type="button" class="btn btn-primary mb-3 mt-4" data-bs-toggle="modal"
+                    data-bs-target="#mainModal">
                     <i class="bi bi-check-circle-fill"> Confirm</i>
                 </button>
             </div>
         </div>
-    
+
         <div class="col-4">
             <p class="fs-5 ">Experiences</p>
             <div class="accordion" id="experiencesAccordion">
@@ -66,23 +68,23 @@
                             <label class="form-label">Experience Title</label>
                             <input id="position-{{experience.id}}" type="text" class="form-control shadow"
                                 value="{{experience.position}}">
-    
+
                             <label class="form-label mt-2">Company</label>
                             <input id="company-{{experience.id}}" type="text" class="form-control shadow"
                                 value="{{experience.company}}">
-    
+
                             <label class="form-label mt-2">From</label>
                             <input id="from-date-{{experience.id}}" type="text" class="form-control shadow"
                                 value="{{experience.from_date}}">
-    
+
                             <label class="form-label mt-2">To</label>
                             <input id="to-date-{{experience.id}}" type="text" class="form-control shadow"
                                 value="{{experience.to_date}}">
-    
+
                             <label class="form-label mt-2">Description</label>
                             <textarea id="description-{{experience.id}}" name="" class="form-control shadow"
                                 style="height: 10rem;">{{experience.description}}</textarea>
-    
+
                             <div class="d-flex justify-content-between mt-3">
                                 <button class="delete-experience-btn btn btn-danger"
                                     id="delete_experience_{{experience.id}}_btn">
@@ -98,12 +100,12 @@
                 </div>
                 {% endfor %}
             </div>
-    
+
             <button class="btn btn-secondary mt-2" data-bs-toggle="modal" data-bs-target="#addExperienceModal">
                 <strong>+</strong> Add experience
             </button>
         </div>
-    
+
         <div class="col-4">
             <p class="fs-5">Subjects</p>
             <table class="table table-striped">
@@ -119,22 +121,16 @@
                     <tr>
                         <td>{{ subject.name }}</td>
                         <td class="d-flex justify-content-center">
-                            <input 
-                                id="grade-{{subject.student_id}}-{{subject.name}}" 
-                                type="number"
-                                class="form-control w-50 text-center" 
-                                value="{{subject.grade}}"
-                                style="background-color: transparent;"
-                            >
+                            <input id="grade-{{subject.student_id}}-{{subject.name}}" type="number"
+                                class="form-control w-50 text-center" value="{{subject.grade}}"
+                                style="background-color: transparent;">
                         </td>
                         <td class="text-end">
-                            <button 
-                                class="btn btn-primary btn-sm confirm-subject-btn"
+                            <button class="btn btn-primary btn-sm confirm-subject-btn"
                                 id="confirm-subject-btn-{{subject.student_id}}-{{subject.name}}">
                                 <i class="bi bi-check-circle-fill"></i>
                             </button>
-                            <button 
-                                class="btn btn-danger btn-sm delete-subject-btn" 
+                            <button class="btn btn-danger btn-sm delete-subject-btn"
                                 id="deltete-subject-btn-{{subject.student_id}}-{{subject.name}}">
                                 <i class="bi bi-trash-fill"></i>
                             </button>
@@ -143,12 +139,12 @@
                     {% endfor %}
                 </tbody>
             </table>
-    
+
             <button class="btn btn-secondary mt-2" data-bs-toggle="modal" data-bs-target="#addSubjectModal">
                 <strong>+</strong> Add subject
             </button>
         </div>
-    
+
         <!-- Main Modal -->
         <div class="modal fade" id="mainModal" tabindex="-1">
             <div class="modal-dialog">
@@ -168,7 +164,7 @@
                 </div>
             </div>
         </div>
-    
+
         <!-- Add-experience modal -->
         <div class="modal fade" id="addExperienceModal" tabindex="-1">
             <div class="modal-dialog">
@@ -181,16 +177,16 @@
                         <form>
                             <label class="form-label">Position</label>
                             <input type="text" id="newPosition" class="form-control shadow">
-    
+
                             <label class="form-label mt-2">Company</label>
                             <input type="text" id="newCompany" class="form-control shadow">
-    
+
                             <label class="form-label mt-2">From</label>
                             <input type="date" id="newFromDate" class="form-control shadow">
-    
+
                             <label class="form-label mt-2">To</label>
                             <input type="date" id="newToDate" class="form-control shadow">
-    
+
                             <label class="form-label mt-2">Description</label>
                             <textarea id="newDescription" rows="7" class="form-control shadow"></textarea>
                         </form>
@@ -205,7 +201,7 @@
                 </div>
             </div>
         </div>
-    
+
         <!-- Add subject modal -->
         <div class="modal fade" id="addSubjectModal" tabindex="-1">
             <div class="modal-dialog">
@@ -218,7 +214,7 @@
                         <form>
                             <label class="form-label">Subject</label>
                             <input type="text" id="newSubjectName" class="form-control shadow">
-    
+
                             <label class="form-label mt-2">Grade</label>
                             <input type="number" id="newGrade" class="form-control shadow">
                         </form>
@@ -238,28 +234,87 @@
     <div class="row mt-4">
         <div class="col-9">
             <div class="fs-5 mt-3 mb-3">Motivational Letter</div>
-            
+
             <div class="bg-primary-subtle p-3 rounded shadow">
                 <label class="form-label">About me</label>
-                <textarea id="about-me-field" class="form-control shadow" rows="4">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Facere, vitae?</textarea>
+                {% if student_profile.motivational_letter.about_me_section %}
+                <textarea id="about-me-field" class="form-control shadow"
+                    rows="4">{{student_profile.motivational_letter.about_me_section}}</textarea>
+                {% else %}
+                <textarea id="about-me-field" class="form-control shadow" rows="4"
+                    placeholder="Not provided..."></textarea>
+                {% endif %}
+
 
                 <label class="form-label mt-3">Skills</label>
-                <textarea id="skills-field" class="form-control shadow" rows="4">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Corporis, alias?</textarea>
+                {% if student_profile.motivational_letter.skills_section %}
+                <textarea id="skills-field" class="form-control shadow"
+                    rows="4">{{student_profile.motivational_letter.skills_section}}</textarea>
+                {% else %}
+                <textarea id="skills-field" class="form-control shadow" rows="4"
+                    placeholder="Not provided..."></textarea>
+                {% endif %}
 
                 <label class="form-label mt-3">Looking for</label>
-                <textarea id="looking-for-field" class="form-control shadow" rows="4">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ex, voluptate.</textarea>
+                {% if student_profile.motivational_letter.looking_for_section %}
+                <textarea id="looking-for-field" class="form-control shadow"
+                    rows="4">{{student_profile.motivational_letter.looking_for_section}}</textarea>
+                {% else %}
+                <textarea id="looking-for-field" class="form-control shadow" rows="4"
+                    placeholder="Not provided..."></textarea>
+                {% endif %}
+
+                {% if student_profile.motivational_letter.about_me_section %}
 
                 <button class="btn btn-primary mt-3" id="update-motivational-letter-btn">
-                    <i class="bi bi-check-circle-fill"> Confirm</i>
-                </button>
-
-                <button class="btn btn-success mt-3" id="create-motivational-letter-btn">
-                    <i class="bi bi-check-circle-fill"> Create</i>
+                    <i class="bi bi-check-circle-fill"></i> Update
                 </button>
 
                 <button class="btn btn-danger mt-3" id="delete-motivational-letter-btn">
                     <i class="bi bi-trash3-fill"></i> Delete
                 </button>
+
+                <script>
+                    document.getElementById('update-motivational-letter-btn').addEventListener('click', async () => {
+                        const updatedLetter = {
+                            student_id: '{{student_profile.id}}',
+                            about_me_section: document.getElementById('about-me-field').value,
+                            skills_section: document.getElementById('skills-field').value,
+                            looking_for_section: document.getElementById('looking-for-field').value,
+                        }
+                        console.log('running update button code...')
+                        await access('/students/motivational-letter/{{student_profile.id}}', 'PUT', updatedLetter)
+                        await access('/students/profile/{{student_profile.id}}/edit', 'GET')
+                    })
+
+                    document.getElementById('delete-motivational-letter-btn').addEventListener('click', async () => {
+                        console.log('running delete button code...')
+                        await access('/students/motivational-letter/{{student_profile.id}}', 'DELETE')
+                        await access('/students/profile/{{student_profile.id}}/edit', 'GET')
+                    })
+                </script>
+
+                {% else %}
+
+                <button class="btn btn-success mt-3" id="create-motivational-letter-btn">
+                    <i class="bi bi-check-circle-fill"></i> Create
+                </button>
+
+                <script>
+                    document.getElementById('create-motivational-letter-btn').addEventListener('click', async () => {
+                        const newLetter = {
+                            student_id: '{{student_profile.id}}',
+                            about_me_section: document.getElementById('about-me-field').value,
+                            skills_section: document.getElementById('skills-field').value,
+                            looking_for_section: document.getElementById('looking-for-field').value,
+                        }
+                        console.log('running create button code...')
+                        await access('/students/motivational-letter', 'POST', newLetter)
+                        await access('/students/profile/{{student_profile.id}}/edit', 'GET')
+                    })
+                </script>
+
+                {% endif %}
             </div>
         </div>
 
@@ -372,35 +427,6 @@
         await access('/subjects', 'POST', newSubject)
         await access('/students/profile/{{student_profile.id}}/edit', 'GET')
     })
-
-    document.getElementById('create-motivational-letter-btn').addEventListener('click', async () => {
-        const newLetter = {
-            student_id: '{{student_profile.id}}',
-            about_me_section: document.getElementById('about-me-field').value,
-            skills_section: document.getElementById('skills-field').value,
-            looking_for_section: document.getElementById('looking-for-field').value,
-        }
-        await access('/students/motivational-letter', 'POST', newLetter)
-    })
-
-    document.getElementById('update-motivational-letter-btn').addEventListener('click', async () => {
-        const updatedLetter = {
-            student_id: '{{student_profile.id}}',
-            about_me_section: document.getElementById('about-me-field').value,
-            skills_section: document.getElementById('skills-field').value,
-            looking_for_section: document.getElementById('looking-for-field').value,
-        }
-        await access('/students/motivational-letter/{{student_profile.id}}', 'PUT', updatedLetter)
-    })
-
-    document.getElementById('delete-motivational-letter-btn').addEventListener('click', async () => {
-        await access('/students/motivational-letter/{{student_profile.id}}', 'DELETE')
-    })
-
-    // IDs of motivational letter buttons:
-    // update-motivational-letter-btn
-    // create-motivational-letter-btn
-    // delete-motivational-letter-btn
 </script>
 
 {% endblock %}

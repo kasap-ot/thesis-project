@@ -102,12 +102,16 @@ async def student_delete(student_id: int, current_user = Depends(get_current_use
     await student_delete_controller(student_id, current_user)
 
 
-@router.get("/students/profile/{student_id}", response_model=StudentProfileRead)
+@router.get("/students/profile/{student_id}", response_class=HTMLResponse)
 async def student_profile_get(request: Request, student_id: int, current_user = Depends(get_current_user)):
     student = await student_profile_get_controller(student_id)
     return templates.TemplateResponse(
         name = "student-profile.html",
-        context = {"request": request, "student": student, "current_user": current_user},
+        context = {
+            "request": request, 
+            "student": student, 
+            "current_user": current_user
+        },
     )
 
 
