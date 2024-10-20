@@ -210,8 +210,14 @@ def delete_student_query() -> LiteralString:
     return "DELETE FROM students WHERE id = %s"
 
 
-def select_student_query() -> LiteralString:
-    return "SELECT * FROM students WHERE id = %s;"
+def select_student_with_motivational_letter_query() -> LiteralString:
+    return (
+        "SELECT * "
+        "FROM students s "
+        "LEFT JOIN motivational_letters ml "
+        "ON s.id = ml.student_id " 
+        "WHERE s.id = %s;"
+    )
 
 
 def select_student_experiences_query() -> LiteralString:

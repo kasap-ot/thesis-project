@@ -1,6 +1,24 @@
+from typing import Optional
 from .enums import Status
 from pydantic import BaseModel
 from datetime import date
+
+
+# MOTIVATIONAL LETTER SCHEMAS
+
+
+class MotivationalLetter(BaseModel):
+    student_id: int
+    about_me_section: str
+    skills_section: str
+    looking_for_section: str
+
+
+class MotivationalLetterRead(BaseModel):
+    student_id: Optional[int]
+    about_me_section: Optional[str]
+    skills_section: Optional[str]
+    looking_for_section: Optional[str]
 
 
 # STUDENT SCHEMAS
@@ -23,6 +41,7 @@ class StudentCreate(StudentBase):
 
 class StudentRead(StudentBase):
     id: int
+    motivational_letter: MotivationalLetterRead
 
 
 class StudentUpdate(StudentBase):
@@ -178,13 +197,3 @@ class StudentProfileUpdate(StudentUpdate):
 
 class ApplicantRead(StudentRead):
     status: Status
-
-
-# MOTIVATIONAL LETTER SCHEMAS
-
-
-class MotivationalLetter(BaseModel):
-    student_id: int
-    about_me_section: str
-    skills_section: str
-    looking_for_section: str

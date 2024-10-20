@@ -3,6 +3,7 @@ from .schemas import (
     ApplicantRead,
     ExperienceCreate,
     ExperienceUpdate,
+    MotivationalLetterRead,
     OfferUpdate,
     StudentCreate, 
     StudentUpdate, 
@@ -51,7 +52,7 @@ from .queries import (
     select_offer_query,
     select_offers_query,
     select_student_experiences_query,
-    select_student_query,
+    select_student_with_motivational_letter_query,
     select_student_subjects_query,
     select_subject_student_id_query,
     update_applications_waiting_query,
@@ -130,16 +131,17 @@ async def student_delete_controller(student_id: int, current_user) -> None:
 
 async def student_profile_get_controller(student_id: int) -> StudentProfileRead:
     async with async_pool().connection() as conn:
-        cur = conn.cursor(row_factory=dict_row)
+        cur: AsyncCursor = conn.cursor(row_factory=dict_row)
         
-        sql = select_student_query()
+        sql = select_student_with_motivational_letter_query()
         await cur.execute(sql, [student_id])
-        record = await cur.fetchone()
+        student = await cur.fetchone()
         
-        if record is None:
+        if student is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND)
         
-        student = StudentRead(**record)
+        letter = MotivationalLetterRead(**student)
+        student = StudentRead(**student, motivational_letter=letter)
 
         sql = select_student_experiences_query()
         await cur.execute(sql, [student_id])
@@ -605,7 +607,7 @@ async def applicants_get_controller(
 
 
 async def motivational_letter_post_controller(letter: MotivationalLetter, current_user) -> None:
-    # authorize_user(letter.student_id, current_user, StudentInDB)
+    authorize_user(letter.student_id, current_user, StudentInDB)
     pool = async_pool()
     async with pool.connection() as conn:
         query = insert_motivational_letter_query()
@@ -630,7 +632,7 @@ async def motivational_letter_put_controller(letter: MotivationalLetter, current
         if record is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND)
         
-        # authorize_user(letter.student_id, current_user, StudentInDB)
+        authorize_user(letter.student_id, current_user, StudentInDB)
 
         query = update_motivational_letter_query()
         await conn.execute(query, [
@@ -653,7 +655,7 @@ async def motivational_letter_delete_controller(student_id: int, current_user) -
         if record is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND)
         
-        # authorize_user(student_id, current_user, StudentInDB)
+        authorize_user(student_id, current_user, StudentInDB)
 
         query = delete_motivational_letter_query()
         await conn.execute(query, [student_id])

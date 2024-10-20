@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %}   
 
 {% block content %}
 
@@ -42,13 +42,28 @@
             <h5 class="my-4 fs-4">MOTIVATIONAL LETTER</h5>
 
             <div class="fs-5 mt-3">About me</div>
-            <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam eum odio illum veniam aperiam voluptatibus rerum voluptatem, odit ullam quia fuga at maxime soluta, officia delectus distinctio quibusdam, ab commodi!</div>
+            
+            {% if student.motivational_letter.about_me_section %}
+                <div>{{student.motivational_letter.about_me_section}}</div>
+            {% else %}
+                <div class="fst-italic">Not provided</div>
+            {% endif %}
 
             <div class="fs-5 mt-3">What I offer</div>
-            <div>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Deserunt nobis perferendis dolorem soluta doloremque placeat, reiciendis ratione excepturi amet impedit, natus consequatur. Voluptatum expedita totam eaque? Unde perspiciatis rem corrupti!</div>
+            
+            {% if student.motivational_letter.skills_section %}
+                <div>{{student.motivational_letter.skills_section}}</div>
+            {% else %}
+                <div class="fst-italic">Not provided</div>
+            {% endif %}
 
             <div class="fs-5 mt-3">What I'm looking for</div>
-            <div>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nobis nemo consequuntur, est commodi, ab sed at cupiditate sint quidem laboriosam explicabo. Quaerat facilis saepe deserunt pariatur fugiat beatae ullam debitis.</div>
+            
+            {% if student.motivational_letter.looking_for_section %}
+                <div>{{student.motivational_letter.looking_for_section}}</div>
+            {% else %}
+                <div class="fst-italic">Not provided</div>
+            {% endif %}
 
             <hr class="mt-4">
             <h5 class="my-4 fs-4">EXPERIENCES</h5>
