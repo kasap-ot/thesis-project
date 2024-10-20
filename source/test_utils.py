@@ -183,6 +183,8 @@ def create_token_header(token: dict) -> dict:
 def delete_db_data(db_connection: pg.Connection):
     db_connection.execute("DELETE FROM applications;")
     db_connection.execute("DELETE FROM experiences;")
+    db_connection.execute("DELETE FROM motivational_letters;")
+    db_connection.execute("DELETE FROM subjects;")
     db_connection.execute("DELETE FROM offers;")
     db_connection.execute("DELETE FROM students;")
     db_connection.execute("DELETE FROM companies;")

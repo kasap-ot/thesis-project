@@ -13,5 +13,5 @@ pytest source/test_offers.py
 pytest source/test_students.py
 echo "All tests have completed"
 
-sed -i 's/^TESTING=.*/TESTING=FALSE/' $ENV_FILE
-echo "Reverted testing parameter to FALSE"
+# sed -i 's/^TESTING=.*/TESTING=FALSE/' $ENV_FILE
+# echo "Reverted testing parameter to FALSE"
