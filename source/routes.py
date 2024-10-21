@@ -37,6 +37,9 @@ from .controllers import (
     offer_post_controller,
     offers_get_controller,
     offer_get_controller,
+    student_report_post_controller,
+    student_report_put_controller,
+    student_report_delete_controller,
 )
 from .security import get_current_user, Token
 from .schemas import (
@@ -49,9 +52,9 @@ from .schemas import (
     OfferUpdate,
     ExperienceCreate,
     ExperienceUpdate,
-    StudentProfileRead,
     Subject,
     MotivationalLetter,
+    StudentReport,
 )
 from .enums import MAX_CREDITS, MAX_GPA, MIN_CREDITS, MIN_GPA, Status, Environment
 from fastapi import APIRouter, BackgroundTasks, File, Form, status, Depends, Request
@@ -520,3 +523,31 @@ async def motivational_letter_put(motivational_letter: MotivationalLetter, curre
 @router.delete("/students/motivational-letter/{student_id}")
 async def motivational_letter_delete(student_id: int, current_user = Depends(get_current_user)):
     await motivational_letter_delete_controller(student_id, current_user)
+
+
+# Routes for STUDENT REPORTS
+
+
+@router.post("/student-reports", status_code=status.HTTP_201_CREATED)
+async def student_report_post(
+    student_report: StudentReport, 
+    # current_user = Depends(get_current_user)
+):
+    await student_report_post_controller(student_report, "current_user")
+
+
+@router.put("/student-reports")
+async def student_report_put(
+    student_report: StudentReport, 
+    # current_user = Depends(get_current_user)
+):
+    await student_report_put_controller(student_report, "current_user")
+
+
+@router.delete("/student-reports/{student_id}/{offer_id}")
+async def student_report_delete(
+    student_id: int, 
+    offer_id: int, 
+    # current_user = Depends(get_current_user)
+):
+    await student_report_delete_controller(student_id, offer_id, "current_user")

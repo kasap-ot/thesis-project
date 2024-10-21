@@ -198,3 +198,15 @@ class StudentProfileUpdate(StudentUpdate):
 class ApplicantRead(StudentBase):
     id: int
     status: str
+
+
+# STUDENT REPORT SCHEMAS
+
+
+class StudentReport(BaseModel):
+    student_id: int
+    offer_id: int
+    overall_grade: int
+    technical_grade: int
+    communication_grade: int
+    comment: str

@@ -325,3 +325,27 @@ def update_motivational_letter_query() -> LiteralString:
 
 def delete_motivational_letter_query() -> LiteralString:
     return "DELETE FROM motivational_letters WHERE student_id = %s;"
+
+
+def insert_student_report_query() -> LiteralString:
+    return (
+        "INSERT INTO student_reports "
+        "(student_id, offer_id, overall_grade, technical_grade, communication_grade, comment) "
+        "VALUES (%s, %s, %s, %s, %s, %s);"
+    )
+
+
+def update_student_report_query() -> LiteralString:
+    return (
+        "UPDATE student_reports SET "
+        "student_id = %s, "
+        "offer_id = %s, "
+        "overall_grade = %s, "
+        "technical_grade = %s, "
+        "communication_grade = %s, "
+        "comment = %s;"
+    )
+
+
+def delete_student_report_query() -> LiteralString:
+    return "DELETE FROM student_reports WHERE student_id = %s AND offer_id = %s;"

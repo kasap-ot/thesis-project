@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS regions (
 CREATE TABLE IF NOT EXISTS subjects (
     student_id INT REFERENCES students(id),
     name VARCHAR(255),
-    grade INT NOT NULL,
+    grade INT NOT NULL CHECK (grade BETWEEN 5 AND 10),
     PRIMARY KEY (student_id, name)
 );
 
@@ -82,3 +82,16 @@ CREATE TABLE IF NOT EXISTS motivational_letters (
     skills_section TEXT NOT NULL,
     looking_for_section TEXT NOT NULL
 );
+
+
+-- Add table for student reports by companies
+
+CREATE TABLE IF NOT EXISTS student_reports (
+    student_id INT REFERENCES students(id),
+    offer_id INT REFERENCES offers(id),
+    overall_grade INT NOT NULL CHECK (overall_grade BETWEEN 1 AND 10),
+    technical_grade INT NOT NULL CHECK (overall_grade BETWEEN 1 AND 10),
+    communication_grade INT NOT NULL CHECK (overall_grade BETWEEN 1 AND 10),
+    comment TEXT NOT NULL,
+    PRIMARY KEY (student_id, offer_id)
+)
