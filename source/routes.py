@@ -1,4 +1,3 @@
-
 from typing import Annotated, Optional
 from source.notifications import (
     notify_company_applicants_change, 
@@ -12,6 +11,7 @@ from .controllers import (
     application_cancel_controller,
     application_post_controller,
     applications_get_controller,
+    complete_offer_controller,
     experience_delete_controller,
     experience_patch_controller,
     experience_post_controller,
@@ -21,6 +21,7 @@ from .controllers import (
     offer_delete_controller,
     offer_file_post_controller,
     offer_put_controller,
+    start_offer_controller,
     subject_delete_controller,
     subject_patch_controller,
     subject_post_controller,
@@ -477,6 +478,16 @@ async def applicants_get(
         context = {"request": request, "students": students, "offer_id": offer_id},
         headers = {"Content-Type": "text/html"}
     )
+
+
+@router.patch("/applications/start-offer/{student_id}/{offer_id}")
+async def start_offer(student_id: int, offer_id: int):
+    await start_offer_controller(student_id, offer_id, "current_user")
+
+
+@router.patch("/applications/complete-offer/{student_id}/{offer_id}")
+async def complete_offer(student_id: int, offer_id: int):
+    await complete_offer_controller(student_id, offer_id, "current_user")
     
 
 # Routes for STATIC TEMPLATES

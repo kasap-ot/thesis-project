@@ -58,6 +58,7 @@ from .queries import (
     select_student_with_motivational_letter_query,
     select_student_subjects_query,
     select_subject_student_id_query,
+    update_application_status_query,
     update_applications_waiting_query,
     update_company_query,
     update_experience_query,
@@ -605,6 +606,70 @@ async def applicants_get_controller(
         records = await applicant_cur.fetchall()
 
         return records
+    
+
+async def start_offer_controller(student_id: int, offer_id: int, current_user) -> None:
+    await update_application_status(
+        student_id,
+        offer_id,
+        Status.ACCEPTED,
+        Status.ONGOING,
+        # current_user,
+    )
+
+
+async def complete_offer_controller(student_id: int, offer_id: int, current_user) -> None:
+    await update_application_status(
+        student_id,
+        offer_id,
+        Status.ONGOING,
+        Status.COMPLETED,
+        # current_user,
+    )
+
+
+async def update_application_status(
+    student_id: int, 
+    offer_id: int, 
+    required_status: Status, 
+    new_status: Status,
+    # current_user,
+) -> None:
+    """
+    Generic function for updating the status of an application.
+    """
+    pool = async_pool()
+    async with (
+        pool.connection() as conn,
+        conn.cursor(row_factory=dict_row) as cur
+    ):
+        # Check that the offer exists in the system
+        query = select_offer_company_id_query()
+        await cur.execute(query, [offer_id])
+        record = await cur.fetchone()
+
+        if record is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Offer not found.")
+        
+        # Check if the offer is owned by the logged in user
+        company_id = record["company_id"]
+        # authorize_user(company_id, current_user, CompanyInDB)
+
+        # Check that the application has the correct current status
+        query = select_application_status_query()
+        await cur.execute(query, [student_id, offer_id])
+        record = await cur.fetchone()
+        current_status = record["status"]
+
+        if current_status != required_status.value:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT, 
+                detail=f"Cannot update offer with status {current_status}."
+            )
+        
+        # Update the status of the application
+        query = update_application_status_query(new_status)
+        await conn.execute(query, [student_id, offer_id])
     
 
 # Motivational Letter controllers
