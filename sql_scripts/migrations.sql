@@ -73,7 +73,7 @@ ALTER COLUMN region_id SET DEFAULT -1;
 ALTER TABLE offers ALTER COLUMN company_id DROP NOT NULL;
 
 
--- Modify staus domain to have text fields instead of integers
+-- Modify status domain to have text fields instead of integers
 
 ALTER TABLE applications
 DROP COLUMN status
@@ -90,6 +90,12 @@ CHECK (VALUE IN ('WAITING', 'ACCEPTED', 'REJECTED'));
 ALTER TABLE applications
 ADD COLUMN status status NOT NULL;
 
-
 -- Don't forget to recreate the 
 -- dropped procedures and functions
+
+
+-- Add values to the status-domain - ONGOING and COMPLETED
+
+ALTER DOMAIN status DROP CONSTRAINT status_check;
+ALTER DOMAIN status ADD CONSTRAINT status_check
+CHECK (VALUE IN ('WAITING', 'ACCEPTED', 'REJECTED', 'ONGOING', 'COMPLETED'))
