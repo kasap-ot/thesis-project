@@ -122,9 +122,33 @@
             </button>
         </div>
         <div>
-            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#acceptModal">
-                <i class="bi bi-check-circle-fill"></i> Accept
-            </button>
+            <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" id="actionsDropdown" data-bs-toggle="dropdown">
+                    Actions
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <button class="dropdown-item" id="acceptBtn" data-bs-toggle="modal" data-bs-target="#acceptModal">
+                            <i class="bi bi-check-circle"></i> Accept
+                        </button>
+                    </li>
+                    <li>
+                        <button class="dropdown-item" id="startOfferBtn" data-bs-toggle="modal" data-bs-target="#startOfferModal">
+                            <i class="bi bi-play-circle"></i> Start Offer
+                        </button>
+                    </li>
+                    <li>
+                        <button class="dropdown-item" id="completeOfferBtn">
+                            <i class="bi bi-check-circle-fill"></i> Complete Offer
+                        </button>
+                    </li>
+                    <li>
+                        <button class="dropdown-item" id="createReportBtn">
+                            <i class="bi bi-list-columns"></i> Create Report
+                        </button>
+                    </li>
+                </ul>
+            </div>
         </div>
 
         <!-- Accept - modal -->
@@ -132,7 +156,7 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="myModalLabel">Accept applicant?</h1>
+                        <h1 class="modal-title fs-5">Accept applicant?</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
@@ -145,6 +169,29 @@
                 </div>
             </div>
         </div>
+
+        <!-- Start Offer Modal -->
+         <div class="modal fade" id="startOfferModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5">Start Offer for applicant?</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        The status of the application will be updated to "ongoing". Valid operation only for students with status "accepted". Are you sure you want to continue?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        <button class="btn btn-success" id="modalStartOfferBtn">I'm sure</button>
+                    </div>
+                </div>
+            </div>
+         </div>
+
+         <!-- TODO - create Complete Offer Modal -->
+
+         <!-- TODO - create Create Report Modal -->
 
         <script>
             document.getElementById("backToApplicantsBtn").addEventListener("click", async () => {
@@ -159,6 +206,12 @@
                 await access(`/applications/applicants/${offerId}`, "GET")
             })
         </script>
+
+        <!-- TODO - write "start offer button" logic -->
+
+        <!-- TODO - write "complete offer button" logic -->
+
+        <!-- TODO - write "create report button" logic -->
 
         {% endif %}
     </div>

@@ -67,15 +67,26 @@
 
         {% for student in students %}
         {% set status = student.status %}
+        
         {% if status == 'WAITING' %}
         {% set list_item_color = 'warning' %}
         {% set status_text = 'Waiting' %}
+        
         {% elif status == 'ACCEPTED' %}
         {% set list_item_color = 'success' %}
         {% set status_text = 'Accepted' %}
+        
         {% elif status == 'REJECTED' %}
         {% set list_item_color = 'danger' %}
         {% set status_text = 'Rejected' %}
+
+        {% elif status == 'ONGOING' %}
+        {% set list_item_color = 'success' %}
+        {% set status_text = 'Ongoing' %}
+
+        {% elif status == 'COMPLETED' %}
+        {% set list_item_color = 'success' %}
+        {% set status_text = 'Completed' %}
         {% endif %}
 
         <li class="list-group-item list-group-item-action list-group-item-{{list_item_color}}">
