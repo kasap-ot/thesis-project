@@ -98,8 +98,6 @@
       region_id: parseInt(document.getElementById("region").value),
     }
 
-    console.log(JSON.stringify(newStudent))
-
     /* 
     We define here custom FETCH logic because 
     authorization tokens are not needed here 
@@ -119,16 +117,11 @@
         errorMsgArea.classList.add("text-danger")
       }
       else {
-        console.log("Registration was successful.")
-
-        console.log("Logging new user in")
         await login(
           url = "/token?user_type_param=student",
           username = newStudent.email,
           password = newStudent.password,
         )
-
-        console.log("Rerouting to home page")
         await access("/students-home", "GET")
       }
     }

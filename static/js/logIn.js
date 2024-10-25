@@ -33,9 +33,6 @@ async function login(url, username, password)
 
       sessionStorage.setItem('token', token);
 
-      console.log(data);
-      console.log('session storage: ', sessionStorage.getItem('token'));
-
       return true;
     }
     catch (error) {

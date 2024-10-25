@@ -103,16 +103,11 @@
         errorMsgArea.classList.add("text-danger")
       }
       else {
-        console.log("Registration was successful.")
-
-        console.log("Logging new user in")
         await login(
           url = "/token?user_type_param=company",
           username = newCompany.email,
           password = newCompany.password,
         )
-
-        console.log("Rerouting to home page")
         await access("/companies-home", "GET")
       }
     }

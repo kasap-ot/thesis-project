@@ -282,13 +282,11 @@
                             skills_section: document.getElementById('skills-field').value,
                             looking_for_section: document.getElementById('looking-for-field').value,
                         }
-                        console.log('running update button code...')
                         await access('/students/motivational-letter/{{student_profile.id}}', 'PUT', updatedLetter)
                         await access('/students/profile/{{student_profile.id}}/edit', 'GET')
                     })
 
                     document.getElementById('delete-motivational-letter-btn').addEventListener('click', async () => {
-                        console.log('running delete button code...')
                         await access('/students/motivational-letter/{{student_profile.id}}', 'DELETE')
                         await access('/students/profile/{{student_profile.id}}/edit', 'GET')
                     })
@@ -308,7 +306,6 @@
                             skills_section: document.getElementById('skills-field').value,
                             looking_for_section: document.getElementById('looking-for-field').value,
                         }
-                        console.log('running create button code...')
                         await access('/students/motivational-letter', 'POST', newLetter)
                         await access('/students/profile/{{student_profile.id}}/edit', 'GET')
                     })
