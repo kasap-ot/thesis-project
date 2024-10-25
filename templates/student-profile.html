@@ -1,4 +1,4 @@
-{% extends 'base.html' %}   
+{% extends 'base.html' %}
 
 {% block content %}
 
@@ -42,27 +42,27 @@
             <h5 class="my-4 fs-4">MOTIVATIONAL LETTER</h5>
 
             <div class="fs-5 mt-3">About me</div>
-            
+
             {% if student.motivational_letter.about_me_section %}
-                <div>{{student.motivational_letter.about_me_section}}</div>
+            <div>{{student.motivational_letter.about_me_section}}</div>
             {% else %}
-                <div class="fst-italic">Not provided</div>
+            <div class="fst-italic">Not provided</div>
             {% endif %}
 
             <div class="fs-5 mt-3">What I offer</div>
-            
+
             {% if student.motivational_letter.skills_section %}
-                <div>{{student.motivational_letter.skills_section}}</div>
+            <div>{{student.motivational_letter.skills_section}}</div>
             {% else %}
-                <div class="fst-italic">Not provided</div>
+            <div class="fst-italic">Not provided</div>
             {% endif %}
 
             <div class="fs-5 mt-3">What I'm looking for</div>
-            
+
             {% if student.motivational_letter.looking_for_section %}
-                <div>{{student.motivational_letter.looking_for_section}}</div>
+            <div>{{student.motivational_letter.looking_for_section}}</div>
             {% else %}
-                <div class="fst-italic">Not provided</div>
+            <div class="fst-italic">Not provided</div>
             {% endif %}
 
             <hr class="mt-4">
@@ -78,7 +78,12 @@
             <h5 class="my-4 fs-4">SUBJECTS</h5>
 
             <table class="table table-striped">
-                <thead><tr><th>Name</th><th>Grade</th></tr></thead>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Grade</th>
+                    </tr>
+                </thead>
                 <tbody>
                     {% for subject in student.subjects %}
                     <tr>
@@ -123,28 +128,27 @@
         </div>
         <div>
             <div class="dropdown">
-                <button class="btn btn-primary dropdown-toggle" type="button" id="actionsDropdown" data-bs-toggle="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" id="actionsDropdown"
+                    data-bs-toggle="dropdown">
                     Actions
                 </button>
                 <ul class="dropdown-menu">
                     <li>
-                        <button class="dropdown-item" id="acceptBtn" data-bs-toggle="modal" data-bs-target="#acceptModal">
+                        <button class="dropdown-item" id="acceptBtn" data-bs-toggle="modal"
+                            data-bs-target="#acceptModal">
                             <i class="bi bi-check-circle"></i> Accept
                         </button>
                     </li>
                     <li>
-                        <button class="dropdown-item" id="startOfferBtn" data-bs-toggle="modal" data-bs-target="#startOfferModal">
+                        <button class="dropdown-item" id="startOfferBtn" data-bs-toggle="modal"
+                            data-bs-target="#startOfferModal">
                             <i class="bi bi-play-circle"></i> Start Offer
                         </button>
                     </li>
                     <li>
-                        <button class="dropdown-item" id="completeOfferBtn">
+                        <button class="dropdown-item" id="completeOfferBtn" data-bs-toggle="modal"
+                            data-bs-target="#completeOfferModal">
                             <i class="bi bi-check-circle-fill"></i> Complete Offer
-                        </button>
-                    </li>
-                    <li>
-                        <button class="dropdown-item" id="createReportBtn">
-                            <i class="bi bi-list-columns"></i> Create Report
                         </button>
                     </li>
                 </ul>
@@ -164,14 +168,14 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                        <button class="btn btn-success" id="modalAcceptBtn">I'm sure</button>
+                        <button class="btn btn-success" id="acceptModalBtn">I'm sure</button>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Start Offer Modal -->
-         <div class="modal fade" id="startOfferModal" tabindex="-1">
+        <div class="modal fade" id="startOfferModal" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -179,39 +183,64 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        The status of the application will be updated to "ongoing". Valid operation only for students with status "accepted". Are you sure you want to continue?
+                        The status of the application will be updated to "ongoing". Valid operation only for students
+                        with status "accepted". Are you sure you want to continue?
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                        <button class="btn btn-success" id="modalStartOfferBtn">I'm sure</button>
+                        <button class="btn btn-success" id="startOfferModalBtn">I'm sure</button>
                     </div>
                 </div>
             </div>
-         </div>
+        </div>
 
-         <!-- TODO - create Complete Offer Modal -->
-
-         <!-- TODO - create Create Report Modal -->
+        <!-- Complete Offer Modal -->
+        <div class="modal fade" id="completeOfferModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5">Complete Offer for applicant?</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        The status of the application will be updated to "completed". Valid operation only for students
+                        with status "ongoing". Are you sure you want to continue?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        <button class="btn btn-success" id="completeOfferModalBtn">I'm sure</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <script>
             document.getElementById("backToApplicantsBtn").addEventListener("click", async () => {
                 const offerId = sessionStorage.getItem("offerId")
                 await access(`/applications/applicants/${offerId}`, "GET")
             })
-            document.getElementById("modalAcceptBtn").addEventListener("click", async () => {
+            
+            document.getElementById("acceptModalBtn").addEventListener("click", async () => {
                 const offerId = sessionStorage.getItem("offerId")
                 const studentId = "{{student.id}}"
-                console.log(studentId, offerId)  
                 await access(`/applications/accept/${studentId}/${offerId}`, "PATCH")
                 await access(`/applications/applicants/${offerId}`, "GET")
             })
+
+            document.getElementById("startOfferModalBtn").addEventListener("click", async () => {
+                const offerId = sessionStorage.getItem("offerId")
+                const studentId = "{{student.id}}"
+                await access(`/applications/start-offer/${studentId}/${offerId}`, "PATCH")
+                await access(`/applications/applicants/${offerId}`, "GET")
+            })
+
+            document.getElementById("completeOfferModalBtn").addEventListener("click", async () => {
+                const offerId = sessionStorage.getItem("offerId")
+                const studentId = "{{student.id}}"
+                await access(`/applications/complete-offer/${studentId}/${offerId}`, "PATCH")
+                await access(`/applications/applicants/${offerId}`, "GET")
+            })
         </script>
-
-        <!-- TODO - write "start offer button" logic -->
-
-        <!-- TODO - write "complete offer button" logic -->
-
-        <!-- TODO - write "create report button" logic -->
 
         {% endif %}
     </div>
