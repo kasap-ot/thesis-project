@@ -562,3 +562,8 @@ async def student_report_delete(
     # current_user = Depends(get_current_user)
 ):
     await student_report_delete_controller(student_id, offer_id, "current_user")
+
+
+@router.get("/student-reports/create")
+async def student_report_create(request: Request):
+    return templates.TemplateResponse("student-report-create.html", {"request": request})

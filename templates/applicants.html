@@ -98,10 +98,19 @@
                 <div class="col">{{student.credits}}</div>
                 <div class="col">{{status_text}}</div>
                 <div class="col">
-                    <button class="student-btn btn btn-success btn-sm w-75 rounded-pill py-2"
-                        id="studentBtn_{{student.id}}">
+                    {% if status == 'COMPLETED' %}
+                    <button 
+                        class="student-report-btn btn btn-success btn-sm w-75 rounded-pill py-2"
+                        id="studentReportBtn_{{student.id}}">
+                        Report
+                    </button>
+                    {% else %}
+                    <button 
+                        class="student-btn btn btn-success btn-sm w-75 rounded-pill py-2"
+                        id="studentBtn-{{student.id}}">
                         View
                     </button>
+                    {% endif %}
                 </div>
             </div>
         </li>
@@ -157,8 +166,17 @@
         // View the applicant's profile
         document.querySelectorAll(".student-btn").forEach(button => {
             button.addEventListener("click", async () => {
-                const studentId = button.id.split("_")[1]
+                const studentId = button.id.split("-")[1]
                 await access(`/students/profile/${studentId}`, "GET")
+            })
+        })
+
+        // Got to the page for creating the student report
+        document.querySelectorAll(".student-report-btn").forEach(button => {
+            button.addEventListener("click", async () => {
+                const studentId = button.id.split("-")[1]
+                sessionStorage.setItem("studentId", studentId)
+                await access("/student-reports/create", "GET")
             })
         })
 
