@@ -2,38 +2,54 @@
 
 {% block content %}
 
-<div class="mb-3 bg-primary p-3 text-white rounded fw-bold">
-    Student Report - John Doe
+<div class="bg-primary p-3 text-white rounded fw-bold fs-4">
+    Student Report Information
 </div>
 
-<div class="mb-3">
-    <label class="form-label">Overall Grade:</label>
-    <div class="form-control-plaintext">{{ student_report.overall_grade }}</div>
+<div class="bg-light p-4">
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <div class="bg-primary fs-5 p-3 text-white rounded-pill text-center">
+                <label class="form-label fw-bold">Overall Grade:</label>
+                <div>{{ student_report.overall_grade }}</div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="bg-primary fs-5 p-3 text-white rounded-pill text-center">
+                <label class="form-label fw-bold">Technical Grade:</label>
+                <div>{{ student_report.technical_grade }}</div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="bg-primary fs-5 p-3 text-white rounded-pill text-center">
+                <label class="form-label fw-bold">Communication Grade:</label>
+                <div>{{ student_report.communication_grade }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Report Content:</label>
+        <div>{{ student_report.comment }}</div>
+    </div>
+
+    <div class="d-flex justify-content-between">
+        <button class="btn btn-secondary" id="backBtn">Back</button>
+        <button class="btn btn-success" id="editBtn">Edit</button>
+    </div>
 </div>
 
-<div class="mb-3">
-    <label class="form-label">Technical Grade:</label>
-    <div class="form-control-plaintext">{{ student_report.technical_grade }}</div>
-</div>
-
-<div class="mb-3">
-    <label class="form-label">Communication Grade:</label>
-    <div class="form-control-plaintext">{{ student_report.communication_grade }}</div>
-</div>
-
-<div class="mb-3">
-    <label class="form-label">Report Content:</label>
-    <div class="form-control-plaintext">{{ student_report.comment }}</div>
-</div>
-
-<div>
-    <button class="btn btn-secondary" id="backBtn">Back</button>
-</div>
 
 <script>
-    document.getElementById('backBtn').addEventListener('click', async function() {
+    document.getElementById('backBtn').addEventListener('click', async function () {
         const offerId = sessionStorage.getItem('offerId')
         await access(`/applications/applicants/${offerId}`, "GET")
+    })
+
+    document.getElementById('editBtn').addEventListener('click', async function () {
+        await access(`/applications/student-report/edit/${studentReportId}`, "GET")
     })
 </script>
 

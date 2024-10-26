@@ -175,8 +175,9 @@
         document.querySelectorAll(".student-report-btn").forEach(button => {
             button.addEventListener("click", async () => {
                 const studentId = button.id.split("-")[1]
+                const offerId = sessionStorage.getItem("offerId")
                 sessionStorage.setItem("studentId", studentId)
-                await access("/student-reports/create", "GET")
+                await access(`/student-reports/${studentId}/${offerId}`, "GET")
             })
         })
 

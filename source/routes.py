@@ -567,7 +567,7 @@ async def student_report_delete(
 
 @router.get("/student-reports/create")
 async def student_report_create(request: Request):
-    return templates.TemplateResponse("student-report-create.html", {"request": request})
+    return templates.TemplateResponse("student-report-edit.html", {"request": request})
 
 
 @router.get("/student-reports/{student_id}/{offer_id}")
