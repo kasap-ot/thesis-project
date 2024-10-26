@@ -542,26 +542,26 @@ async def motivational_letter_delete(student_id: int, current_user = Depends(get
 @router.post("/student-reports", status_code=status.HTTP_201_CREATED)
 async def student_report_post(
     student_report: StudentReport, 
-    # current_user = Depends(get_current_user)
+    current_user = Depends(get_current_user)
 ):
-    await student_report_post_controller(student_report, "current_user")
+    await student_report_post_controller(student_report, current_user)
 
 
 @router.put("/student-reports")
 async def student_report_put(
     student_report: StudentReport, 
-    # current_user = Depends(get_current_user)
+    current_user = Depends(get_current_user)
 ):
-    await student_report_put_controller(student_report, "current_user")
+    await student_report_put_controller(student_report, current_user)
 
 
 @router.delete("/student-reports/{student_id}/{offer_id}")
 async def student_report_delete(
     student_id: int, 
     offer_id: int, 
-    # current_user = Depends(get_current_user)
+    current_user = Depends(get_current_user)
 ):
-    await student_report_delete_controller(student_id, offer_id, "current_user")
+    await student_report_delete_controller(student_id, offer_id, current_user)
 
 
 @router.get("/student-reports/create")
