@@ -113,8 +113,7 @@ async def get_token(email: str, password: str, user_type: UserType) -> Token:
     return Token(access_token=token, token_type="Bearer")
 
 
-""" To reduce code duplication """
-credentials_exception = HTTPException(
+CREDENTIALS_EXCEPTION = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
     detail="Could not validate credentials",
     headers={"WWW-Authenticated": "Bearer"},
@@ -134,15 +133,15 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> StudentInDB |
         email: str | None = payload.get("sub")
         user_type = payload.get("type")
         if email is None or user_type is None:
-            raise credentials_exception
+            raise CREDENTIALS_EXCEPTION
     except JWTError:
-        raise credentials_exception
+        raise CREDENTIALS_EXCEPTION
 
     user_type = UserType(user_type)
     user_in_db = await get_user_by_email(email, user_type)
 
     if user_in_db is None:
-        raise credentials_exception
+        raise CREDENTIALS_EXCEPTION
 
     return user_in_db
 

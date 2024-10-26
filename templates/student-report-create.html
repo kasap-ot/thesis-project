@@ -3,7 +3,7 @@
 {% block content %}
 
 <div class="mb-3 bg-primary p-3 text-white rounded fw-bold">
-    Student Report - John Doe
+    Insert Student Report Information
 </div>
 
 <div class="mb-3">
@@ -58,6 +58,7 @@
         console.log(studentReport)
         
         await access("/student-reports", "POST", studentReport)
+        await access(`/student-reports/${studentId}/${offerId}`, "GET")
     })  
 </script>
 

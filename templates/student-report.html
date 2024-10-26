@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="mb-3 bg-primary p-3 text-white rounded fw-bold">
+    Student Report - John Doe
+</div>
+
+<div class="mb-3">
+    <label class="form-label">Overall Grade:</label>
+    <div class="form-control-plaintext">{{ student_report.overall_grade }}</div>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">Technical Grade:</label>
+    <div class="form-control-plaintext">{{ student_report.technical_grade }}</div>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">Communication Grade:</label>
+    <div class="form-control-plaintext">{{ student_report.communication_grade }}</div>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">Report Content:</label>
+    <div class="form-control-plaintext">{{ student_report.comment }}</div>
+</div>
+
+<div>
+    <button class="btn btn-secondary" id="backBtn">Back</button>
+</div>
+
+<script>
+    document.getElementById('backBtn').addEventListener('click', async function() {
+        const offerId = sessionStorage.getItem('offerId')
+        await access(`/applications/applicants/${offerId}`, "GET")
+    })
+</script>
+
+{% endblock %}

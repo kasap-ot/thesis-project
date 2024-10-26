@@ -55,6 +55,7 @@ from .queries import (
     select_offer_query,
     select_offers_query,
     select_student_experiences_query,
+    select_student_report_query,
     select_student_with_motivational_letter_query,
     select_student_subjects_query,
     select_subject_student_id_query,
@@ -75,7 +76,7 @@ from .database import async_pool
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import HTTPException, status
 from psycopg.rows import dict_row, class_row
-from psycopg import IntegrityError, AsyncCursor, AsyncConnection
+from psycopg import IntegrityError, AsyncCursor
 
 
 # Token controllers
@@ -795,3 +796,15 @@ async def student_report_delete_controller(student_id: int, offer_id: int, curre
         query = delete_student_report_query()
         await conn.execute(query, [student_id, offer_id])
 
+
+async def student_report_get_controller(student_id: int, offer_id: int) -> StudentReport:
+    async with async_pool().connection() as conn:
+        cur = conn.cursor(row_factory=class_row(StudentReport))
+        query = select_student_report_query()
+        await cur.execute(query, [student_id, offer_id])
+        record = await cur.fetchone()
+
+        if record is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
+        
+        return record

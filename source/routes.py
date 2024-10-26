@@ -22,6 +22,7 @@ from .controllers import (
     offer_file_post_controller,
     offer_put_controller,
     start_offer_controller,
+    student_report_get_controller,
     subject_delete_controller,
     subject_patch_controller,
     subject_post_controller,
@@ -567,3 +568,13 @@ async def student_report_delete(
 @router.get("/student-reports/create")
 async def student_report_create(request: Request):
     return templates.TemplateResponse("student-report-create.html", {"request": request})
+
+
+@router.get("/student-reports/{student_id}/{offer_id}")
+async def student_report_get(request: Request, student_id: int, offer_id: int, current_user = Depends(get_current_user)):
+    student_report = await student_report_get_controller(student_id, offer_id)
+    return templates.TemplateResponse("student-report.html", {
+        "request": request,
+        "student_report": student_report,
+        "current_user": current_user,
+    })

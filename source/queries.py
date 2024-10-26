@@ -356,3 +356,11 @@ def update_application_status_query(new_status: Status) -> LiteralString:
         f"UPDATE applications SET status = '{new_status.value}' "
         "WHERE student_id = %s AND offer_id = %s;"
     )
+
+
+def select_student_report_query() -> LiteralString:
+    return (
+        "SELECT * "
+        "FROM student_reports "
+        "WHERE student_id = %s AND offer_id = %s;"
+    )
