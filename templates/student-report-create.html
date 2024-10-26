@@ -2,6 +2,63 @@
 
 {% block content %}
 
-This is a test...
+<div class="mb-3 bg-primary p-3 text-white rounded fw-bold">
+    Student Report - John Doe
+</div>
+
+<div class="mb-3">
+    <label for="overall_grade" class="form-label">Overall Grade:</label>
+    <input type="number" id="overall_grade" name="overall_grade" class="form-control" required>
+</div>
+
+<div class=" mb-3">
+    <label for="technical_grade" class="form-label">Technical Grade:</label>
+    <input type="number" id="technical_grade" name="technical_grade" class="form-control" required>
+</div>
+
+<div>
+    <label for="communication_grade" class="form-label">Communication Grade:</label>
+    <input type="number" id="communication_grade" name="communication_grade" class="form-control" required>
+</div>
+
+<div class="mb-3">
+    <label for="comment" class="form-label">Report Content:</label>
+    <textarea id="comment" name="comment" class="form-control" rows="10" required></textarea>
+</div>
+
+<div>
+    <button class="btn btn-secondary" id="backBtn">Back</button>
+
+    <button class="btn btn-primary" id="submitBtn">Submit Report</button>
+</div>
+
+<script>
+    document.getElementById('backBtn').addEventListener('click', async function() {
+        const offerId = sessionStorage.getItem('offerId')
+        await access(`/applications/applicants/${offerId}`, "GET")
+    })
+
+    document.getElementById('submitBtn').addEventListener('click', async function() {
+        const overallGrade = document.getElementById('overall_grade').value
+        const technicalGrade = document.getElementById('technical_grade').value
+        const communicationGrade = document.getElementById('communication_grade').value
+        const comment = document.getElementById('comment').value
+        const offerId = sessionStorage.getItem('offerId')
+        const studentId = sessionStorage.getItem('studentId')
+        
+        const studentReport = {
+            overall_grade: overallGrade,
+            technical_grade: technicalGrade,
+            communication_grade: communicationGrade,
+            comment: comment,
+            offer_id: offerId,
+            student_id: studentId,
+        }
+        console.log("Creating student report...")
+        console.log(studentReport)
+        
+        await access("/student-reports", "POST", studentReport)
+    })  
+</script>
 
 {% endblock %}
