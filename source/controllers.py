@@ -732,8 +732,7 @@ async def motivational_letter_delete_controller(student_id: int, current_user) -
 
 # Student Report controllers
 
-
-async def student_report_post_controller(student_report: StudentReport, current_user) -> None:
+async def upsert_student_report(student_report: StudentReport, current_user, is_update: bool) -> None:
     pool = async_pool()
     async with (
         pool.connection() as conn,
@@ -747,11 +746,16 @@ async def student_report_post_controller(student_report: StudentReport, current_
             raise HTTPException(status.HTTP_404_NOT_FOUND)
         
         # Confirm if the current user has access to this operation
-        # company_id = record["company_id"]
-        # authorize_user(company_id, current_user, CompanyInDB)
+        company_id = record["company_id"]
+        authorize_user(company_id, current_user, CompanyInDB)
 
-        # Insert the new student report
-        query = insert_student_report_query()
+        # Insert or update the student report
+        query = (
+            update_student_report_query() 
+            if is_update 
+            else insert_student_report_query()
+        )
+        
         await conn.execute(query, [
             student_report.student_id,
             student_report.offer_id,
@@ -760,35 +764,14 @@ async def student_report_post_controller(student_report: StudentReport, current_
             student_report.communication_grade,
             student_report.comment,
         ])
+
+
+async def student_report_post_controller(student_report: StudentReport, current_user) -> None:
+    await upsert_student_report(student_report, current_user, is_update=False)
 
 
 async def student_report_put_controller(student_report: StudentReport, current_user) -> None:
-    pool = async_pool()
-    async with (
-        pool.connection() as conn,
-        conn.cursor(row_factory=dict_row) as cur
-    ):
-        # Verify that a company exists for the offer id
-        query = select_offer_company_id_query()
-        await cur.execute(query, [student_report.offer_id])
-        record = await cur.fetchone()
-        if record is None:
-            raise HTTPException(status.HTTP_404_NOT_FOUND)
-        
-        # Confirm if the current user has access to this operation
-        # company_id = record["company_id"]
-        # authorize_user(company_id, current_user, CompanyInDB)
-
-        # Insert the updated student report
-        query = update_student_report_query()
-        await conn.execute(query, [
-            student_report.student_id,
-            student_report.offer_id,
-            student_report.overall_grade,
-            student_report.technical_grade,
-            student_report.communication_grade,
-            student_report.comment,
-        ])
+    await upsert_student_report(student_report, current_user, is_update=True)
 
 
 async def student_report_delete_controller(student_id: int, offer_id: int, current_user):
@@ -805,8 +788,8 @@ async def student_report_delete_controller(student_id: int, offer_id: int, curre
             raise HTTPException(status.HTTP_404_NOT_FOUND)
         
         # Confirm if the current user has access to this operation
-        # company_id = record["company_id"]
-        # authorize_user(company_id, current_user, CompanyInDB)
+        company_id = record["company_id"]
+        authorize_user(company_id, current_user, CompanyInDB)
 
         # Delete the student report
         query = delete_student_report_query()
