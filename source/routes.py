@@ -569,7 +569,7 @@ async def student_report_delete(
 async def student_report_create(request: Request):
     return templates.TemplateResponse(
         "student-report-form.html", 
-        {"request": request}
+        {"request": request, "is_create": True}
     )
 
 
@@ -579,6 +579,7 @@ async def student_report_edit(request: Request, student_id: int, offer_id: int):
     return templates.TemplateResponse("student-report-form.html", {
         "request": request,
         "student_report": student_report,
+        "is_create": False,
     })
 
 

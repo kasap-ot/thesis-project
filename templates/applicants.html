@@ -66,36 +66,32 @@
         </li>
 
         {% for student in students %}
-        {% set status = student.status %}
-        {% set action_button_class = 'student-btn' %}
-        {% set action_button_id = 'studentBtn-' ~ student.id %}
-        {% set action_button_text = 'View' %}
-        
-        {% if status == 'WAITING' %}
-        {% set list_item_color = 'warning' %}
-        
-        {% elif status == 'ACCEPTED' %}
-        {% set list_item_color = 'success' %}
-        
-        {% elif status == 'REJECTED' %}
-        {% set list_item_color = 'danger' %}
-
-        {% elif status == 'ONGOING' %}
-        {% set list_item_color = 'success' %}
-
-        {% elif status == 'COMPLETED' %}
-        {% set list_item_color = 'success' %}
-        {% set action_button_class = 'create-student-report-btn' %}
-        {% set action_button_id = 'createStudentReportBtn-' ~ student.id %}
-        {% set action_button_text = 'Create Report' %}
-
-        {% elif status == 'ARCHIVED' %}
-        {% set list_item_color = 'success' %}
-        {% set action_button_class = 'view-student-report-btn' %}
-        {% set action_button_id = 'viewStudentReportBtn-' ~ student.id %}
-        {% set action_button_text = 'View Report' %}
-        
-        {% endif %}
+            {% set status = student.status %}
+            {% set action_button_class = 'student-btn' %}
+            {% set action_button_id = 'studentBtn-' ~ student.id %}
+            {% set action_button_text = 'View' %}
+            {% set action_icon = 'bi-eye-fill' %}
+            
+            {% if status == 'WAITING' %}
+                {% set list_item_color = 'warning' %}
+            {% elif status == 'ACCEPTED' %}
+                {% set list_item_color = 'success' %}
+            {% elif status == 'REJECTED' %}
+                {% set list_item_color = 'danger' %}
+            {% elif status == 'ONGOING' %}
+                {% set list_item_color = 'success' %}
+            {% elif status == 'COMPLETED' %}
+                {% set list_item_color = 'success' %}
+                {% set action_button_class = 'create-student-report-btn' %}
+                {% set action_button_id = 'createStudentReportBtn-' ~ student.id %}
+                {% set action_button_text = 'Report' %}
+                {% set action_icon = 'bi-plus-circle' %}
+            {% elif status == 'ARCHIVED' %}
+                {% set list_item_color = 'success' %}
+                {% set action_button_class = 'view-student-report-btn' %}
+                {% set action_button_id = 'viewStudentReportBtn-' ~ student.id %}
+                {% set action_button_text = 'Report' %}
+            {% endif %}
 
         <li class="list-group-item list-group-item-action list-group-item-{{list_item_color}}">
             <div class="row text-center align-items-center">
@@ -107,7 +103,7 @@
                 <div class="col">{{status | capitalize}}</div>
                 <div class="col">
                     <button class="{{action_button_class}} btn btn-success btn-sm w-75 rounded-pill py-2" id="{{action_button_id}}">
-                        {{action_button_text}}
+                        <i class="bi {{action_icon}}"></i> {{action_button_text}}
                     </button>
                 </div>
             </div>
@@ -170,7 +166,7 @@
         })
 
         // Go to page for creating a student report
-        document.querySelectorAll(".createStudentReportBtn").forEach(button => {
+        document.querySelectorAll(".create-student-report-btn").forEach(button => {
             button.addEventListener("click", async () => {
                 const studentId = button.id.split("-")[1]
                 const offerId = sessionStorage.getItem("offerId")
@@ -180,7 +176,7 @@
         })
 
         // View the student report
-        document.querySelectorAll(".viewStudentReportBtn").forEach(button => {
+        document.querySelectorAll(".view-student-report-btn").forEach(button => {
             button.addEventListener("click", async () => {
                 const studentId = button.id.split("-")[1]
                 const offerId = sessionStorage.getItem("offerId")
