@@ -482,13 +482,21 @@ async def applicants_get(
 
 
 @router.patch("/applications/start-offer/{student_id}/{offer_id}")
-async def start_offer(student_id: int, offer_id: int):
-    await start_offer_controller(student_id, offer_id, "current_user")
+async def start_offer(
+    student_id: int, 
+    offer_id: int, 
+    current_user = Depends(get_current_user),
+):
+    await start_offer_controller(student_id, offer_id, current_user)
 
 
 @router.patch("/applications/complete-offer/{student_id}/{offer_id}")
-async def complete_offer(student_id: int, offer_id: int):
-    await complete_offer_controller(student_id, offer_id, "current_user")
+async def complete_offer(
+    student_id: int, 
+    offer_id: int, 
+    current_user = Depends(get_current_user),
+):
+    await complete_offer_controller(student_id, offer_id, current_user)
     
 
 # Routes for STATIC TEMPLATES
