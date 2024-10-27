@@ -67,26 +67,34 @@
 
         {% for student in students %}
         {% set status = student.status %}
+        {% set action_button_class = 'student-btn' %}
+        {% set action_button_id = 'studentBtn-' ~ student.id %}
+        {% set action_button_text = 'View' %}
         
         {% if status == 'WAITING' %}
         {% set list_item_color = 'warning' %}
-        {% set status_text = 'Waiting' %}
         
         {% elif status == 'ACCEPTED' %}
         {% set list_item_color = 'success' %}
-        {% set status_text = 'Accepted' %}
         
         {% elif status == 'REJECTED' %}
         {% set list_item_color = 'danger' %}
-        {% set status_text = 'Rejected' %}
 
         {% elif status == 'ONGOING' %}
         {% set list_item_color = 'success' %}
-        {% set status_text = 'Ongoing' %}
 
         {% elif status == 'COMPLETED' %}
         {% set list_item_color = 'success' %}
-        {% set status_text = 'Completed' %}
+        {% set action_button_class = 'create-student-report-btn' %}
+        {% set action_button_id = 'createStudentReportBtn-' ~ student.id %}
+        {% set action_button_text = 'Create Report' %}
+
+        {% elif status == 'ARCHIVED' %}
+        {% set list_item_color = 'success' %}
+        {% set action_button_class = 'view-student-report-btn' %}
+        {% set action_button_id = 'viewStudentReportBtn-' ~ student.id %}
+        {% set action_button_text = 'View Report' %}
+        
         {% endif %}
 
         <li class="list-group-item list-group-item-action list-group-item-{{list_item_color}}">
@@ -96,21 +104,11 @@
                 <div class="col">{{student.university}}</div>
                 <div class="col">{{student.major}}</div>
                 <div class="col">{{student.credits}}</div>
-                <div class="col">{{status_text}}</div>
+                <div class="col">{{status | capitalize}}</div>
                 <div class="col">
-                    {% if status == 'COMPLETED' %}
-                    <button 
-                        class="student-report-btn btn btn-success btn-sm w-75 rounded-pill py-2"
-                        id="studentReportBtn-{{student.id}}">
-                        Report
+                    <button class="{{action_button_class}} btn btn-success btn-sm w-75 rounded-pill py-2" id="{{action_button_id}}">
+                        {{action_button_text}}
                     </button>
-                    {% else %}
-                    <button 
-                        class="student-btn btn btn-success btn-sm w-75 rounded-pill py-2"
-                        id="studentBtn-{{student.id}}">
-                        View
-                    </button>
-                    {% endif %}
                 </div>
             </div>
         </li>
@@ -171,8 +169,18 @@
             })
         })
 
-        // Got to the page for creating the student report
-        document.querySelectorAll(".student-report-btn").forEach(button => {
+        // Go to page for creating a student report
+        document.querySelectorAll(".createStudentReportBtn").forEach(button => {
+            button.addEventListener("click", async () => {
+                const studentId = button.id.split("-")[1]
+                const offerId = sessionStorage.getItem("offerId")
+                sessionStorage.setItem("studentId", studentId)
+                await access(`/student-reports/create`, "GET")
+            })
+        })
+
+        // View the student report
+        document.querySelectorAll(".viewStudentReportBtn").forEach(button => {
             button.addEventListener("click", async () => {
                 const studentId = button.id.split("-")[1]
                 const offerId = sessionStorage.getItem("offerId")

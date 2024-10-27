@@ -76,7 +76,7 @@ from .database import async_pool
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import HTTPException, status
 from psycopg.rows import dict_row, class_row
-from psycopg import IntegrityError, AsyncCursor
+from psycopg import IntegrityError, AsyncCursor, AsyncConnection
 
 
 # Token controllers
@@ -610,23 +610,27 @@ async def applicants_get_controller(
     
 
 async def start_offer_controller(student_id: int, offer_id: int, current_user) -> None:
-    await update_application_status(
-        student_id,
-        offer_id,
-        Status.ACCEPTED,
-        Status.ONGOING,
-        # current_user,
-    )
+    async with async_pool().connection() as connection:
+        await update_application_status(
+            student_id,
+            offer_id,
+            Status.ACCEPTED,
+            Status.ONGOING,
+            connection,
+            current_user,
+        )
 
 
 async def complete_offer_controller(student_id: int, offer_id: int, current_user) -> None:
-    await update_application_status(
-        student_id,
-        offer_id,
-        Status.ONGOING,
-        Status.COMPLETED,
-        # current_user,
-    )
+    async with async_pool().connection() as connection:
+        await update_application_status(
+            student_id,
+            offer_id,
+            Status.ONGOING,
+            Status.COMPLETED,
+            connection,
+            current_user,
+        )
 
 
 async def update_application_status(
@@ -634,43 +638,40 @@ async def update_application_status(
     offer_id: int, 
     required_status: Status, 
     new_status: Status,
-    # current_user,
+    connection: AsyncConnection,
+    current_user,
 ) -> None:
     """
     Generic function for updating the status of an application.
     """
-    pool = async_pool()
-    async with (
-        pool.connection() as conn,
-        conn.cursor(row_factory=dict_row) as cur
-    ):
-        # Check that the offer exists in the system
-        query = select_offer_company_id_query()
-        await cur.execute(query, [offer_id])
-        record = await cur.fetchone()
+    cur = connection.cursor(row_factory=dict_row)
+    # Check that the offer exists in the system
+    query = select_offer_company_id_query()
+    await cur.execute(query, [offer_id])
+    record = await cur.fetchone()
 
-        if record is None:
-            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Offer not found.")
-        
-        # Check if the offer is owned by the logged in user
-        company_id = record["company_id"]
-        # authorize_user(company_id, current_user, CompanyInDB)
+    if record is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Offer not found.")
+    
+    # Check if the offer is owned by the logged in user
+    company_id = record["company_id"]
+    authorize_user(company_id, current_user, CompanyInDB)
 
-        # Check that the application has the correct current status
-        query = select_application_status_query()
-        await cur.execute(query, [student_id, offer_id])
-        record = await cur.fetchone()
-        current_status = record["status"]
+    # Check that the application has the correct current status
+    query = select_application_status_query()
+    await cur.execute(query, [student_id, offer_id])
+    record = await cur.fetchone()
+    current_status = record["status"] if record else None
 
-        if current_status != required_status.value:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT, 
-                detail=f"Cannot update offer with status {current_status}."
-            )
-        
-        # Update the status of the application
-        query = update_application_status_query(new_status)
-        await conn.execute(query, [student_id, offer_id])
+    if current_status != required_status.value:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, 
+            detail=f"Cannot update offer with status {current_status}."
+        )
+    
+    # Update the status of the application
+    query = update_application_status_query(new_status)
+    await connection.execute(query, [student_id, offer_id])
     
 
 # Motivational Letter controllers
@@ -736,8 +737,8 @@ async def motivational_letter_delete_controller(student_id: int, current_user) -
 async def upsert_student_report(student_report: StudentReport, current_user, is_update: bool) -> None:
     pool = async_pool()
     async with (
-        pool.connection() as conn,
-        conn.cursor(row_factory=dict_row) as cur
+        pool.connection() as connection,
+        connection.cursor(row_factory=dict_row) as cur
     ):
         # Verify that a company exists for the offer id
         query = select_offer_company_id_query()
@@ -751,13 +752,20 @@ async def upsert_student_report(student_report: StudentReport, current_user, is_
         authorize_user(company_id, current_user, CompanyInDB)
 
         # Insert or update the student report
-        query = (
-            update_student_report_query() 
-            if is_update 
-            else insert_student_report_query()
-        )
+        if is_update:
+            query = update_student_report_query()
+        else:
+            query = insert_student_report_query()
+            await update_application_status(
+                student_report.student_id,
+                student_report.offer_id,
+                Status.COMPLETED,
+                Status.ARCHIVED,
+                connection,
+                current_user,
+            )
         
-        await conn.execute(query, [
+        await connection.execute(query, [
             student_report.student_id,
             student_report.offer_id,
             student_report.overall_grade,
@@ -778,8 +786,8 @@ async def student_report_put_controller(student_report: StudentReport, current_u
 async def student_report_delete_controller(student_id: int, offer_id: int, current_user):
     pool = async_pool()
     async with (
-        pool.connection() as conn,
-        conn.cursor(row_factory=dict_row) as cur
+        pool.connection() as connection,
+        connection.cursor(row_factory=dict_row) as cur
     ):
         # Verify that a company exists for the offer id
         query = select_offer_company_id_query()
@@ -794,7 +802,17 @@ async def student_report_delete_controller(student_id: int, offer_id: int, curre
 
         # Delete the student report
         query = delete_student_report_query()
-        await conn.execute(query, [student_id, offer_id])
+        await connection.execute(query, [student_id, offer_id])
+
+        # update application status from archived to completed
+        await update_application_status(
+            student_id,
+            offer_id,
+            Status.ARCHIVED,
+            Status.COMPLETED,
+            connection,
+            current_user,
+        )
 
 
 async def student_report_get_controller(student_id: int, offer_id: int) -> StudentReport:

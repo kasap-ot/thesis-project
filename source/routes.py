@@ -567,7 +567,19 @@ async def student_report_delete(
 
 @router.get("/student-reports/create")
 async def student_report_create(request: Request):
-    return templates.TemplateResponse("student-report-edit.html", {"request": request})
+    return templates.TemplateResponse(
+        "student-report-form.html", 
+        {"request": request}
+    )
+
+
+@router.get("/student-reports/edit/{student_id}/{offer_id}")
+async def student_report_edit(request: Request, student_id: int, offer_id: int):
+    student_report = await student_report_get_controller(student_id, offer_id)
+    return templates.TemplateResponse("student-report-form.html", {
+        "request": request,
+        "student_report": student_report,
+    })
 
 
 @router.get("/student-reports/{student_id}/{offer_id}")
