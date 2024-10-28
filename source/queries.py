@@ -368,7 +368,10 @@ def select_student_report_query() -> LiteralString:
 
 def select_student_reports_query() -> LiteralString:
     return (
-        "SELECT * "
-        "FROM student_reports "
-        "WHERE student_id = %s;"
+        "SELECT sr.overall_grade, sr.technical_grade, sr.communication_grade, sr.comment, "
+        "o.num_weeks, o.field, c.name as company_name "
+        "FROM student_reports sr "
+        "JOIN offers o ON sr.offer_id = o.id "
+        "JOIN companies c ON o.company_id = c.id "
+        "WHERE sr.student_id = %s;"
     )

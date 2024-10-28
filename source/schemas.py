@@ -195,13 +195,23 @@ class StudentReport(BaseModel):
     comment: str
 
 
+class StudentReportDisplay(BaseModel):
+    overall_grade: int
+    technical_grade: int
+    communication_grade: int
+    comment: str
+    field: str
+    num_weeks: int
+    company_name: str
+
+
 # STUDENT PROFILE SCHEMAS
 
 
 class StudentProfileRead(StudentRead):
     experiences: list[ExperienceRead]
     subjects: list[Subject]
-    reports: list[StudentReport]
+    reports: list[StudentReportDisplay]
 
 
 class StudentProfileUpdate(StudentUpdate):

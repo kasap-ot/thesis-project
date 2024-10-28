@@ -100,13 +100,30 @@
 
             <hr class="mt-4">
             <h5 class="my-4 fs-4">PAST REPORTS</h5>
-
-            <!-- loop through all reports and display them -->
             {% for report in student.reports %}
-            <div class="mt-2">Overall Grade: {{report.overall_grade}}</div>
-            <div class="mt-2">Technical Grade: {{report.technical_grade}}</div>
-            <div class="mt-2">Communication Grade: {{report.communication_grade}}</div>
-            <div class="mt-2">Report: {{report.comment}}</div>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Company</th>
+                        <th>Field</th>
+                        <th>Duration (weeks)</th>
+                        <th>Overall Grade</th>
+                        <th>Technical Grade</th>
+                        <th>Communication Grade</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{report.company_name}}</td>
+                        <td>{{report.field}}</td>
+                        <td>{{report.num_weeks}}</td>
+                        <td>{{report.overall_grade}}</td>
+                        <td>{{report.technical_grade}}</td>
+                        <td>{{report.communication_grade}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div>{{report.comment}}</div>
 
             <hr class="mt-4">
             {% endfor %}
