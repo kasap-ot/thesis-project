@@ -77,6 +77,8 @@
             <hr class="mt-4">
             <h5 class="my-4 fs-4">SUBJECTS</h5>
 
+            {% if student.subjects %}
+
             <table class="table table-striped">
                 <thead>
                     <tr>
@@ -93,6 +95,21 @@
                     {% endfor %}
                 </tbody>
             </table>
+
+            {% endif %}
+
+            <hr class="mt-4">
+            <h5 class="my-4 fs-4">PAST REPORTS</h5>
+
+            <!-- loop through all reports and display them -->
+            {% for report in student.reports %}
+            <div class="mt-2">Overall Grade: {{report.overall_grade}}</div>
+            <div class="mt-2">Technical Grade: {{report.technical_grade}}</div>
+            <div class="mt-2">Communication Grade: {{report.communication_grade}}</div>
+            <div class="mt-2">Report: {{report.comment}}</div>
+
+            <hr class="mt-4">
+            {% endfor %}
         </div>
     </div>
 

@@ -364,3 +364,11 @@ def select_student_report_query() -> LiteralString:
         "FROM student_reports "
         "WHERE student_id = %s AND offer_id = %s;"
     )
+
+
+def select_student_reports_query() -> LiteralString:
+    return (
+        "SELECT * "
+        "FROM student_reports "
+        "WHERE student_id = %s;"
+    )

@@ -56,6 +56,7 @@ from .queries import (
     select_offers_query,
     select_student_experiences_query,
     select_student_report_query,
+    select_student_reports_query,
     select_student_with_motivational_letter_query,
     select_student_subjects_query,
     select_subject_student_id_query,
@@ -149,17 +150,25 @@ async def student_profile_get_controller(student_id: int) -> StudentProfileRead:
         letter = MotivationalLetterRead(**student)
         student = StudentRead(**student, motivational_letter=letter)
 
+        # Fetch student experiences
         sql = select_student_experiences_query()
         await cur.execute(sql, [student_id])
         experiences: list = await cur.fetchall()
 
+        # Fetch student subjects
         sql = select_student_subjects_query()
         await cur.execute(sql, [student_id])
         subjects: list = await cur.fetchall()
 
+        # Fetch student reports
+        sql = select_student_reports_query()
+        await cur.execute(sql, [student_id])
+        reports: list = await cur.fetchall()
+
         student_profile = StudentProfileRead(
             subjects=subjects,
             experiences=experiences, 
+            reports=reports,
             **student.model_dump(),
         )
 

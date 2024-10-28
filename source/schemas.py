@@ -183,23 +183,6 @@ class SubjectFilter(BaseModel):
     grade: int
 
 
-# STUDENT PROFILE SCHEMAS
-
-
-class StudentProfileRead(StudentRead):
-    experiences: list[ExperienceRead]
-    subjects: list[Subject]
-
-
-class StudentProfileUpdate(StudentUpdate):
-    experiences: list[ExperienceUpdate]
-
-
-class ApplicantRead(StudentBase):
-    id: int
-    status: str
-
-
 # STUDENT REPORT SCHEMAS
 
 
@@ -210,3 +193,21 @@ class StudentReport(BaseModel):
     technical_grade: int
     communication_grade: int
     comment: str
+
+
+# STUDENT PROFILE SCHEMAS
+
+
+class StudentProfileRead(StudentRead):
+    experiences: list[ExperienceRead]
+    subjects: list[Subject]
+    reports: list[StudentReport]
+
+
+class StudentProfileUpdate(StudentUpdate):
+    experiences: list[ExperienceUpdate]
+
+
+class ApplicantRead(StudentBase):
+    id: int
+    status: str
