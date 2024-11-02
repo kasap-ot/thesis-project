@@ -35,12 +35,8 @@
                     <input type="text" class="form-control" id="max-credits-search">
                 </div>
                 <div class="col d-flex justify-content-center">
-                    <button 
-                        class="btn btn-success px-3 d-flex justify-content-center" 
-                        id="subjects-btn" 
-                        style="width: 70%;"
-                        data-bs-toggle="modal"
-                        data-bs-target="#subjectsModal">
+                    <button class="btn btn-success px-3 d-flex justify-content-center" id="subjects-btn"
+                        style="width: 70%;" data-bs-toggle="modal" data-bs-target="#subjectsModal">
                         <i class="bi bi-card-list"></i>
                     </button>
                 </div>
@@ -66,32 +62,19 @@
         </li>
 
         {% for student in students %}
-            {% set status = student.status %}
-            {% set action_button_class = 'student-btn' %}
-            {% set action_button_id = 'studentBtn-' ~ student.id %}
-            {% set action_button_text = 'View' %}
-            {% set action_icon = 'bi-eye-fill' %}
-            
-            {% if status == 'WAITING' %}
-                {% set list_item_color = 'warning' %}
-            {% elif status == 'ACCEPTED' %}
-                {% set list_item_color = 'success' %}
-            {% elif status == 'REJECTED' %}
-                {% set list_item_color = 'danger' %}
-            {% elif status == 'ONGOING' %}
-                {% set list_item_color = 'success' %}
-            {% elif status == 'COMPLETED' %}
-                {% set list_item_color = 'success' %}
-                {% set action_button_class = 'create-student-report-btn' %}
-                {% set action_button_id = 'createStudentReportBtn-' ~ student.id %}
-                {% set action_button_text = 'Report' %}
-                {% set action_icon = 'bi-plus-circle' %}
-            {% elif status == 'ARCHIVED' %}
-                {% set list_item_color = 'success' %}
-                {% set action_button_class = 'view-student-report-btn' %}
-                {% set action_button_id = 'viewStudentReportBtn-' ~ student.id %}
-                {% set action_button_text = 'Report' %}
-            {% endif %}
+        {% set status = student.status %}
+
+        {% if status == 'WAITING' %}
+        {% set list_item_color = 'warning' %}
+        {% elif status == 'ACCEPTED' %}
+        {% set list_item_color = 'success' %}
+        {% elif status == 'REJECTED' %}
+        {% set list_item_color = 'danger' %}
+        {% elif status == 'ONGOING' %}
+        {% set list_item_color = 'success' %}
+        {% elif status == 'COMPLETED' %}
+        {% set list_item_color = 'success' %}
+        {% endif %}
 
         <li class="list-group-item list-group-item-action list-group-item-{{list_item_color}}">
             <div class="row text-center align-items-center">
@@ -102,9 +85,22 @@
                 <div class="col">{{student.credits}}</div>
                 <div class="col">{{status | capitalize}}</div>
                 <div class="col">
-                    <button class="{{action_button_class}} btn btn-success btn-sm w-75 rounded-pill py-2" id="{{action_button_id}}">
-                        <i class="bi {{action_icon}}"></i> {{action_button_text}}
+                    {% if status == 'COMPLETED' %}
+                    <div class="dropdown">
+                        <button class="btn btn-{{list_item_color}} dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            Reports
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item student-report-btn" id="student-report-{{student.id}}">Student Report</a></li>
+                            <li><a class="dropdown-item company-report-btn" id="company-report-{{student.id}}">Company Report</a></li>
+                        </ul>
+                    </div>
+                    {% else %}
+                    <button class="student-btn btn btn-success btn-sm w-75 rounded-pill py-2"
+                        id="student-btn-{{student.id}}">
+                        <i class="bi bi-eye-fill"></i> View
                     </button>
+                    {% endif %}
                 </div>
             </div>
         </li>
@@ -124,10 +120,12 @@
                             <template id="subjectTemplate">
                                 <div class="subject-entry row mb-3">
                                     <div class="col">
-                                        <input type="text" class="form-control" name="subjectName" placeholder="Subject Name" required>
+                                        <input type="text" class="form-control" name="subjectName"
+                                            placeholder="Subject Name" required>
                                     </div>
                                     <div class="col">
-                                        <input type="text" class="form-control" name="subjectGrade" placeholder="Min. Grade" required>
+                                        <input type="text" class="form-control" name="subjectGrade"
+                                            placeholder="Min. Grade" required>
                                     </div>
                                     <div class="col-auto">
                                         <button type="button" class="btn btn-danger remove-subject-btn">Remove</button>
@@ -160,28 +158,23 @@
         // View the applicant's profile
         document.querySelectorAll(".student-btn").forEach(button => {
             button.addEventListener("click", async () => {
-                const studentId = button.id.split("-")[1]
+                const studentId = button.id.split("-")[2]
                 await access(`/students/profile/${studentId}`, "GET")
             })
         })
 
-        // Go to page for creating a student report
-        document.querySelectorAll(".create-student-report-btn").forEach(button => {
+        document.querySelectorAll(".student-report-btn").forEach(button => {
             button.addEventListener("click", async () => {
-                const studentId = button.id.split("-")[1]
-                const offerId = sessionStorage.getItem("offerId")
-                sessionStorage.setItem("studentId", studentId)
-                await access(`/student-reports/create`, "GET")
-            })
-        })
-
-        // View the student report
-        document.querySelectorAll(".view-student-report-btn").forEach(button => {
-            button.addEventListener("click", async () => {
-                const studentId = button.id.split("-")[1]
+                const studentId = button.id.split("-").at(-1)
                 const offerId = sessionStorage.getItem("offerId")
                 sessionStorage.setItem("studentId", studentId)
                 await access(`/student-reports/${studentId}/${offerId}`, "GET")
+            })
+        })
+
+        document.querySelectorAll(".company-report-btn").forEach(button => {
+            button.addEventListener("click", () => {
+                // To be implemented...
             })
         })
 
@@ -207,7 +200,7 @@
 
             const filters = {
                 university: university,
-                min_gpa: minGPA, 
+                min_gpa: minGPA,
                 max_gpa: maxGPA,
                 min_credits: minCredits,
                 max_credits: maxCredits,
@@ -228,7 +221,7 @@
         })
 
         // Remove a subject row
-        document.getElementById('subjectList').addEventListener('click', function(e) {
+        document.getElementById('subjectList').addEventListener('click', function (e) {
             if (e.target && e.target.matches('.remove-subject-btn')) {
                 e.target.closest('.subject-entry').remove()
             }
@@ -245,13 +238,11 @@
         function createSearchUrl(baseUrl, filters) {
             const queryString = new URLSearchParams();
             for (const [key, value] of Object.entries(filters)) {
-                if (value) 
-                {
-                    if (Array.isArray(value) && key === "subjects" && value.length > 0) 
-                    {
+                if (value) {
+                    if (Array.isArray(value) && key === "subjects" && value.length > 0) {
                         const formattedSubjects = value.map(subject => `${subject.name},${subject.grade}`).join(';');
                         queryString.append(key, formattedSubjects);
-                    } 
+                    }
                     else if (!Array.isArray(value) && key != "subjects")
                         queryString.append(key, value);
                 }

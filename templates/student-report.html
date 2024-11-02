@@ -7,6 +7,16 @@
 </div>
 
 <div class="bg-light p-4">
+    {% if student_report is none %}
+        
+        <div class="alert alert-warning">
+            No report has been generated for the student.
+        </div>
+        <button class="btn btn-primary" id="createReportBtn">Create</button>
+        <button class="btn btn-secondary" id="backBtn">Back</button>
+    
+    {% else %}
+
     <div class="row mb-3">
         <div class="col-md-4">
             <div class="bg-primary fs-5 p-3 text-white rounded-pill text-center">
@@ -61,19 +71,19 @@
             </div>
         </div>
     </div>
-
-    <script>
-        document.getElementById('confirmDeleteBtn').addEventListener('click', async function () {
-            const offerId = sessionStorage.getItem('offerId');
-            const studentId = sessionStorage.getItem('studentId');
-            await access(`/student-reports/${studentId}/${offerId}`, "DELETE");
-            await access(`/applications/applicants/${offerId}`, "GET");
-        });
-    </script>
+    
+    {% endif %}
 </div>
 
 
 <script>
+    document.getElementById('confirmDeleteBtn').addEventListener('click', async function () {
+        const offerId = sessionStorage.getItem('offerId');
+        const studentId = sessionStorage.getItem('studentId');
+        await access(`/student-reports/${studentId}/${offerId}`, "DELETE");
+        await access(`/applications/applicants/${offerId}`, "GET");
+    });
+
     document.getElementById('backBtn').addEventListener('click', async function () {
         const offerId = sessionStorage.getItem('offerId')
         await access(`/applications/applicants/${offerId}`, "GET")
