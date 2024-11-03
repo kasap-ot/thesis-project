@@ -45,6 +45,7 @@ from .controllers import (
 )
 from .security import get_current_user, Token
 from .schemas import (
+    CompanyReport,
     StudentCreate,
     StudentUpdate,
     CompanyCreate,
@@ -599,3 +600,32 @@ async def student_report_get(request: Request, student_id: int, offer_id: int, c
         "student_report": student_report,
         "current_user": current_user,
     })
+
+
+# Routes for COMPANY REPORTS
+
+
+# post company report
+@router.post("/company-reports", status_code=status.HTTP_201_CREATED)
+async def company_report_post(company_report: CompanyReport, current_user = Depends(get_current_user)):
+    ...
+
+# put company report
+@router.put("/company-reports", status_code=status.HTTP_201_CREATED)
+async def company_report_put(company_report: CompanyReport, current_user = Depends(get_current_user)):
+    ...
+
+# delete company reports
+@router.delete("/company-reports/{student_id}/{offer_id}")
+async def company_report_delete(student_id: int, offer_id: int, current_user = Depends(get_current_user)):
+    ...
+
+# get view-company report page
+@router.get("/company-reports/{student_id}/{offer_id}")
+async def company_report_get(student_id: int, offer_id: int, request: Request):
+    ...
+
+# get edit-company report page
+@router.get("/company-reports/edit/{student_id}/{offer_id}")
+async def company_report_edit_get(student_id: int, offer_id: int, request: Request):
+    ...
