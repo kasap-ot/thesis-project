@@ -11,6 +11,10 @@ from .controllers import (
     application_cancel_controller,
     application_post_controller,
     applications_get_controller,
+    company_report_delete_controller,
+    company_report_get_controller,
+    company_report_post_controller,
+    company_report_put_controller,
     complete_offer_controller,
     experience_delete_controller,
     experience_patch_controller,
@@ -605,27 +609,34 @@ async def student_report_get(request: Request, student_id: int, offer_id: int, c
 # Routes for COMPANY REPORTS
 
 
-# post company report
 @router.post("/company-reports", status_code=status.HTTP_201_CREATED)
 async def company_report_post(company_report: CompanyReport, current_user = Depends(get_current_user)):
-    ...
+    await company_report_post_controller(company_report, current_user)
 
-# put company report
+
 @router.put("/company-reports", status_code=status.HTTP_201_CREATED)
 async def company_report_put(company_report: CompanyReport, current_user = Depends(get_current_user)):
-    ...
+    await company_report_put_controller(company_report, current_user)
 
-# delete company reports
+
 @router.delete("/company-reports/{student_id}/{offer_id}")
 async def company_report_delete(student_id: int, offer_id: int, current_user = Depends(get_current_user)):
-    ...
+    await company_report_delete_controller(student_id, offer_id, current_user)
 
-# get view-company report page
+
 @router.get("/company-reports/{student_id}/{offer_id}")
 async def company_report_get(student_id: int, offer_id: int, request: Request):
-    ...
+    company_report = await company_report_get_controller(student_id, offer_id)
+    return templates.TemplateResponse("company-report.html", {
+        "request": request,
+        "company_report": company_report,
+    })
 
-# get edit-company report page
+
 @router.get("/company-reports/edit/{student_id}/{offer_id}")
 async def company_report_edit_get(student_id: int, offer_id: int, request: Request):
-    ...
+    company_report = await company_report_get_controller(student_id, offer_id)
+    return templates.TemplateResponse("company-report-form.html", {
+        "request": request,
+        "company_report": company_report,
+    })
