@@ -221,3 +221,15 @@ class StudentProfileUpdate(StudentUpdate):
 class ApplicantRead(StudentBase):
     id: int
     status: str
+
+
+# COMPANY REPORT SCHEMAS
+
+
+class CompanyReport(BaseModel):
+    student_id: int
+    offer_id: int
+    mentorship_grade: int
+    work_environment_grade: int
+    benefits_grade: int
+    comment: str

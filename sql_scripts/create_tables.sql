@@ -95,3 +95,18 @@ CREATE TABLE IF NOT EXISTS student_reports (
     comment TEXT NOT NULL,
     PRIMARY KEY (student_id, offer_id)
 )
+
+
+-- Add table for company reports
+
+CREATE DOMAIN report_grade INT CHECK (VALUE BETWEEN 1 AND 10);
+
+CREATE TABLE IF NOT EXISTS company_reports (
+    student_id INT REFERENCES students(id),
+    offer_id INT REFERENCES offers(id),
+    mentorship_grade report_grade NOT NULL,
+    work_environment_grade report_grade NOT NULL,
+    benefits_grade report_grade NOT NULL,
+    comment TEXT NOT NULL,
+    PRIMARY KEY (student_id, offer_id)
+)
