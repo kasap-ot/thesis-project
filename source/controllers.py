@@ -765,14 +765,6 @@ async def upsert_student_report(student_report: StudentReport, current_user, is_
             query = update_student_report_query()
         else:
             query = insert_student_report_query()
-            await update_application_status(
-                student_report.student_id,
-                student_report.offer_id,
-                Status.COMPLETED,
-                Status.ARCHIVED,
-                connection,
-                current_user,
-            )
         
         await connection.execute(query, [
             student_report.student_id,
@@ -813,25 +805,11 @@ async def student_report_delete_controller(student_id: int, offer_id: int, curre
         query = delete_student_report_query()
         await connection.execute(query, [student_id, offer_id])
 
-        # update application status from archived to completed
-        await update_application_status(
-            student_id,
-            offer_id,
-            Status.ARCHIVED,
-            Status.COMPLETED,
-            connection,
-            current_user,
-        )
 
-
-async def student_report_get_controller(student_id: int, offer_id: int) -> StudentReport:
+async def student_report_get_controller(student_id: int, offer_id: int) -> Optional[StudentReport]:
     async with async_pool().connection() as conn:
         cur = conn.cursor(row_factory=class_row(StudentReport))
         query = select_student_report_query()
         await cur.execute(query, [student_id, offer_id])
         record = await cur.fetchone()
-
-        if record is None:
-            raise HTTPException(status.HTTP_404_NOT_FOUND)
-        
         return record

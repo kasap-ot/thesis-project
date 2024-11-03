@@ -7,7 +7,6 @@ class Status(Enum):
     REJECTED = "REJECTED"
     ONGOING = "ONGOING"
     COMPLETED = "COMPLETED"
-    ARCHIVED = "ARCHIVED"
 
 
 class UserType(Enum):

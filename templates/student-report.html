@@ -12,8 +12,14 @@
         <div class="alert alert-warning">
             No report has been generated for the student.
         </div>
-        <button class="btn btn-primary" id="createReportBtn">Create</button>
         <button class="btn btn-secondary" id="backBtn">Back</button>
+        <button class="btn btn-primary" id="createReportBtn">Create</button>
+
+    <script>
+        document.getElementById("createReportBtn").addEventListener("click", async () => {
+            await access("/student-reports/create", "GET")
+        })
+    </script>
     
     {% else %}
 
@@ -71,28 +77,30 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.getElementById('confirmDeleteBtn').addEventListener('click', async function () {
+            const offerId = sessionStorage.getItem('offerId');
+            const studentId = sessionStorage.getItem('studentId');
+            await access(`/student-reports/${studentId}/${offerId}`, "DELETE");
+            await access(`/applications/applicants/${offerId}`, "GET");
+        });
+
+        document.getElementById('editBtn').addEventListener('click', async function () {
+            const offerId = sessionStorage.getItem('offerId')
+            const studentId = sessionStorage.getItem('studentId')
+            await access(`/student-reports/edit/${studentId}/${offerId}`, "GET")
+        })
+    </script>
     
     {% endif %}
 </div>
 
 
 <script>
-    document.getElementById('confirmDeleteBtn').addEventListener('click', async function () {
-        const offerId = sessionStorage.getItem('offerId');
-        const studentId = sessionStorage.getItem('studentId');
-        await access(`/student-reports/${studentId}/${offerId}`, "DELETE");
-        await access(`/applications/applicants/${offerId}`, "GET");
-    });
-
     document.getElementById('backBtn').addEventListener('click', async function () {
         const offerId = sessionStorage.getItem('offerId')
         await access(`/applications/applicants/${offerId}`, "GET")
-    })
-
-    document.getElementById('editBtn').addEventListener('click', async function () {
-        const offerId = sessionStorage.getItem('offerId')
-        const studentId = sessionStorage.getItem('studentId')
-        await access(`/student-reports/edit/${studentId}/${offerId}`, "GET")
     })
 </script>
 

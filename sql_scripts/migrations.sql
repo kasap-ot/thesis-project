@@ -94,7 +94,7 @@ ADD COLUMN status status NOT NULL;
 -- dropped procedures and functions
 
 
--- Add values to the status-domain - ONGOING, COMPLETED, and ARCHIVED
+-- Add values to the status-domain - ONGOING and COMPLETED
 
 ALTER DOMAIN status DROP CONSTRAINT status_check;
 ALTER DOMAIN status ADD CONSTRAINT status_check
