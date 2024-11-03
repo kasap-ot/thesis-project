@@ -330,7 +330,7 @@ def delete_motivational_letter_query() -> LiteralString:
 def insert_student_report_query() -> LiteralString:
     return (
         "INSERT INTO student_reports "
-        "(student_id, offer_id, overall_grade, technical_grade, communication_grade, comment) "
+        "(overall_grade, technical_grade, communication_grade, comment, student_id, offer_id) "
         "VALUES (%s, %s, %s, %s, %s, %s);"
     )
 
@@ -338,12 +338,11 @@ def insert_student_report_query() -> LiteralString:
 def update_student_report_query() -> LiteralString:
     return (
         "UPDATE student_reports SET "
-        "student_id = %s, "
-        "offer_id = %s, "
         "overall_grade = %s, "
         "technical_grade = %s, "
         "communication_grade = %s, "
-        "comment = %s;"
+        "comment = %s "
+        "WHERE student_id = %s AND offer_id = %s"
     )
 
 
@@ -375,3 +374,30 @@ def select_student_reports_query() -> LiteralString:
         "JOIN companies c ON o.company_id = c.id "
         "WHERE sr.student_id = %s;"
     )
+
+
+def update_company_report_query() -> LiteralString:
+    return (
+        "UPDATE company_reports SET "
+        "mentorship_grade = %s, "
+        "work_environment_grade = %s, "
+        "benefits_grade = %s, "
+        "comment = %s "
+        "WHERE student_id = %s AND offer_id = %s"
+    )
+
+
+def insert_company_report_query():
+    return (
+        "INSERT INTO company_reports "
+        "(mentorship_grade, work_environment_grade, benefits_grade, comment, student_id, offer_id) "
+        "VALUES (%s, %s, %s, %s, %s, %s)"
+    )
+
+
+def delete_company_report_query() -> LiteralString:
+    return "DELETE FROM company_reports WHERE student_id = %s AND offer_id = %s"
+
+
+def select_company_report_query() -> LiteralString:
+    return "SELECT * FROM company_reports WHERE student_id = %s AND offer_id = %s"

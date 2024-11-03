@@ -1,6 +1,7 @@
 from typing import Optional
 from .schemas import (
     ApplicantRead,
+    CompanyReport,
     ExperienceCreate,
     ExperienceUpdate,
     MotivationalLetterRead,
@@ -30,6 +31,7 @@ from .queries import (
     accept_student_query,
     delete_application_query,
     delete_company_query,
+    delete_company_report_query,
     delete_experience_query,
     delete_motivational_letter_query,
     delete_student_query,
@@ -37,6 +39,7 @@ from .queries import (
     delete_subject_query,
     insert_application_query,
     insert_company_query,
+    insert_company_report_query,
     insert_experience_query,
     insert_motivational_letter_query,
     insert_offer_query,
@@ -49,6 +52,7 @@ from .queries import (
     select_applications_query,
     select_company_offers_query,
     select_company_query,
+    select_company_report_query,
     select_experience_student_id_query,
     select_motivational_letter_student_id_query,
     select_offer_company_id_query,
@@ -63,6 +67,7 @@ from .queries import (
     update_application_status_query,
     update_applications_waiting_query,
     update_company_query,
+    update_company_report_query,
     update_experience_query,
     update_motivational_letter_query,
     update_offer_company_id_null_query,
@@ -749,30 +754,27 @@ async def upsert_student_report(student_report: StudentReport, current_user, is_
         pool.connection() as connection,
         connection.cursor(row_factory=dict_row) as cur
     ):
-        # Verify that a company exists for the offer id
         query = select_offer_company_id_query()
         await cur.execute(query, [student_report.offer_id])
         record = await cur.fetchone()
         if record is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND)
         
-        # Confirm if the current user has access to this operation
         company_id = record["company_id"]
         authorize_user(company_id, current_user, CompanyInDB)
 
-        # Insert or update the student report
         if is_update:
             query = update_student_report_query()
         else:
             query = insert_student_report_query()
         
         await connection.execute(query, [
-            student_report.student_id,
-            student_report.offer_id,
             student_report.overall_grade,
             student_report.technical_grade,
             student_report.communication_grade,
             student_report.comment,
+            student_report.student_id,
+            student_report.offer_id,
         ])
 
 
@@ -790,18 +792,15 @@ async def student_report_delete_controller(student_id: int, offer_id: int, curre
         pool.connection() as connection,
         connection.cursor(row_factory=dict_row) as cur
     ):
-        # Verify that a company exists for the offer id
         query = select_offer_company_id_query()
         await cur.execute(query, [offer_id])
         record = await cur.fetchone()
         if record is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND)
         
-        # Confirm if the current user has access to this operation
         company_id = record["company_id"]
         authorize_user(company_id, current_user, CompanyInDB)
 
-        # Delete the student report
         query = delete_student_report_query()
         await connection.execute(query, [student_id, offer_id])
 
@@ -810,6 +809,74 @@ async def student_report_get_controller(student_id: int, offer_id: int) -> Optio
     async with async_pool().connection() as conn:
         cur = conn.cursor(row_factory=class_row(StudentReport))
         query = select_student_report_query()
+        await cur.execute(query, [student_id, offer_id])
+        record = await cur.fetchone()
+        return record
+    
+
+# Company Report controllers
+
+async def upsert_company_report(company_report: CompanyReport, current_user, is_update: bool):
+    pool = async_pool()
+    async with (
+        pool.connection() as connection,
+        connection.cursor(row_factory=dict_row) as cur
+    ):
+        query = select_offer_company_id_query()
+        await cur.execute(query, [company_report.offer_id])
+        record = await cur.fetchone()
+        if record is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
+        
+        company_id = record["company_id"]
+        authorize_user(company_id, current_user, StudentInDB)
+
+        if is_update:
+            query = update_company_report_query()
+        else:
+            query = insert_company_report_query()
+        
+        await connection.execute(query, [
+            company_report.mentorship_grade,
+            company_report.work_environment_grade,
+            company_report.benefits_grade,
+            company_report.comment,
+            company_report.student_id,
+            company_report.offer_id,
+        ])
+
+
+async def company_report_post_controller(company_report: CompanyReport, current_user) -> None:
+    await upsert_company_report(company_report, current_user, is_update=False)
+
+
+async def company_report_put_controller(company_report: CompanyReport, current_user) -> None:
+    await upsert_company_report(company_report, current_user, is_update=True)
+
+
+async def company_report_delete_controller(student_id: int, offer_id: int, current_user) -> None:
+    pool = async_pool()
+    async with (
+        pool.connection() as connection,
+        connection.cursor(row_factory=dict_row) as cur
+    ):
+        query = select_offer_company_id_query()
+        await cur.execute(query, [offer_id])
+        record = await cur.fetchone()
+        if record is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
+        
+        company_id = record["company_id"]
+        authorize_user(company_id, current_user, StudentInDB)
+
+        query = delete_company_report_query()
+        await connection.execute(query, [student_id, offer_id])
+
+
+async def company_report_get_controller(student_id: int, offer_id: int) -> Optional[CompanyReport]:
+    async with async_pool().connection() as conn:
+        cur = conn.cursor(row_factory=class_row(CompanyReport))
+        query = select_company_report_query()
         await cur.execute(query, [student_id, offer_id])
         record = await cur.fetchone()
         return record
