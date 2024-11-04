@@ -16,9 +16,10 @@
         <button class="btn btn-primary" id="createReportBtn">Create</button>
 
     <script>
-        // <!-- TODO - review URL -->
         document.getElementById("createReportBtn").addEventListener("click", async () => {
-            await access("/company-reports/create", "GET")
+            const studentId = sessionStorage.getItem("studentId")
+            const offerId = sessionStorage.getItem("offerId")
+            await access(`/company-reports/edit/${studentId}/${offerId}`, "GET")
         })
     </script>
     
@@ -81,16 +82,16 @@
 
     <script>
         document.getElementById('confirmDeleteBtn').addEventListener('click', async function () {
-            // <!-- TODO - review URL and params -->
-            const companyId = sessionStorage.getItem('companyId')
-            await access(`/company-reports/${companyId}`, "DELETE")
-            await access(`/company-dashboard/${companyId}`, "GET")
+            const studentId = sessionStorage.getItem('studentId')
+            const offerId = sessionStorage.getItem('offerId')
+            await access(`/company-reports/${studentId}/${offerId}`, "DELETE")
+            await access(`/applications/view/${studentId}`, "GET")
         });
 
         document.getElementById('editBtn').addEventListener('click', async function () {
-            // <!-- TODO - review URL and params -->
-            const companyId = sessionStorage.getItem('companyId')
-            await access(`/company-reports/edit/${companyId}`, "GET")
+            const studentId = sessionStorage.getItem('studentId')
+            const offerId = sessionStorage.getItem('offerId')
+            await access(`/company-reports/edit/${studentId}/${offerId}`, "GET")
         })
     </script>
     
@@ -98,10 +99,9 @@
 </div>
 
 <script>
-    document.getElementById('backBtn').addEventListener('click', async function () {
-        // <!-- TODO - review URL and params -->
-        const companyId = sessionStorage.getItem('companyId')
-        await access(`/company-dashboard/${companyId}`, "GET")
+    document.getElementById("backBtn").addEventListener("click", async function () {
+        const studentId = sessionStorage.getItem("studentId")
+        await access(`/applications/view/${studentId}`, "GET")
     })
 </script>
 

@@ -636,6 +636,8 @@ async def company_report_get(student_id: int, offer_id: int, request: Request):
 @router.get("/company-reports/edit/{student_id}/{offer_id}")
 async def company_report_edit_get(student_id: int, offer_id: int, request: Request):
     company_report = await company_report_get_controller(student_id, offer_id)
+    print("COMPANY REPORT")
+    print(company_report)
     return templates.TemplateResponse("company-report-form.html", {
         "request": request,
         "company_report": company_report,

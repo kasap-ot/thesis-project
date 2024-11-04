@@ -821,15 +821,8 @@ async def upsert_company_report(company_report: CompanyReport, current_user, is_
     async with (
         pool.connection() as connection,
         connection.cursor(row_factory=dict_row) as cur
-    ):
-        query = select_offer_company_id_query()
-        await cur.execute(query, [company_report.offer_id])
-        record = await cur.fetchone()
-        if record is None:
-            raise HTTPException(status.HTTP_404_NOT_FOUND)
-        
-        company_id = record["company_id"]
-        authorize_user(company_id, current_user, StudentInDB)
+    ):  
+        authorize_user(company_report.student_id, current_user, StudentInDB)
 
         if is_update:
             query = update_company_report_query()
@@ -859,16 +852,8 @@ async def company_report_delete_controller(student_id: int, offer_id: int, curre
     async with (
         pool.connection() as connection,
         connection.cursor(row_factory=dict_row) as cur
-    ):
-        query = select_offer_company_id_query()
-        await cur.execute(query, [offer_id])
-        record = await cur.fetchone()
-        if record is None:
-            raise HTTPException(status.HTTP_404_NOT_FOUND)
-        
-        company_id = record["company_id"]
-        authorize_user(company_id, current_user, StudentInDB)
-
+    ):  
+        authorize_user(student_id, current_user, StudentInDB)
         query = delete_company_report_query()
         await connection.execute(query, [student_id, offer_id])
 
