@@ -1,65 +1,55 @@
-{% extends 'base.html' %}
+{% macro no_student_report() %}
+    <div class="alert alert-warning">
+        No report has been generated for the student.
+    </div>
+{% endmacro %}
 
-{% block content %}
 
-<div class="bg-primary p-3 text-white rounded fw-bold fs-4">
-    Student Report Information
-</div>
+{% macro back_button(user_type) %}
+    <button class="btn btn-secondary" id="backBtn">Back</button>
+    {% if user_type == "company" %}
+        <script>
+            document.getElementById('backBtn').addEventListener('click', async function () {
+                const offerId = sessionStorage.getItem('offerId')
+                await access(`/applications/applicants/${offerId}`, "GET")
+            })
+        </script>
+    {% elif user_type == "student" %}
+        <script>
+            document.getElementById("backBtn").addEventListener("click", async () => {
+                const studentId = sessionStorage.getItem("studentId")
+                await access(`/applications/view/${studentId}`, "GET")
+            })
+        </script>
+    {% endif %}
+{% endmacro %}
 
-<div class="bg-light p-4">
-    {% if student_report is none %}
-        
-        <div class="alert alert-warning">
-            No report has been generated for the student.
-        </div>
-        <button class="btn btn-secondary" id="backBtn">Back</button>
-        <button class="btn btn-primary" id="createReportBtn">Create</button>
 
+{% macro create_button() %}
+    <button class="btn btn-primary" id="createReportBtn">Create</button>
     <script>
         document.getElementById("createReportBtn").addEventListener("click", async () => {
             await access("/student-reports/create", "GET")
         })
     </script>
-    
-    {% else %}
+{% endmacro %}
 
-    <div class="row mb-3">
-        <div class="col-md-4">
-            <div class="bg-primary fs-5 p-3 text-white rounded-pill text-center">
-                <label class="form-label fw-bold">Overall Grade:</label>
-                <div>{{ student_report.overall_grade }}</div>
-            </div>
-        </div>
 
-        <div class="col-md-4">
-            <div class="bg-primary fs-5 p-3 text-white rounded-pill text-center">
-                <label class="form-label fw-bold">Technical Grade:</label>
-                <div>{{ student_report.technical_grade }}</div>
-            </div>
-        </div>
+{% macro edit_button() %}
+    <button class="btn btn-success" id="editBtn">Edit</button>
+    <script>
+        document.getElementById('editBtn').addEventListener('click', async function () {
+            const offerId = sessionStorage.getItem('offerId')
+            const studentId = sessionStorage.getItem('studentId')
+            await access(`/student-reports/edit/${studentId}/${offerId}`, "GET")
+        })
+    </script>
+{% endmacro %}
 
-        <div class="col-md-4">
-            <div class="bg-primary fs-5 p-3 text-white rounded-pill text-center">
-                <label class="form-label fw-bold">Communication Grade:</label>
-                <div>{{ student_report.communication_grade }}</div>
-            </div>
-        </div>
-    </div>
 
-    <div class="mb-3">
-        <label class="form-label fs-4">Report:</label>
-        <div>{{ student_report.comment }}</div>
-    </div>
+{% macro delete_button() %}
+    <button class="btn btn-danger" id="deleteBtn" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete</button>
 
-    <div class="d-flex justify-content-between">
-        <button class="btn btn-secondary" id="backBtn">Back</button>
-        <div>
-            <button class="btn btn-success" id="editBtn">Edit</button>
-            <button class="btn btn-danger" id="deleteBtn" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete</button>
-        </div>
-    </div>
-
-    <!-- Delete Confirmation Modal -->
     <div class="modal fade" id="deleteModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -85,23 +75,84 @@
             await access(`/student-reports/${studentId}/${offerId}`, "DELETE");
             await access(`/applications/applicants/${offerId}`, "GET");
         });
-
-        document.getElementById('editBtn').addEventListener('click', async function () {
-            const offerId = sessionStorage.getItem('offerId')
-            const studentId = sessionStorage.getItem('studentId')
-            await access(`/student-reports/edit/${studentId}/${offerId}`, "GET")
-        })
     </script>
-    
-    {% endif %}
+{% endmacro %}
+
+
+{% macro student_report_display(overall_grade, technical_grade, communication_grade, comment) %}
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <div class="bg-primary fs-5 p-3 text-white rounded-pill text-center">
+                <label class="form-label fw-bold">Overall Grade:</label>
+                <div>{{ overall_grade }}</div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="bg-primary fs-5 p-3 text-white rounded-pill text-center">
+                <label class="form-label fw-bold">Technical Grade:</label>
+                <div>{{ technical_grade }}</div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="bg-primary fs-5 p-3 text-white rounded-pill text-center">
+                <label class="form-label fw-bold">Communication Grade:</label>
+                <div>{{ communication_grade }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label fs-4">Report:</label>
+        <div>{{ comment }}</div>
+    </div>
+{% endmacro %}
+
+
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="bg-primary p-3 text-white rounded fw-bold fs-4">
+    Student Report Information
 </div>
 
+<div class="bg-light p-4">
+    {% if current_user.num_employees and student_report is none %}
+        {{ no_student_report() }}
+        {{ back_button("company") }}
+        {{ create_button() }}
 
-<script>
-    document.getElementById('backBtn').addEventListener('click', async function () {
-        const offerId = sessionStorage.getItem('offerId')
-        await access(`/applications/applicants/${offerId}`, "GET")
-    })
-</script>
+    {% elif current_user.university and student_report is none %}
+        {{ no_student_report() }}
+        {{ back_button("student") }}
+
+    {% elif current_user.university and student_report %}
+        {{
+            student_report_display(
+                student_report.overall_grade,
+                student_report.technical_grade,
+                student_report.communication_grade,
+                student_report.comment,
+            )
+        }}
+        {{ back_button("student") }}
+
+    {% elif current_user.num_employees and student_report %}
+        {{
+            student_report_display(
+                student_report.overall_grade,
+                student_report.technical_grade,
+                student_report.communication_grade,
+                student_report.comment,
+            ) 
+        }}
+        {{ back_button("company") }}
+        {{ edit_button() }}
+        {{ delete_button() }}
+    {% endif %}
+
+</div>
 
 {% endblock %}

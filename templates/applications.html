@@ -143,7 +143,11 @@
 
     document.querySelectorAll(".student-report-btn").forEach(async button => {
         button.addEventListener("click", async () => {
-            // TODO...
+            const offerId = button.dataset.offerId
+            const studentId = button.dataset.studentId
+            sessionStorage.setItem("studentId", studentId)
+            sessionStorage.setItem("offerId", offerId)
+            await access(`/student-reports/${studentId}/${offerId}`, "GET")
         })
     })
 </script>
