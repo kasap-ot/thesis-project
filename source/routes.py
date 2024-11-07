@@ -625,11 +625,12 @@ async def company_report_delete(student_id: int, offer_id: int, current_user = D
 
 
 @router.get("/company-reports/{student_id}/{offer_id}")
-async def company_report_get(student_id: int, offer_id: int, request: Request):
+async def company_report_get(student_id: int, offer_id: int, request: Request, current_user = Depends(get_current_user)):
     company_report = await company_report_get_controller(student_id, offer_id)
     return templates.TemplateResponse("company-report.html", {
         "request": request,
         "company_report": company_report,
+        "current_user": current_user,
     })
 
 
