@@ -53,6 +53,28 @@ class StudentInDB(StudentBase):
     hashed_password: str
 
 
+# COMPANY REPORT SCHEMAS
+
+
+class CompanyReport(BaseModel):
+    student_id: int
+    offer_id: int
+    mentorship_grade: int
+    work_environment_grade: int
+    benefits_grade: int
+    comment: str
+
+
+class CompanyReportDisplay(BaseModel):
+    mentorship_grade: int
+    work_environment_grade: int
+    benefits_grade: int
+    comment: str
+    field: str
+    num_weeks: int
+    student_name: str
+
+
 # COMPANY SCHEMAS
 
 
@@ -80,6 +102,10 @@ class CompanyUpdate(CompanyBase):
 class CompanyInDB(CompanyBase):
     id: int
     hashed_password: str
+
+
+class CompanyProfile(CompanyRead):
+    reports: list[CompanyReportDisplay]
 
 
 # OFFER SCHEMAS
@@ -221,15 +247,3 @@ class StudentProfileUpdate(StudentUpdate):
 class ApplicantRead(StudentBase):
     id: int
     status: str
-
-
-# COMPANY REPORT SCHEMAS
-
-
-class CompanyReport(BaseModel):
-    student_id: int
-    offer_id: int
-    mentorship_grade: int
-    work_environment_grade: int
-    benefits_grade: int
-    comment: str

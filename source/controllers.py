@@ -1,6 +1,7 @@
 from typing import Optional
 from .schemas import (
     ApplicantRead,
+    CompanyProfile,
     CompanyReport,
     ExperienceCreate,
     ExperienceUpdate,
@@ -53,6 +54,7 @@ from .queries import (
     select_company_offers_query,
     select_company_query,
     select_company_report_query,
+    select_company_reports_query,
     select_experience_student_id_query,
     select_motivational_letter_student_id_query,
     select_offer_company_id_query,
@@ -208,6 +210,31 @@ async def company_get_controller(company_id: int) -> CompanyRead:
         if record is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND)
         return record
+    
+
+async def company_profile_get_controller(company_id: int) -> CompanyProfile:
+    async with async_pool().connection() as conn:
+        conn: AsyncConnection
+        cursor = conn.cursor(row_factory=dict_row)
+        
+        # Fetch the company row
+        query = select_company_query()
+        await cursor.execute(query, [company_id])
+        company = await cursor.fetchone()
+        if company is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
+        
+        # Fetch the company report rows
+        query = select_company_reports_query()
+        await cursor.execute(query, [company_id])
+        reports: list = await cursor.fetchall()
+
+        company_profile = CompanyProfile(
+            reports=reports,
+            **company,
+        )
+
+        return company_profile
     
 
 async def company_offers_get_controller(company_id: int) -> list[OfferRead]:

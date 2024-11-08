@@ -18,13 +18,13 @@
             <hr>
 
             <div class="row text-center column-gap-5 m-3 fs-5">
-                <div class="col bg-primary-subtle text-dark shadow rounded-pill p-2 border border-primary border-3">
+                <div class="col bg-primary text-white shadow rounded-pill p-2">
                     <strong>Field:</strong><br>{{ company.field }}
                 </div>
-                <div class="col bg-primary-subtle text-dark shadow rounded-pill p-2 border border-primary border-3">
+                <div class="col bg-primary text-white shadow rounded-pill p-2">
                     <strong>Number of employees:</strong><br>{{ company.num_employees }}
                 </div>
-                <div class="col bg-primary-subtle text-dark shadow rounded-pill p-2 border border-primary border-3">
+                <div class="col bg-primary text-white shadow rounded-pill p-2">
                     <strong>Founding year:</strong><br>{{ company.year_founded }}
                 </div>
             </div>
@@ -39,6 +39,46 @@
             <h5 class="mt-4">Website</h5>
 
             <a href="https://www.wikipedia.org/">{{ company.website }}</a>
+
+            <!-- 
+                mentorship_grade
+                work_environment_grade
+                benefits_grade
+                comment
+                field
+                num_weeks
+                student_name
+            -->
+
+            <hr class="mt-4">
+            <h5 class="my-4 fs-4">PAST REPORTS</h5>
+            {% for report in company.reports %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Field</th>
+                        <th>Duration (weeks)</th>
+                        <th>Mentorship Grade</th>
+                        <th>Work Environment Grade</th>
+                        <th>Benefits Grade</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{report.student_name}}</td>
+                        <td>{{report.field}}</td>
+                        <td>{{report.num_weeks}}</td>
+                        <td>{{report.mentorship_grade}}</td>
+                        <td>{{report.work_environment_grade}}</td>
+                        <td>{{report.benefits_grade}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div>{{report.comment}}</div>
+
+            <hr class="mt-4">
+            {% endfor %}
         </div>
     </div>
 

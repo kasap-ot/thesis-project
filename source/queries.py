@@ -376,6 +376,20 @@ def select_student_reports_query() -> LiteralString:
     )
 
 
+def select_company_reports_query() -> LiteralString:
+    return (
+        "SELECT "
+            "cr.comment, cr.mentorship_grade, "
+            "cr.work_environment_grade, cr.benefits_grade, "
+            "o.field, o.num_weeks, s.name as student_name "
+        "FROM company_reports cr "
+        "JOIN students s  ON cr.student_id = s.id "
+        "JOIN offers o    ON cr.offer_id = o.id "
+        "JOIN companies c ON o.company_id = c.id "
+        "WHERE c.id = %s;"
+    )
+
+
 def update_company_report_query() -> LiteralString:
     return (
         "UPDATE company_reports SET "

@@ -11,6 +11,7 @@ from .controllers import (
     application_cancel_controller,
     application_post_controller,
     applications_get_controller,
+    company_profile_get_controller,
     company_report_delete_controller,
     company_report_get_controller,
     company_report_post_controller,
@@ -149,12 +150,12 @@ async def student_profile_edit_get(
 @router.post("/companies", status_code=status.HTTP_201_CREATED)
 async def company_post(c: CompanyCreate):
     await company_post_controller(c)
-    # TODO - Add email background taks
+    # TODO - Add email background task
 
 
 @router.get("/companies/{company_id}", response_class=HTMLResponse)
 async def company_get(request: Request, company_id: int, current_user = Depends(get_current_user)):
-    company = await company_get_controller(company_id)
+    company = await company_profile_get_controller(company_id)
     return templates.TemplateResponse(
         "company-profile.html", 
         {"request":  request, "company": company, "current_user": current_user}
