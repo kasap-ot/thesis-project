@@ -44,8 +44,14 @@ class StudentRead(StudentBase):
     motivational_letter: MotivationalLetterRead
 
 
-class StudentUpdate(StudentBase):
-    ...
+class StudentUpdate(BaseModel):
+    email: str
+    name: str
+    date_of_birth: date
+    university: str
+    major: str
+    credits: int
+    gpa: float
 
 
 class StudentInDB(StudentBase):
