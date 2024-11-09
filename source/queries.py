@@ -426,6 +426,6 @@ def update_profile_picture_path_query(user_type: UserType) -> LiteralString:
 
 def delete_profile_picture_path_query(user_type: UserType) -> LiteralString:
     if user_type == UserType.STUDENT:
-        return "UPDATE students SET NULL = %s WHERE id = %s;"
+        return "UPDATE students SET profile_picture_path = NULL WHERE id = %s;"
     elif user_type == UserType.COMPANY:
-        return "UPDATE companies SET NULL = %s WHERE id = %s;"
+        return "UPDATE companies SET profile_picture_path = NULL WHERE id = %s;"

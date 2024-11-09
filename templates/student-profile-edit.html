@@ -320,11 +320,13 @@
             <div class="bg-primary-subtle p-3 rounded shadow">
                 <img src="{{ url_for('static', path='img/no-image.PNG') }}" alt="Some image"
                     class="img-fluid shadow rounded mb-2 w-100">
-                <input type="file" class="form-control shadow">
+                <input type="file" class="form-control shadow" id="profilePictureInput" accept=".jpg">
 
-                <button class="btn btn-primary mt-3">
-                    <i class="bi bi-check-circle-fill"> Confirm</i>
-                </button>
+                <div class="mt-3">
+                    <button class="btn btn-primary" id="add-profile-picture-btn">ADD</button>
+                    <button class="btn btn-primary" id="update-profile-picture-btn">UPDATE</button>
+                    <button class="btn btn-primary" id="delete-profile-picture-btn">DELETE</button>
+                </div>
             </div>
         </div>
     </div>
@@ -423,6 +425,27 @@
         }
         await access('/subjects', 'POST', newSubject)
         await access('/students/profile/{{student_profile.id}}/edit', 'GET')
+    })
+
+    document.getElementById("add-profile-picture-btn").addEventListener("click", async () => {
+        const picture = document.getElementById("profilePictureInput").files[0]
+        const formData = new FormData()
+        formData.append("picture", picture)
+        await access("/profile-picture", "POST", formData, true)
+        await access("/students/profile/{{student_profile.id}}/edit", "GET")
+    })
+    
+    document.getElementById("update-profile-picture-btn").addEventListener("click", async () => {
+        const picture = document.getElementById("profilePictureInput").files[0]
+        const formData = new FormData()
+        formData.append("picture", picture)
+        await access("/profile-picture", "PUT", formData, true)
+        await access("/students/profile/{{student_profile.id}}/edit", "GET")
+    })
+
+    document.getElementById("delete-profile-picture-btn").addEventListener("click", async () => {
+        await access("/profile-picture", "DELETE")
+        await access("/students/profile/{{student_profile.id}}/edit", "GET")
     })
 </script>
 
