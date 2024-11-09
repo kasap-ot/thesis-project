@@ -105,3 +105,12 @@ CHECK (VALUE IN (
     'ONGOING', 
     'COMPLETED'
 ));
+
+
+--  Add profile picture path column for students and companies
+
+ALTER TABLE students 
+ADD COLUMN profile_picture_path VARCHAR(255) DEFAULT NULL;
+
+ALTER TABLE companies
+ADD COLUMN profile_picture_path VARCHAR(255) DEFAULT NULL;
