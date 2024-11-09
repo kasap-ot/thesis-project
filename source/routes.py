@@ -26,6 +26,9 @@ from .controllers import (
     offer_delete_controller,
     offer_file_post_controller,
     offer_put_controller,
+    profile_picture_delete_controller,
+    profile_picture_post_controller,
+    profile_picture_put_controller,
     start_offer_controller,
     student_report_get_controller,
     subject_delete_controller,
@@ -65,7 +68,7 @@ from .schemas import (
     StudentReport,
 )
 from .enums import MAX_CREDITS, MAX_GPA, MIN_CREDITS, MIN_GPA, Status, Environment
-from fastapi import APIRouter, BackgroundTasks, File, Form, status, Depends, Request
+from fastapi import APIRouter, BackgroundTasks, File, Form, UploadFile, status, Depends, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
@@ -645,3 +648,21 @@ async def company_report_edit_get(student_id: int, offer_id: int, request: Reque
         "request": request,
         "company_report": company_report,
     })
+
+
+# Routes for IMAGES
+
+
+@router.post("/profile-picture", status_code=status.HTTP_201_CREATED)
+async def profile_picture_post(picture: UploadFile, current_user = Depends(get_current_user)):
+    await profile_picture_post_controller(picture, current_user)
+
+
+@router.put("/profile-picture")
+async def profile_picture_put(picture: UploadFile, current_user = Depends(get_current_user)):
+    await profile_picture_put_controller(picture, current_user)
+
+
+@router.delete("/profile-picture")
+async def profile_picture_delete(current_user = Depends(get_current_user)):
+    await profile_picture_delete_controller(current_user)

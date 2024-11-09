@@ -1,11 +1,12 @@
 import re
+import os
 from io import BytesIO
 from pypdf import PdfReader
 import string
 import random
 from passlib.context import CryptContext
-from .schemas import OfferCreate
 from .enums import Region
+from .schemas import StudentInDB, CompanyInDB
 
 
 def extract_subjects_from(subjects_string: str) -> list[tuple[str, int]]:
@@ -104,3 +105,23 @@ def convert_to_region_id(region: str) -> int:
         return Region.AMERICAS.value
     else:
         raise Exception(f"Invalid region provided: {region}")
+    
+
+def generate_profile_picture_file_name(current_user) -> str:
+    if isinstance(current_user, StudentInDB):
+        return f"student_{current_user.id}.jpg"
+    elif isinstance(current_user, CompanyInDB):
+        return f"company_{current_user.id}.jpg"
+    else:
+        raise TypeError(f"User must be of type student or company. Got: {type(current_user)}")
+    
+
+def generate_profile_picture_file_path(current_user) -> str:
+    file_name = generate_profile_picture_file_name(current_user)
+    file_path = os.path.join(PROFILE_IMAGES_FOLDER, file_name)
+    return file_path
+
+# Constants
+
+
+PROFILE_IMAGES_FOLDER = "static/img"

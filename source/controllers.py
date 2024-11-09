@@ -1,3 +1,5 @@
+import os
+import shutil
 from typing import Optional
 from .schemas import (
     ApplicantRead,
@@ -27,6 +29,7 @@ from .schemas import (
 from .utils import (
     extract_file_offer,
     extract_subjects_from,
+    generate_profile_picture_file_path,
 )
 from .queries import (
     accept_student_query,
@@ -82,7 +85,7 @@ from .enums import Status, UserType
 from .security import Token, get_token, pwd_context, authorize_user
 from .database import async_pool
 from fastapi.security import OAuth2PasswordRequestForm
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, UploadFile
 from psycopg.rows import dict_row, class_row
 from psycopg import IntegrityError, AsyncCursor, AsyncConnection
 
@@ -892,3 +895,53 @@ async def company_report_get_controller(student_id: int, offer_id: int) -> Optio
         await cur.execute(query, [student_id, offer_id])
         record = await cur.fetchone()
         return record
+
+
+# Profile Picture controllers
+
+
+async def profile_picture_post_controller(picture: UploadFile, current_user):
+    await save_profile_picture(picture, current_user)
+    # TODO: Save the file path in the database
+
+
+async def profile_picture_put_controller(picture: UploadFile, current_user):
+    await save_profile_picture(picture, current_user)
+
+
+async def save_profile_picture(picture: UploadFile, current_user) -> str:
+    file_path = generate_profile_picture_file_path(current_user)
+
+    try:
+        with open(file_path, "wb") as writer:
+            shutil.copyfileobj(picture.file, writer)
+    except Exception as exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Could not save file: {exception}",
+        )
+    finally:
+        await picture.close()
+
+    return file_path
+
+
+async def profile_picture_delete_controller(current_user):
+    file_path = generate_profile_picture_file_path(current_user)
+
+    if not os.path.isfile(file_path):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"File does not exists: {file_path}",
+        )
+    
+    try:
+        os.remove(file_path)
+
+    except Exception as exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Could not delete file: {exception}",
+        )
+    
+    # TODO: Remove the file path from the database

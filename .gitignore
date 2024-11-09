@@ -3,6 +3,7 @@ __pycache__/
 commands.sh
 test.py
 test.sql
+test.*
 test/
 settings.json
 templates/test.html
