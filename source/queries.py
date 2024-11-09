@@ -1,5 +1,5 @@
 from typing import LiteralString, Optional
-from .enums import Status
+from .enums import Status, UserType
 
 
 # SQL query functions
@@ -415,3 +415,17 @@ def delete_company_report_query() -> LiteralString:
 
 def select_company_report_query() -> LiteralString:
     return "SELECT * FROM company_reports WHERE student_id = %s AND offer_id = %s"
+
+
+def update_profile_picture_path_query(user_type: UserType) -> LiteralString:
+    if user_type == UserType.STUDENT:
+        return "UPDATE students SET profile_picture_path = %s WHERE id = %s;"
+    elif user_type == UserType.COMPANY:
+        return "UPDATE companies SET profile_picture_path = %s WHERE id = %s;"
+    
+
+def delete_profile_picture_path_query(user_type: UserType) -> LiteralString:
+    if user_type == UserType.STUDENT:
+        return "UPDATE students SET NULL = %s WHERE id = %s;"
+    elif user_type == UserType.COMPANY:
+        return "UPDATE companies SET NULL = %s WHERE id = %s;"

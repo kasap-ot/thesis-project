@@ -1,5 +1,3 @@
-import os
-import shutil
 from typing import Optional
 from .schemas import (
     ApplicantRead,
@@ -27,9 +25,11 @@ from .schemas import (
     StudentReport,
 )
 from .utils import (
+    delete_profile_picture,
     extract_file_offer,
     extract_subjects_from,
-    generate_profile_picture_file_path,
+    extract_user_type,
+    save_profile_picture,
 )
 from .queries import (
     accept_student_query,
@@ -38,6 +38,7 @@ from .queries import (
     delete_company_report_query,
     delete_experience_query,
     delete_motivational_letter_query,
+    delete_profile_picture_path_query,
     delete_student_query,
     delete_student_report_query,
     delete_subject_query,
@@ -77,6 +78,7 @@ from .queries import (
     update_motivational_letter_query,
     update_offer_company_id_null_query,
     update_offer_query,
+    update_profile_picture_path_query,
     update_student_query,
     update_student_report_query,
     update_subject_query
@@ -900,48 +902,33 @@ async def company_report_get_controller(student_id: int, offer_id: int) -> Optio
 # Profile Picture controllers
 
 
-async def profile_picture_post_controller(picture: UploadFile, current_user):
+async def profile_picture_post_controller(picture: UploadFile, current_user) -> None:
+    file_path = await save_profile_picture(picture, current_user)
+    await save_profile_picture_path(current_user, file_path)
+
+
+async def profile_picture_delete_controller(current_user) -> None:
+    await delete_profile_picture(current_user)
+    await delete_profile_picture_path(current_user)
+
+
+async def profile_picture_put_controller(picture: UploadFile, current_user) -> None:
     await save_profile_picture(picture, current_user)
-    # TODO: Save the file path in the database
 
 
-async def profile_picture_put_controller(picture: UploadFile, current_user):
-    await save_profile_picture(picture, current_user)
-
-
-async def save_profile_picture(picture: UploadFile, current_user) -> str:
-    file_path = generate_profile_picture_file_path(current_user)
-
-    try:
-        with open(file_path, "wb") as writer:
-            shutil.copyfileobj(picture.file, writer)
-    except Exception as exception:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Could not save file: {exception}",
-        )
-    finally:
-        await picture.close()
-
-    return file_path
-
-
-async def profile_picture_delete_controller(current_user):
-    file_path = generate_profile_picture_file_path(current_user)
-
-    if not os.path.isfile(file_path):
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=f"File does not exists: {file_path}",
-        )
+async def save_profile_picture_path(current_user, file_path: str) -> None:
+    user_type = extract_user_type(current_user)
     
-    try:
-        os.remove(file_path)
+    async with async_pool().connection() as conn:
+        conn: AsyncConnection
+        query = update_profile_picture_path_query(user_type)
+        await conn.execute(query, [file_path, current_user.id])
 
-    except Exception as exception:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Could not delete file: {exception}",
-        )
-    
-    # TODO: Remove the file path from the database
+
+async def delete_profile_picture_path(current_user) -> None:
+    user_type = extract_user_type(current_user)
+
+    async with async_pool().connection() as conn:
+        conn: AsyncConnection
+        query = delete_profile_picture_path_query(user_type)
+        await conn.execute(query, [current_user.id])
