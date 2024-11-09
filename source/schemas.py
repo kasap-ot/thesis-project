@@ -42,6 +42,7 @@ class StudentCreate(StudentBase):
 class StudentRead(StudentBase):
     id: int
     motivational_letter: MotivationalLetterRead
+    profile_picture_path: Optional  [str]
 
 
 class StudentUpdate(BaseModel):

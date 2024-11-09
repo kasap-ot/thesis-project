@@ -318,8 +318,15 @@
         <div class="col-3 text-end">
             <p class="fs-5 mt-3 mb-3">Edit profile photo</p>
             <div class="bg-primary-subtle p-3 rounded shadow">
-                <img src="{{ url_for('static', path='img/no_image.PNG') }}" alt="Some image"
-                    class="img-fluid shadow rounded mb-2 w-100">
+                {% if student_profile.profile_picture_path %}
+                {% set path = student_profile.profile_picture_path | replace("static/", "") %}
+                
+                {% else %}
+                {% set path = "img/no_image.png" %}
+                
+                {% endif %}
+                {% set url_path = url_for("static", path=path) %}
+                <img src="{{ url_path }}" alt="Profile Picture" class="img-fluid shadow rounded mb-2 w-100">
                 <input type="file" class="form-control shadow" id="profilePictureInput" accept=".jpg">
 
                 <div class="mt-3">

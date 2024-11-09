@@ -120,8 +120,7 @@ def generate_profile_picture_file_name(current_user) -> str:
 
 def generate_profile_picture_file_path(current_user) -> str:
     file_name = generate_profile_picture_file_name(current_user)
-    file_path = os.path.join(PROFILE_IMAGES_FOLDER, file_name)
-    return file_path
+    return f"{PROFILE_IMAGES_FOLDER}/{file_name}"
 
 
 async def save_profile_picture(picture: UploadFile, current_user) -> str:

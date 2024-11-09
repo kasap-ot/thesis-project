@@ -119,12 +119,12 @@ async def student_delete(student_id: int, current_user = Depends(get_current_use
 
 @router.get("/students/profile/{student_id}", response_class=HTMLResponse)
 async def student_profile_get(request: Request, student_id: int, current_user = Depends(get_current_user)):
-    student = await student_profile_get_controller(student_id)
+    student_profile = await student_profile_get_controller(student_id)
     return templates.TemplateResponse(
         name = "student-profile.html",
         context = {
             "request": request, 
-            "student": student, 
+            "student_profile": student_profile, 
             "current_user": current_user
         },
     )
@@ -642,8 +642,6 @@ async def company_report_get(student_id: int, offer_id: int, request: Request, c
 @router.get("/company-reports/edit/{student_id}/{offer_id}")
 async def company_report_edit_get(student_id: int, offer_id: int, request: Request):
     company_report = await company_report_get_controller(student_id, offer_id)
-    print("COMPANY REPORT")
-    print(company_report)
     return templates.TemplateResponse("company-report-form.html", {
         "request": request,
         "company_report": company_report,
