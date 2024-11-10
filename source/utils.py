@@ -1,8 +1,5 @@
 import re
-import os
 from io import BytesIO
-import shutil
-from fastapi import HTTPException, UploadFile, status
 from pypdf import PdfReader
 import string
 import random
@@ -107,57 +104,7 @@ def convert_to_region_id(region: str) -> int:
         return Region.AMERICAS.value
     else:
         raise Exception(f"Invalid region provided: {region}")
-    
 
-def generate_profile_picture_file_name(current_user) -> str:
-    if isinstance(current_user, StudentInDB):
-        return f"student_{current_user.id}.jpg"
-    elif isinstance(current_user, CompanyInDB):
-        return f"company_{current_user.id}.jpg"
-    else:
-        raise TypeError(f"User must be of type student or company. Got: {type(current_user)}")
-    
-
-def generate_profile_picture_file_path(current_user) -> str:
-    file_name = generate_profile_picture_file_name(current_user)
-    return f"{PROFILE_IMAGES_FOLDER}/{file_name}"
-
-
-async def save_profile_picture(picture: UploadFile, current_user) -> str:
-    file_path = generate_profile_picture_file_path(current_user)
-
-    try:
-        with open(file_path, "wb") as writer:
-            shutil.copyfileobj(picture.file, writer)
-    except Exception as exception:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Could not save file: {exception}",
-        )
-    finally:
-        await picture.close()
-
-    return file_path
-
-
-async def delete_profile_picture(current_user):
-    file_path = generate_profile_picture_file_path(current_user)
-
-    if not os.path.isfile(file_path):
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=f"File does not exists: {file_path}",
-        )
-    
-    try:
-        os.remove(file_path)
-
-    except Exception as exception:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Could not delete file: {exception}",
-        )
-    
 
 def extract_user_type(current_user) -> UserType:
     if isinstance(current_user, StudentInDB):
@@ -167,9 +114,3 @@ def extract_user_type(current_user) -> UserType:
     else:
         raise Exception(f"User must be a student or company. Got: {type(current_user)}")
     return user_type
-
-
-# Constants
-
-
-PROFILE_IMAGES_FOLDER = "static/img"

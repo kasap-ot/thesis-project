@@ -1,0 +1,89 @@
+import os
+import time
+import shutil
+from fastapi import UploadFile, HTTPException, status
+from psycopg import AsyncConnection
+from .schemas import StudentInDB, CompanyInDB
+from .utils import extract_user_type
+from .database import async_pool
+from .queries import (
+    update_profile_picture_path_query, 
+    delete_profile_picture_path_query
+)
+
+
+PROFILE_IMAGES_FOLDER = "static/img"
+
+
+def generate_profile_picture_file_name(current_user) -> str:
+    if isinstance(current_user, StudentInDB):
+        file_name = f"student_{current_user.id}"
+    elif isinstance(current_user, CompanyInDB):
+        file_name = f"company_{current_user.id}"
+    else:
+        raise TypeError(f"User must be of type student or company. Got: {type(current_user)}")
+    
+    timestamp = time.time()
+    timestamp = str(timestamp).replace(".", "")
+
+    file_name = f"{file_name}_{timestamp}.jpg"
+    return file_name
+    
+
+def generate_profile_picture_file_path(current_user) -> str:
+    file_name = generate_profile_picture_file_name(current_user)
+    return f"{PROFILE_IMAGES_FOLDER}/{file_name}"
+
+
+async def save_profile_picture(picture: UploadFile, current_user) -> str:
+    file_path = generate_profile_picture_file_path(current_user)
+
+    try:
+        with open(file_path, "wb") as writer:
+            shutil.copyfileobj(picture.file, writer)
+    except Exception as exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Could not save file: {exception}",
+        )
+    finally:
+        await picture.close()
+
+    return file_path
+
+
+async def delete_profile_picture(current_user):
+    file_path = generate_profile_picture_file_path(current_user)
+
+    if not os.path.isfile(file_path):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"File does not exists: {file_path}",
+        )
+    
+    try:
+        os.remove(file_path)
+
+    except Exception as exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Could not delete file: {exception}",
+        )
+    
+
+async def save_profile_picture_path(current_user, file_path: str) -> None:
+    user_type = extract_user_type(current_user)
+    
+    async with async_pool().connection() as conn:
+        conn: AsyncConnection
+        query = update_profile_picture_path_query(user_type)
+        await conn.execute(query, [file_path, current_user.id])
+
+
+async def delete_profile_picture_path(current_user) -> None:
+    user_type = extract_user_type(current_user)
+
+    async with async_pool().connection() as conn:
+        conn: AsyncConnection
+        query = delete_profile_picture_path_query(user_type)
+        await conn.execute(query, [current_user.id])

@@ -24,12 +24,15 @@ from .schemas import (
     MotivationalLetter,
     StudentReport,
 )
-from .utils import (
+from .profile_pictures import (
     delete_profile_picture,
+    save_profile_picture,
+    save_profile_picture_path,
+    delete_profile_picture_path,
+)
+from .utils import (
     extract_file_offer,
     extract_subjects_from,
-    extract_user_type,
-    save_profile_picture,
 )
 from .queries import (
     accept_student_query,
@@ -38,7 +41,6 @@ from .queries import (
     delete_company_report_query,
     delete_experience_query,
     delete_motivational_letter_query,
-    delete_profile_picture_path_query,
     delete_student_query,
     delete_student_report_query,
     delete_subject_query,
@@ -78,7 +80,6 @@ from .queries import (
     update_motivational_letter_query,
     update_offer_company_id_null_query,
     update_offer_query,
-    update_profile_picture_path_query,
     update_student_query,
     update_student_report_query,
     update_subject_query
@@ -914,21 +915,3 @@ async def profile_picture_delete_controller(current_user) -> None:
 
 async def profile_picture_put_controller(picture: UploadFile, current_user) -> None:
     await save_profile_picture(picture, current_user)
-
-
-async def save_profile_picture_path(current_user, file_path: str) -> None:
-    user_type = extract_user_type(current_user)
-    
-    async with async_pool().connection() as conn:
-        conn: AsyncConnection
-        query = update_profile_picture_path_query(user_type)
-        await conn.execute(query, [file_path, current_user.id])
-
-
-async def delete_profile_picture_path(current_user) -> None:
-    user_type = extract_user_type(current_user)
-
-    async with async_pool().connection() as conn:
-        conn: AsyncConnection
-        query = delete_profile_picture_path_query(user_type)
-        await conn.execute(query, [current_user.id])
