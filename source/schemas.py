@@ -100,6 +100,7 @@ class CompanyCreate(CompanyBase):
 
 class CompanyRead(CompanyBase):
     id: int
+    profile_picture_path: Optional[str]
 
 
 class CompanyUpdate(CompanyBase):

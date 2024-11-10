@@ -11,7 +11,16 @@
                     <h5>{{ company.email }}</h5>
                 </div>
                 <div class="col d-flex align-items-center justify-content-end me-3">
-                    <img src="{{ url_for('static', path='img/no_image.png') }}" alt="Some image" height="120rem">
+                    {% if company.profile_picture_path %}
+                    {% set path = company.profile_picture_path | replace("static/", "") %}
+                    
+                    {% else %}
+                    {% set path = "img/no_image.png" %}
+                    
+                    {% endif %}
+                    {% set url_path = url_for("static", path=path) %}
+                    
+                    <img src="{{ url_path }}" alt="Profile Picture" height="180rem">
                 </div>
             </div>
 
@@ -39,16 +48,6 @@
             <h5 class="mt-4">Website</h5>
 
             <a href="https://www.wikipedia.org/">{{ company.website }}</a>
-
-            <!-- 
-                mentorship_grade
-                work_environment_grade
-                benefits_grade
-                comment
-                field
-                num_weeks
-                student_name
-            -->
 
             <hr class="mt-4">
             <h5 class="my-4 fs-4">PAST REPORTS</h5>

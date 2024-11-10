@@ -1,4 +1,50 @@
+<!-- 
+@router.get("/companies/{company_id}", response_class=HTMLResponse)
+@router.get("/companies/{company_id}/edit", response_class=HTMLResponse) 
+-->
+
+
+{% macro create_add_profile_picture_button() %}
+    <button class="btn btn-primary" id="add-profile-picture-btn">Add</button>
+    <script>
+        document.getElementById("add-profile-picture-btn").addEventListener("click", async () => {
+            const picture = document.getElementById("profilePictureInput").files[0]
+            const formData = new FormData()
+            formData.append("picture", picture)
+            await access("/profile-picture", "POST", formData, true)
+            await access("/companies/{{company.id}}/edit", "GET")
+        })
+    </script>
+{% endmacro %}
+
+
+{% macro create_update_profile_picture_button() %}
+    <button class="btn btn-primary" id="update-profile-picture-btn">Update</button>
+    <script>
+        document.getElementById("update-profile-picture-btn").addEventListener("click", async () => {
+            const picture = document.getElementById("profilePictureInput").files[0]
+            const formData = new FormData()
+            formData.append("picture", picture)
+            await access("/profile-picture", "PUT", formData, true)
+            await access("/companies/{{company.id}}/edit", "GET")
+        })
+    </script>
+{% endmacro %}
+
+
+{% macro create_delete_profile_picture_button() %}
+    <button class="btn btn-danger" id="delete-profile-picture-btn">Delete</button>
+    <script>
+        document.getElementById("delete-profile-picture-btn").addEventListener("click", async () => {
+            await access("/profile-picture", "DELETE")
+            await access("/companies/{{company.id}}/edit", "GET")
+        })
+    </script>
+{% endmacro %}
+
+
 {% extends 'base.html' %}
+
 {% block content %}
 
 <h3>Edit your profile</h3>
@@ -43,9 +89,30 @@
     </div>
     <div class="col-2">
         <p class="fs-5">Edit profile photo</p>
-        <img src="{{ url_for('static', path='img/no_image.PNG') }}" alt="Some image"
-            class="img-fluid shadow rounded mb-2">
-        <input type="file" class="form-control shadow">
+        <div class="bg-primary-subtle p-3 rounded shadow">
+            {% if company.profile_picture_path %}
+                {% set path = company.profile_picture_path | replace("static/", "") %}
+                {% set add_profile_picture_button = "" %}
+                {% set update_profile_picture_button = create_update_profile_picture_button() %}
+                {% set delete_profile_picture_button = create_delete_profile_picture_button() %}
+            {% else %}
+                {% set path = "img/no_image.png" %}
+                {% set add_profile_picture_button = create_add_profile_picture_button() %}
+                {% set update_profile_picture_button = "" %}
+                {% set delete_profile_picture_button = "" %}
+            
+            {% endif %}
+            
+            {% set url_path = url_for("static", path=path) %}
+            <img src="{{ url_path }}" alt="Profile Picture" class="img-fluid shadow rounded mb-2 w-100">
+            <input type="file" class="form-control shadow" id="profilePictureInput" accept=".jpg">
+
+            <div class="mt-3">
+                {{ add_profile_picture_button }}
+                {{ update_profile_picture_button }}
+                {{ delete_profile_picture_button }}
+            </div>
+        </div>
     </div>
 </div>
 
