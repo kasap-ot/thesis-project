@@ -10,3 +10,4 @@ templates/test.html
 database.db
 notes.txt
 .env
+static/img/*
