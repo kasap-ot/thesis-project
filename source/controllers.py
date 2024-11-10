@@ -26,13 +26,14 @@ from .schemas import (
 )
 from .profile_pictures import (
     delete_profile_picture,
+    old_profile_picture_path,
     save_profile_picture,
     save_profile_picture_path,
-    delete_profile_picture_path,
 )
 from .utils import (
     extract_file_offer,
     extract_subjects_from,
+    extract_user_type,
 )
 from .queries import (
     accept_student_query,
@@ -41,6 +42,7 @@ from .queries import (
     delete_company_report_query,
     delete_experience_query,
     delete_motivational_letter_query,
+    delete_profile_picture_path_query,
     delete_student_query,
     delete_student_report_query,
     delete_subject_query,
@@ -905,13 +907,26 @@ async def company_report_get_controller(student_id: int, offer_id: int) -> Optio
 
 async def profile_picture_post_controller(picture: UploadFile, current_user) -> None:
     file_path = await save_profile_picture(picture, current_user)
-    await save_profile_picture_path(current_user, file_path)
+    
+    async with async_pool().connection() as connection:
+        await save_profile_picture_path(current_user, file_path, connection)
 
 
 async def profile_picture_delete_controller(current_user) -> None:
-    await delete_profile_picture(current_user)
-    await delete_profile_picture_path(current_user)
+    user_type = extract_user_type(current_user)
+    
+    async with async_pool().connection() as connection:
+        old_file_path = await old_profile_picture_path(current_user, connection)
+        delete_profile_picture(old_file_path)
+        query = delete_profile_picture_path_query(user_type)
+        await connection.execute(query, [current_user.id])
 
 
 async def profile_picture_put_controller(picture: UploadFile, current_user) -> None:
-    await save_profile_picture(picture, current_user)
+    new_file_path = await save_profile_picture(picture, current_user)
+    
+    async with async_pool().connection() as connection:
+        old_file_path = await  old_profile_picture_path(current_user, connection)
+        await save_profile_picture_path(current_user, new_file_path, connection)
+    
+    delete_profile_picture(old_file_path)

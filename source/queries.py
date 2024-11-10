@@ -429,3 +429,10 @@ def delete_profile_picture_path_query(user_type: UserType) -> LiteralString:
         return "UPDATE students SET profile_picture_path = NULL WHERE id = %s;"
     elif user_type == UserType.COMPANY:
         return "UPDATE companies SET profile_picture_path = NULL WHERE id = %s;"
+    
+
+def select_user_profile_picture_query(user_type: UserType) -> LiteralString:
+    if user_type == UserType.STUDENT:
+        return "SELECT profile_picture_path FROM students WHERE id = %s;"
+    elif user_type == UserType.COMPANY:
+        return "SELECT profile_picture_path FROM companies WHERE id = %s;"

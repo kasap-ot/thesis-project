@@ -3,10 +3,12 @@ import time
 import shutil
 from fastapi import UploadFile, HTTPException, status
 from psycopg import AsyncConnection
+from psycopg.rows import dict_row
 from .schemas import StudentInDB, CompanyInDB
 from .utils import extract_user_type
 from .database import async_pool
 from .queries import (
+    select_user_profile_picture_query,
     update_profile_picture_path_query, 
     delete_profile_picture_path_query
 )
@@ -52,9 +54,7 @@ async def save_profile_picture(picture: UploadFile, current_user) -> str:
     return file_path
 
 
-async def delete_profile_picture(current_user):
-    file_path = generate_profile_picture_file_path(current_user)
-
+def delete_profile_picture(file_path: str):
     if not os.path.isfile(file_path):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -71,13 +71,10 @@ async def delete_profile_picture(current_user):
         )
     
 
-async def save_profile_picture_path(current_user, file_path: str) -> None:
+async def save_profile_picture_path(current_user, file_path: str, connection: AsyncConnection) -> None:
     user_type = extract_user_type(current_user)
-    
-    async with async_pool().connection() as conn:
-        conn: AsyncConnection
-        query = update_profile_picture_path_query(user_type)
-        await conn.execute(query, [file_path, current_user.id])
+    query = update_profile_picture_path_query(user_type)
+    await connection.execute(query, [file_path, current_user.id])
 
 
 async def delete_profile_picture_path(current_user) -> None:
@@ -87,3 +84,16 @@ async def delete_profile_picture_path(current_user) -> None:
         conn: AsyncConnection
         query = delete_profile_picture_path_query(user_type)
         await conn.execute(query, [current_user.id])
+
+
+async def old_profile_picture_path(current_user, connection: AsyncConnection) -> str:
+    cursor = connection.cursor(row_factory=dict_row)
+    user_type = extract_user_type(current_user)
+    query = select_user_profile_picture_query(user_type)
+    await cursor.execute(query, [current_user.id])
+    record = await cursor.fetchone()
+
+    if not record:
+        raise HTTPException(status.HTTP_404_NOT_FOUND)
+    
+    return record["profile_picture_path"]
