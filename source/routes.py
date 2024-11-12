@@ -152,9 +152,21 @@ async def student_profile_edit_get(
 
 
 @router.post("/companies", status_code=status.HTTP_201_CREATED)
-async def company_post(c: CompanyCreate):
+async def company_post(c: CompanyCreate, background_tasks: BackgroundTasks):
     await company_post_controller(c)
-    # TODO - Add email background task
+    if getenv(Environment.TESTING) == Environment.TRUE:
+        return
+    print("Sending email to company")
+    background_tasks.add_task(send_email_profile_created, c.email, c.name)
+
+
+# FOR REFERENCE
+# @router.post("/students", status_code=status.HTTP_201_CREATED)
+# async def student_post(s: StudentCreate, background_tasks: BackgroundTasks):
+#     await student_post_controller(s)
+#     if getenv(Environment.TESTING) == Environment.TRUE:
+#         return
+#     background_tasks.add_task(send_email_profile_created, s.email, s.name)
 
 
 @router.get("/companies/{company_id}", response_class=HTMLResponse)
