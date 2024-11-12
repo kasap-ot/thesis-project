@@ -1,3 +1,91 @@
+{% macro create_my_offers_button() %}
+<button class="btn btn-secondary" id="myOffersBtn">
+  <i class="bi bi-arrow-left"></i> My Offers
+</button>
+<script>
+  document.getElementById("myOffersBtn").addEventListener("click", async () => {
+    await access("/companies/{{current_user.id}}/offers", "GET")
+  })
+</script>
+{% endmacro %}
+
+
+{% macro create_applicants_button() %}
+<button class="btn btn-primary" id="applicantsBtn">Applicants</button>
+<script>
+  document.getElementById("applicantsBtn").addEventListener("click", async () => {
+    await access("/applications/applicants/{{offer.id}}", "GET")
+  })
+</script>
+{% endmacro %}
+
+
+{% macro create_edit_offer_button() %}
+<button class="btn btn-success" id="editOfferBtn">Edit offer</button>
+<script>
+  document.getElementById("editOfferBtn").addEventListener("click", async () => {
+    await access("/offers/{{offer.id}}/edit", "GET")
+  })
+</script>
+{% endmacro %}
+
+
+{% macro create_delete_offer_modal_button() %}
+<button class="btn btn-primary" id="deleteOfferModalBtn">Confirm</button>
+<script>
+  document.getElementById("deleteOfferModalBtn").addEventListener("click", async () => {
+    await access("/offers/{{offer.id}}", "DELETE")
+    await access("/companies/{{current_user.id}}/offers", "GET")
+  })
+</script>
+{% endmacro %}
+
+
+{% macro create_offers_button() %}
+<button class="btn btn-secondary" id="offersBtn">
+  <i class="bi bi-house-fill"></i> Offers
+</button>
+<script>
+  document.getElementById("offersBtn").addEventListener("click", async () => {
+    await access("/offers", "GET")
+  })
+</script>
+{% endmacro %}
+
+
+{% macro create_applications_button() %}
+<button class="btn btn-secondary" id="applicationsBtn">
+  <i class="bi bi-window-stack"></i> My applications
+</button>
+<script>
+  document.getElementById("applicationsBtn").addEventListener("click", async () => {
+    await access("/applications/view/{{current_user.id}}", "GET")
+  })
+</script>
+{% endmacro %}
+
+
+{% macro create_view_company_button() %}
+<button class="btn btn-primary" id="viewCompanyBtn">View Company</button>
+<script>
+  document.getElementById("viewCompanyBtn").addEventListener("click", async () => {
+    await access("/companies/{{offer.company_id}}", "GET")
+  })
+</script>
+{% endmacro %}
+
+
+{% macro create_apply_button() %}
+<button type="button" class="btn btn-primary" id="applyBtn">Save changes</button>
+<script>
+  document.getElementById("applyBtn").addEventListener("click", async () => {
+    await access("/applications/apply/{{current_user.id}}/{{offer.id}}", "POST");
+    await access("/applications/view/{{current_user.id}}", "GET");
+  })
+</script>
+{% endmacro %}
+
+
 {% extends 'base.html' %}
 
 {% block content %}
@@ -44,22 +132,18 @@
 
     {% if current_user.num_employees %}
 
-    <div>
-      <button class="btn btn-secondary" id="myOffersBtn">
-        <i class="bi bi-arrow-left"></i> My Offers
-      </button>
-    </div>
+    <div>{{ create_my_offers_button() }}</div>
 
     <div>
       <!-- Button trigger modal -->
       <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteOfferModal">
         Delete offer
       </button>
-      <button class="btn btn-primary" id="applicantsBtn">Applicants</button>
-      <button class="btn btn-success" id="editOfferBtn">Edit offer</button>
+
+      {{ create_applicants_button() }}
+      {{ create_edit_offer_button() }}
+
     </div>
-
-
 
     <!-- Modal -->
     <div class="modal fade" id="deleteOfferModal" tabindex="-1">
@@ -74,56 +158,20 @@
           </div>
           <div class="modal-footer">
             <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button class="btn btn-primary" id="deleteOfferModalBtn">Confirm</button>
+            {{ create_delete_offer_modal_button() }}
           </div>
         </div>
       </div>
     </div>
 
-    <script>
-      document.getElementById("myOffersBtn").addEventListener("click", async () => {
-        await access("/companies/{{current_user.id}}/offers", "GET")
-      })
-
-      document.getElementById("deleteOfferModalBtn").addEventListener("click", async () => {
-        await access("/offers/{{offer.id}}", "DELETE")
-        await access("/companies/{{current_user.id}}/offers", "GET")
-      })
-
-      document.getElementById("applicantsBtn").addEventListener("click", async () => {
-        await access("/applications/applicants/{{offer.id}}", "GET")
-      })
-
-      document.getElementById("editOfferBtn").addEventListener("click", async () => {
-        const offer = {
-          salary: "{{offer.salary}}",
-          num_weeks: "{{offer.num_weeks}}",
-          field: "{{offer.field}}",
-          deadline: "{{offer.deadline}}",
-          requirements: "{{offer.requirements}}",
-          responsibilities: "{{offer.responsibilities}}",
-          company_id: "{{offer.company_id}}",
-        }
-        offerJSONString = JSON.stringify(offer)
-        sessionStorage.setItem("offer", offerJSONString)
-
-        await access("/offers/{{offer.id}}/edit", "GET")
-      })
-    </script>
-
     {% elif current_user.university %}
     <div>
-      <button class="btn btn-secondary" id="offersBtn">
-        <i class="bi bi-house-fill"></i> Offers
-      </button>
-
-      <button class="btn btn-secondary" id="applicationsBtn">
-        <i class="bi bi-window-stack"></i> My applications
-      </button>
+      {{ create_offers_button() }}
+      {{ create_applications_button() }}
     </div>
 
     <div>
-      <button class="btn btn-primary" id="viewCompanyBtn">View Company</button>
+      {{ create_view_company_button() }}
 
       <!-- Button trigger for modal -->
       <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#applyModal">
@@ -143,30 +191,11 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary" id="applyBtn">Save changes</button>
+              {{ create_apply_button() }}
             </div>
           </div>
         </div>
       </div>
-
-      <script>
-        document.getElementById("offersBtn").addEventListener("click", async () => {
-          await access("/offers", "GET")
-        })
-
-        document.getElementById("viewCompanyBtn").addEventListener("click", async () => {
-          await access("/companies/{{offer.company_id}}", "GET")
-        })
-
-        document.getElementById("applyBtn").addEventListener("click", async () => {
-          await access("/applications/apply/{{current_user.id}}/{{offer.id}}", "POST");
-          await access("/applications/view/{{current_user.id}}", "GET");
-        })
-
-        document.getElementById("applicationsBtn").addEventListener("click", async () => {
-          await access("/applications/view/{{current_user.id}}", "GET")
-        })
-      </script>
 
       {% endif %}
 
