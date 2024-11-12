@@ -79,10 +79,6 @@ async def test_application_post_unauthorized(insert_offers: dict):
     assert "detail" in response.text
 
 
-# TODO: Test edge cases for applications-get route
-
-
-# test_applications_get
 @pytest.mark.asyncio
 async def test_applications_get(insert_student_applications):
     student = insert_student_applications["student"]
@@ -100,7 +96,6 @@ async def test_applications_get(insert_student_applications):
         assert str(offer.num_weeks) in response.text
 
 
-# test applications get no application
 @pytest.mark.asyncio
 async def test_applications_get_no_application(insert_student):
     student = insert_student
@@ -115,7 +110,6 @@ async def test_applications_get_no_application(insert_student):
     assert "</div>" in response.text
 
 
-# test application get not authorized
 @pytest.mark.asyncio
 async def test_applications_get_unauthorized(insert_student_applications):
     student = insert_student_applications["student"]
@@ -129,10 +123,6 @@ async def test_applications_get_unauthorized(insert_student_applications):
     assert "detail" in response.text
 
 
-# TODO: Test edge cases for application-accept route
-
-
-# test_application_accept
 @pytest.mark.asyncio
 async def test_application_accept(insert_offer_applications):
     db_data = insert_offer_applications
@@ -174,10 +164,6 @@ async def test_application_accept(insert_offer_applications):
     assert len(rejected_applications) == len(updated_applications) - len(accepted_applications)
 
 
-# TODO: Test edge cases for application-cancel route
-
-
-# test_application_cancel
 @pytest.mark.asyncio
 async def test_application_cancel(insert_offer_applications):
     db_data = insert_offer_applications
@@ -236,7 +222,6 @@ async def test_application_cancel_accepted(insert_accepted_rejected_applications
     )
     
 
-# test_applicants_get
 @pytest.mark.asyncio
 async def test_applicants_get(insert_offer_applications):
     db_data = insert_offer_applications

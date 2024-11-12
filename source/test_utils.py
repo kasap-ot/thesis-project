@@ -22,6 +22,7 @@ class CompanyTest:
     num_employees: int
     year_founded: int
     website: str
+    description: str
 
 
 @dataclass
@@ -111,6 +112,7 @@ def create_company() -> CompanyTest:
         num_employees=230,
         year_founded=1999,
         website="www.test-llc.com",
+        description="This is the description of the company."
     )
 
 

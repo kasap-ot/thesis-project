@@ -92,7 +92,7 @@ class CompanyBase(BaseModel):
     num_employees: int
     year_founded: int
     website: str
-    description: Optional[str]
+    description: Optional[str] = None
 
 
 class CompanyCreate(CompanyBase):
