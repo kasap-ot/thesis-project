@@ -114,3 +114,9 @@ ADD COLUMN profile_picture_path VARCHAR(255) DEFAULT NULL;
 
 ALTER TABLE companies
 ADD COLUMN profile_picture_path VARCHAR(255) DEFAULT NULL;
+
+
+-- Add description to companies
+
+ALTER TABLE companies
+ADD COLUMN description TEXT DEFAULT NULL;

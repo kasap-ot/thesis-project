@@ -80,10 +80,13 @@
         <p class="fs-5">Description</p>
 
         <ul class="list-group">
-            <li class="list-group-item bg-primary-subtle">Your company's description [NOT IMPLEMENTED]</li>
+            <li class="list-group-item bg-primary-subtle">Your company's description</li>
             <li class="list-group-item">
-                <textarea class="form-control shadow my-3"
-                    style="height: 30rem;">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Impedit, alias nam pariatur quisquam assumenda esse cumque inventore tempore ratione iste, blanditiis nemo labore dolor recusandae aperiam doloribus ipsum quis neque? Beatae, placeat. Dignissimos blanditiis illo voluptatibus quisquam alias odio dolores laboriosam eligendi impedit repudiandae at, quaerat maiores iusto nam, quia, qui modi non. Sapiente, dignissimos! Doloribus repellendus officiis amet soluta quas neque, sed temporibus provident quo eius. Sit, veniam eligendi numquam obcaecati harum voluptatem velit quo inventore illo maxime, possimus quas ea placeat aliquid quos ad asperiores quibusdam delectus tempore architecto. Id, maiores modi ipsam ducimus hic molestiae alias architecto?</textarea>
+                {% if company.description %}
+                <textarea id="description" class="form-control shadow my-3" style="height: 30rem;">{{company.description}}</textarea>
+                {% else %}
+                <textarea id="description" class="form-control shadow my-3" style="height: 30rem;" placeholder="Insert your description..."></textarea>
+                {% endif %}
             </li>
         </ul>
     </div>
@@ -138,6 +141,7 @@
             num_employees: document.getElementById("numEmployeesInput").value,
             year_founded: document.getElementById("yearFoundedInput").value,
             website: document.getElementById("websiteInput").value,
+            description: document.getElementById("description").value,
         }
         await access("/companies/{{company.id}}", "PUT", updatedCompany)
         await access("/companies/{{company.id}}", "GET")

@@ -69,7 +69,7 @@ def select_company_offers_query() -> LiteralString:
 def update_company_query() -> LiteralString:
     return (
         "UPDATE companies SET "
-        "email=%s, name=%s, field=%s, num_employees=%s, year_founded=%s, website=%s "
+        "email=%s, name=%s, field=%s, num_employees=%s, year_founded=%s, website=%s, description=%s "
         "WHERE id=%s RETURNING *;"
     )
 

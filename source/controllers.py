@@ -255,20 +255,21 @@ async def company_offers_get_controller(company_id: int) -> list[OfferRead]:
         return records
     
 
-async def company_patch_controller(company_id: int, c: CompanyUpdate, current_user) -> None:
+async def company_put_controller(company_id: int, c: CompanyUpdate, current_user) -> None:
     authorize_user(company_id, current_user, CompanyInDB)
     
     async with async_pool().connection() as conn:
         sql = update_company_query()
         await conn.execute(sql, [
-                c.email,
-                c.name,
-                c.field,
-                c.num_employees,
-                c.year_founded,
-                c.website,
-                company_id,
-            ])
+            c.email,
+            c.name,
+            c.field,
+            c.num_employees,
+            c.year_founded,
+            c.website,
+            c.description,
+            company_id,
+        ])
         
 
 async def company_delete_controller(company_id: int, current_user) -> None:

@@ -42,7 +42,7 @@ from .controllers import (
     company_post_controller,
     company_get_controller,
     company_offers_get_controller,
-    company_patch_controller,
+    company_put_controller,
     company_delete_controller,
     offer_post_controller,
     offers_get_controller,
@@ -185,8 +185,8 @@ async def company_edit_get(request: Request, company_id: int):
 
 
 @router.put("/companies/{company_id}")
-async def company_patch(company_id: int, c: CompanyUpdate, current_user = Depends(get_current_user)):
-    await company_patch_controller(company_id, c, current_user)
+async def company_put(company_id: int, c: CompanyUpdate, current_user = Depends(get_current_user)):
+    await company_put_controller(company_id, c, current_user)
 
 
 @router.delete("/companies/{company_id}")
