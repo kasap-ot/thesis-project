@@ -160,15 +160,6 @@ async def company_post(c: CompanyCreate, background_tasks: BackgroundTasks):
     background_tasks.add_task(send_email_profile_created, c.email, c.name)
 
 
-# FOR REFERENCE
-# @router.post("/students", status_code=status.HTTP_201_CREATED)
-# async def student_post(s: StudentCreate, background_tasks: BackgroundTasks):
-#     await student_post_controller(s)
-#     if getenv(Environment.TESTING) == Environment.TRUE:
-#         return
-#     background_tasks.add_task(send_email_profile_created, s.email, s.name)
-
-
 @router.get("/companies/{company_id}", response_class=HTMLResponse)
 async def company_get(request: Request, company_id: int, current_user = Depends(get_current_user)):
     company = await company_profile_get_controller(company_id)
