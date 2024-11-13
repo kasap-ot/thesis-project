@@ -58,8 +58,13 @@
                     <label class="form-label">Name</label>
                     <input type="text" id="name" class="form-control shadow" value="{{student_profile.name}}">
 
-                    <label class="form-label mt-3">Location</label>
-                    <input type="text" id="location" class="form-control shadow" value="NOT IMPLEMENTED">
+                    <label class="form-label mt-3">Region</label>
+                    <select name="region" id="region" class="form-control shadow">
+                        <option value="0" {% if student_profile.region_id == 0 %}selected{% endif %}>Global</option>
+                        <option value="1" {% if student_profile.region_id == 1 %}selected{% endif %}>Europe</option>
+                        <option value="2" {% if student_profile.region_id == 2 %}selected{% endif %}>Asia</option>
+                        <option value="3" {% if student_profile.region_id == 3 %}selected{% endif %}>Americas</option>
+                    </select>
 
                     <label class="form-label mt-3">Date of birth</label>
                     <input type="text" id="date-of-birth" class="form-control shadow"
@@ -76,16 +81,16 @@
                     <input type="text" id="major" class="form-control shadow" value="{{student_profile.major}}">
 
                     <label class="form-label mt-3">Credits</label>
-                    <input type="text" id="credits" class="form-control shadow" value="{{student_profile.credits}}">
+                    <input type="number" id="credits" class="form-control shadow" value="{{student_profile.credits}}">
 
                     <label class="form-label mt-3">GPA</label>
-                    <input type="text" id="gpa" class="form-control shadow" value="{{student_profile.gpa}}">
+                    <input type="number" id="gpa" class="form-control shadow" value="{{student_profile.gpa}}">
                 </form>
 
                 <!-- Button trigger modal -->
                 <button type="button" class="btn btn-primary mb-3 mt-4" data-bs-toggle="modal"
                     data-bs-target="#mainModal">
-                    <i class="bi bi-check-circle-fill"> Confirm</i>
+                    <i class="bi bi-check-circle-fill"></i> Confirm
                 </button>
             </div>
         </div>
@@ -398,6 +403,7 @@
             major: document.getElementById('major').value,
             credits: document.getElementById('credits').value,
             gpa: document.getElementById('gpa').value,
+            region_id: parseInt(document.getElementById("region").value),
         }
         await access('/students/{{student_profile.id}}', 'PUT', updatedStudent)
         await access('/students/profile/{{student_profile.id}}', 'GET')

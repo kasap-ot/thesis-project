@@ -44,7 +44,7 @@ def update_student_query() -> LiteralString:
     return (
         "UPDATE students SET "
         "email=%s, name=%s, date_of_birth=%s, university=%s, "
-        "major=%s, credits=%s, gpa=%s WHERE id=%s "
+        "major=%s, credits=%s, gpa=%s, region_id=%s WHERE id=%s "
         "RETURNING *;"
     )
 
@@ -212,10 +212,11 @@ def delete_student_query() -> LiteralString:
 
 def select_student_with_motivational_letter_query() -> LiteralString:
     return (
-        "SELECT * "
+        "SELECT s.*, ml.*, r.name as region_name "
         "FROM students s "
         "LEFT JOIN motivational_letters ml "
         "ON s.id = ml.student_id " 
+        "JOIN regions r ON r.id = s.region_id "
         "WHERE s.id = %s;"
     )
 

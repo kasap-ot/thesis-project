@@ -139,6 +139,7 @@ async def student_put_controller(student_id: int, s: StudentUpdate, current_user
                 s.major,
                 s.credits,
                 s.gpa,
+                s.region_id,
                 student_id,
             ])
         

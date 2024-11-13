@@ -41,18 +41,13 @@ class StudentCreate(StudentBase):
 
 class StudentRead(StudentBase):
     id: int
+    region_name: str
     motivational_letter: MotivationalLetterRead
     profile_picture_path: Optional  [str]
 
 
-class StudentUpdate(BaseModel):
-    email: str
-    name: str
-    date_of_birth: date
-    university: str
-    major: str
-    credits: int
-    gpa: float
+class StudentUpdate(StudentBase):
+    ...
 
 
 class StudentInDB(StudentBase):
