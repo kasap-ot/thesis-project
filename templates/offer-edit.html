@@ -7,11 +7,16 @@
     <div class="col">
         <p class="fs-5 ">General information</p>
 
-        <form action="/" class="bg-primary-subtle px-4 pt-3 rounded"
-            style="padding-bottom: 3.4rem;">
-            <label class="form-label">Location</label>
-            <input type="text" class="form-control shadow" id="locationInput" value="NOT IMPLEMENTED">
-            
+        <form action="/" class="bg-primary-subtle px-4 pt-3 rounded" style="padding-bottom: 3.4rem;">
+            <label class="form-label">Region</label>
+
+            <select name="region" id="regionInput" class="form-control shadow">
+                <option value="0" {% if offer.region=="Global" %}selected{% endif %}>Global</option>
+                <option value="1" {% if offer.region=="Europe" %}selected{% endif %}>Europe</option>
+                <option value="2" {% if offer.region=="Asia" %}selected{% endif %}>Asia</option>
+                <option value="3" {% if offer.region=="Americas" %}selected{% endif %}>Americas</option>
+            </select>
+
             <label class="form-label mt-4">Field</label>
             <input type="text" class="form-control shadow" id="fieldInput" value="{{offer.field}}">
 
@@ -40,7 +45,8 @@
         <ul class="list-group">
             <li class="list-group-item bg-primary-subtle">Your requirements include</li>
             <li class="list-group-item">
-                <textarea class="form-control shadow my-3" style="height: 27rem;" id="requirementsInput">{{offer.requirements}}</textarea>
+                <textarea class="form-control shadow my-3" style="height: 27rem;"
+                    id="requirementsInput">{{offer.requirements}}</textarea>
             </li>
         </ul>
     </div>
@@ -50,7 +56,8 @@
         <ul class="list-group">
             <li class="list-group-item bg-primary-subtle">Your responsibilities will be</li>
             <li class="list-group-item">
-                <textarea class="form-control shadow my-3" style="height: 27rem;" id="responsibilitiesInput">{{offer.responsibilities}}</textarea>
+                <textarea class="form-control shadow my-3" style="height: 27rem;"
+                    id="responsibilitiesInput">{{offer.responsibilities}}</textarea>
             </li>
         </ul>
     </div>
@@ -69,6 +76,7 @@
             deadline: document.getElementById("deadlineInput").value,
             requirements: document.getElementById("requirementsInput").value,
             responsibilities: document.getElementById("responsibilitiesInput").value,
+            region_id: parseInt(document.getElementById("regionInput").value),
         }
         await access("/offers/{{offer.id}}", "PUT", updatedOffer)
         await access("/offers/{{offer.id}}", "GET")

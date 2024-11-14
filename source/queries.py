@@ -109,7 +109,7 @@ def select_offer_query() -> LiteralString:
 def update_offer_query() -> LiteralString:
     return (
         "UPDATE offers SET "
-        "salary=%s, num_weeks=%s, field=%s, deadline=%s, requirements=%s, responsibilities=%s "
+        "salary=%s, num_weeks=%s, field=%s, deadline=%s, requirements=%s, responsibilities=%s, region_id=%s "
         "WHERE id=%s "
         "RETURNING *;"
     )

@@ -136,7 +136,7 @@ class OfferRead(OfferBase):
 
 
 class OfferUpdate(OfferBase):
-    ...
+    region_id: int
 
 
 class OfferBriefRead(BaseModel):

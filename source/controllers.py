@@ -376,6 +376,7 @@ async def offer_put_controller(offer_id: int, o: OfferUpdate, current_user) -> N
                 o.deadline,
                 o.requirements,
                 o.responsibilities,
+                o.region_id,
                 offer_id,
             ])
         
