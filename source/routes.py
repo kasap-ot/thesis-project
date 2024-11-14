@@ -156,7 +156,6 @@ async def company_post(c: CompanyCreate, background_tasks: BackgroundTasks):
     await company_post_controller(c)
     if getenv(Environment.TESTING) == Environment.TRUE:
         return
-    print("Sending email to company")
     background_tasks.add_task(send_email_profile_created, c.email, c.name)
 
 
