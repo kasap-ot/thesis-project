@@ -2,6 +2,11 @@
 
 ENV_FILE=".env"
 
+ORIGINAL_DB_NAME=$(grep '^DB_NAME=' $ENV_FILE | cut -d '=' -f 2)
+sed -i 's/^DB_NAME=.*/DB_NAME=diplomska-db-testing/' $ENV_FILE
+echo "Changed DB_NAME to diplomksa-db-testing"
+
+ORIGINAL_TESTING_VALUE=$(grep '^TESTING=' $ENV_FILE | cut -d '=' -f 2)
 sed -i 's/^TESTING=.*/TESTING=TRUE/' $ENV_FILE
 echo "Set testing parameter to TRUE"
 
@@ -21,3 +26,9 @@ echo "Stopping FastAPI server..."
 echo "Server process PID: $SERVER_PID"
 kill $SERVER_PID
 echo "Server stopped"
+
+sed -i "s/^DB_NAME=.*/DB_NAME=$ORIGINAL_DB_NAME/" $ENV_FILE
+echo "Reverted DB_NAME to $ORIGINAL_DB_NAME"
+
+sed -i "s/^TESTING=.*/TESTING=$ORIGINAL_TESTING_VALUE/" $ENV_FILE
+echo "Reverted TESTING to $ORIGINAL_TESTING_VALUE"
