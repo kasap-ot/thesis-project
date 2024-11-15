@@ -52,7 +52,7 @@ ALTER COLUMN date_of_birth DROP DEFAULT;
 -- Add relationships for student-region and offer-region
 
 ALTER TABLE students
-ADD COLUMN region_id INT NOT NULL REFERENCES region(id)
+ADD COLUMN region_id INT NOT NULL REFERENCES regions(id)
 ON DELETE SET DEFAULT
 ON UPDATE CASCADE;
 
@@ -60,7 +60,7 @@ ALTER TABLE students
 ALTER COLUMN region_id SET DEFAULT -1;
 
 ALTER TABLE offers
-ADD COLUMN region_id INT NOT NULL REFERENCES region(id)
+ADD COLUMN region_id INT NOT NULL REFERENCES regions(id)
 ON DELETE SET DEFAULT
 ON UPDATE CASCADE;
 
