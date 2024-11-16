@@ -155,9 +155,9 @@
             <table class="table table-striped">
                 <thead class="table-primary">
                     <tr>
-                        <th>Subject</th>
-                        <th class="text-center">Grade</th>
-                        <th class="text-end">Action</th>
+                        <th class="w-50">Subject</th>
+                        <th class="w-25 text-center">Grade</th>
+                        <th class="w-25 text-end">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -166,7 +166,7 @@
                         <td>{{ subject.name }}</td>
                         <td class="d-flex justify-content-center">
                             <input id="grade-{{subject.student_id}}-{{subject.name}}" type="number"
-                                class="form-control w-50 text-center" value="{{subject.grade}}"
+                                class="form-control text-center" value="{{subject.grade}}"
                                 style="background-color: transparent;">
                         </td>
                         <td class="text-end">

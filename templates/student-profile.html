@@ -8,9 +8,9 @@
             <div class="row">
                 <div class="col d-flex flex-column justify-content-center">
                     <h1>{{student_profile.name}}</h1>
-                    <h3 class="mb-4 text-body-secondary">Location</h3>
-                    <p class="fs-5">{{student_profile.date_of_birth}}</p>
-                    <p class="fs-5">{{student_profile.email}}</p>
+                    <h3 class="mb-4 text-body-secondary">Location: {{student_profile.region_name}}</h3>
+                    <p class="fs-5"><strong>Date of birth:</strong> {{student_profile.date_of_birth}}</p>
+                    <p class="fs-5"><strong>Email:</strong> {{student_profile.email}}</p>
                 </div>
                 <div class="col d-flex align-items-center justify-content-end me-2 mt-2">
                     {% if student_profile.profile_picture_path %}
