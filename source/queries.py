@@ -93,7 +93,7 @@ def select_offers_query(field: str | None) -> LiteralString:
         "AND (r.id = %s OR r.name = 'Global')"
     )
     if field is not None:
-        query += " AND o.field = %s"
+        query += " AND o.field LIKE %s"
     return query
 
 

@@ -338,7 +338,8 @@ async def offers_get_controller(
         parameters: list = [min_num_weeks, max_num_weeks, min_salary, max_salary, current_user.region_id]
 
         if field is not None:
-            parameters.append(field)
+            # Add percent signs for SQL string comparison
+            parameters.append(f"%{field}%")
 
         await cur.execute(sql, parameters)
         records = await cur.fetchall()
