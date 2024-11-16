@@ -1,5 +1,5 @@
 from source.queries import select_application_email_and_field_query, select_applications_emails_and_fields_query, select_offer_email_and_field_query
-from .enums import Status
+from .enums import Status, Environment
 from .database import async_pool
 from psycopg.rows import dict_row
 from os import getenv
@@ -7,8 +7,8 @@ import smtplib
 
 
 def send_email(to_address: str | list[str], subject: str, body: str) -> None:
-    EMAIL_ADDRESS = getenv("EMAIL_ADDRESS", "")
-    EMAIL_PASSWORD = getenv("EMAIL_PASSWORD", "")
+    EMAIL_ADDRESS = getenv(Environment.EMAIL_ADDRESS, "")
+    EMAIL_PASSWORD = getenv(Environment.EMAIL_PASSWORD, "")
     SMTP_SERVER = "smtp.gmail.com"
     SMTP_PORT = 465
     with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT) as smtp:

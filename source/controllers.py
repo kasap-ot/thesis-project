@@ -517,10 +517,6 @@ async def application_post_controller(
         current_user
 ) -> None:
     authorize_user(student_id, current_user, StudentInDB)
-
-    # TODO:
-    # Add logic to verify that the student is applying for 
-    # an offer in his region or for a global offer
     
     async with async_pool().connection() as conn:
         sql = insert_application_query()
