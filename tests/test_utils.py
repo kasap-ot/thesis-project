@@ -1,9 +1,9 @@
 import pytest
 import psycopg as pg
 from psycopg.rows import class_row
-from .database import get_connection_string
-from .enums import Region, Status
-from .security import pwd_context
+from ..source.database import get_connection_string
+from ..source.enums import Region, Status
+from ..source.security import pwd_context
 from dataclasses import dataclass
 from httpx import AsyncClient
 
@@ -69,6 +69,41 @@ class ApplicationTest:
     student_id: int
     offer_id: int
     status: str
+
+
+@dataclass
+class SubjectTest:
+    student_id: int
+    name: str
+    grade: int
+
+
+@dataclass 
+class MotivationalLetterTest:
+    student_id: int
+    about_me_section: str
+    skills_section: str
+    looking_for_section: str
+
+
+@dataclass
+class StudentReportTest:
+    student_id: int
+    offer_id: int
+    overall_grade: int
+    technical_grade: int
+    communication_grade: int
+    comment: str
+
+
+@dataclass
+class CompanyReportTest:
+    student_id: int
+    offer_id: int
+    mentorship_grade: int
+    work_environment_grade: int
+    benefits_grade: int
+    comment: str
 
 
 def create_offer(company_id: int, offer_id: int = 1, field: str = "Test Field", num_weeks: int = 20) -> OfferTest:

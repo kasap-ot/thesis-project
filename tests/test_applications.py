@@ -1,8 +1,7 @@
-import psycopg as pg
 from httpx import AsyncClient
 from fastapi import status
 import pytest
-from .enums import Status
+from ..source.enums import Status
 from .test_utils import (
     create_offer,
     create_student,
