@@ -1,9 +1,11 @@
 from os import getenv
+from dotenv import load_dotenv
 from functools import lru_cache
 from psycopg_pool import AsyncConnectionPool
 
 
 def get_connection_string() -> str:
+    load_dotenv()
     conn_string = (
         f"user={getenv('DB_USER')}\n"
         f"password={getenv('DB_PASSWORD')}\n"

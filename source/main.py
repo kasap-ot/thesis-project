@@ -1,11 +1,15 @@
+import uvicorn
 import asyncio as aio
-from .routes import router
 from fastapi import FastAPI
+from .routes import router
 from .database import async_pool
 from contextlib import asynccontextmanager
 from fastapi.staticfiles import StaticFiles
 from psycopg_pool import AsyncConnectionPool
 from dotenv import load_dotenv
+
+
+aio.set_event_loop_policy(aio.WindowsSelectorEventLoopPolicy())
 
 
 async def check_async_connections(db_pool: AsyncConnectionPool):
@@ -17,10 +21,6 @@ async def check_async_connections(db_pool: AsyncConnectionPool):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     load_dotenv()
-    
-    if aio.get_event_loop().is_running():
-        aio.set_event_loop_policy(aio.WindowsSelectorEventLoopPolicy())
-    
     db_pool = async_pool()
     aio.create_task(check_async_connections(db_pool))
     
@@ -33,3 +33,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 app.include_router(router)
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+
+if __name__ == "__main__":
+    uvicorn.run("source.main:app")
