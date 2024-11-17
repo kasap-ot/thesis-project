@@ -235,9 +235,9 @@ async def offers_get(
     request: Request,
     field: str | None = None,
     min_num_weeks: int = 0,
-    max_num_weeks: int = 100,
+    max_num_weeks: int = 1000,
     min_salary: int = 0,
-    max_salary: int = 10_000,
+    max_salary: int = 1_000_000_000,
     current_user = Depends(get_current_user)
 ):
     """ 
