@@ -1,10 +1,5 @@
-import re
-from io import BytesIO
-from pypdf import PdfReader
-import string
-import random
 from passlib.context import CryptContext
-from .enums import Region, UserType
+from .enums import UserType
 from .schemas import StudentInDB, CompanyInDB
 
 
@@ -20,12 +15,6 @@ def extract_subjects_from(subjects_string: str) -> list[tuple[str, int]]:
 
 """ Used to access password hashing utilities. """
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
-def random_string(length=10):
-    characters = string.ascii_letters + string.digits
-    random_string = ''.join(random.choice(characters) for _ in range(length))
-    return random_string
 
 
 def extract_user_type(current_user) -> UserType:
