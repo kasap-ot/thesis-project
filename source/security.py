@@ -8,10 +8,13 @@ from pydantic import BaseModel
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import HTTPException, status, Depends
 from psycopg.rows import class_row
+from dotenv import load_dotenv
+from os import getenv
 
 
 """ Constant variables used for generating JWT tokens """
-SECRET_KEY = "7705f92e8e0ff13a2d0e30d3f35dd67fc2ad78b1c0c753c674a9edb1f60df4ad"
+load_dotenv()
+SECRET_KEY = getenv("SECRET_KEY")
 ALGORITHM = "HS256"
 TOKEN_EXPIRE_MINUTES = 30
 
