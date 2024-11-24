@@ -30,8 +30,8 @@ from .profile_pictures import (
     save_profile_picture,
     save_profile_picture_path,
 )
+from .files import extract_file_offer
 from .utils import (
-    extract_file_offer,
     extract_subjects_from,
     extract_user_type,
 )

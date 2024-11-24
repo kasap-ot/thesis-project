@@ -14,7 +14,7 @@ from os import getenv
 
 """ Constant variables used for generating JWT tokens """
 load_dotenv()
-SECRET_KEY = getenv("SECRET_KEY")
+SECRET_KEY = getenv("SECRET_KEY", "")
 ALGORITHM = "HS256"
 TOKEN_EXPIRE_MINUTES = 30
 
