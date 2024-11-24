@@ -6,11 +6,9 @@ from psycopg import AsyncConnection
 from psycopg.rows import dict_row
 from .schemas import StudentInDB, CompanyInDB
 from .utils import extract_user_type
-from .database import async_pool
 from .queries import (
     select_user_profile_picture_query,
     update_profile_picture_path_query, 
-    delete_profile_picture_path_query
 )
 
 
@@ -75,15 +73,6 @@ async def save_profile_picture_path(current_user, file_path: str, connection: As
     user_type = extract_user_type(current_user)
     query = update_profile_picture_path_query(user_type)
     await connection.execute(query, [file_path, current_user.id])
-
-
-async def delete_profile_picture_path(current_user) -> None:
-    user_type = extract_user_type(current_user)
-
-    async with async_pool().connection() as conn:
-        conn: AsyncConnection
-        query = delete_profile_picture_path_query(user_type)
-        await conn.execute(query, [current_user.id])
 
 
 async def old_profile_picture_path(current_user, connection: AsyncConnection) -> str:
