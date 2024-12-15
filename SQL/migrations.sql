@@ -76,7 +76,7 @@ ALTER TABLE offers ALTER COLUMN company_id DROP NOT NULL;
 -- Modify status domain to have text fields instead of integers
 
 ALTER TABLE applications
-DROP COLUMN status
+DROP COLUMN status;
 
 DROP PROCEDURE accept_student;
 DROP PROCEDURE cancel_application;
