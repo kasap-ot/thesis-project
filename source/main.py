@@ -1,3 +1,4 @@
+import os
 import uvicorn
 import asyncio as aio
 from fastapi import FastAPI
@@ -9,7 +10,8 @@ from psycopg_pool import AsyncConnectionPool
 from dotenv import load_dotenv
 
 
-aio.set_event_loop_policy(aio.WindowsSelectorEventLoopPolicy())
+if os.name == "nt":
+    aio.set_event_loop_policy(aio.WindowsSelectorEventLoopPolicy())
 
 
 async def check_async_connections(db_pool: AsyncConnectionPool):
