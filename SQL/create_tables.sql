@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS student_reports (
     communication_grade INT NOT NULL CHECK (overall_grade BETWEEN 1 AND 10),
     comment TEXT NOT NULL,
     PRIMARY KEY (student_id, offer_id)
-)
+);
 
 
 -- Add table for company reports
@@ -109,4 +109,4 @@ CREATE TABLE IF NOT EXISTS company_reports (
     benefits_grade report_grade NOT NULL,
     comment TEXT NOT NULL,
     PRIMARY KEY (student_id, offer_id)
-)
+);
