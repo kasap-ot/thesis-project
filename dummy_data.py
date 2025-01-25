@@ -1,6 +1,8 @@
+import argparse
 import psycopg as pg
 from dataclasses import asdict, fields
 from source.database import get_connection_string
+from source.enums import Region, Status, Tables
 from source.security import pwd_context
 from tests.classes import (
     CompanyTest,
@@ -17,12 +19,12 @@ from tests.classes import (
 
 
 def insert_regions() -> None:
-    global_region = RegionTest(id=0, name="Global")
-    europe_region = RegionTest(id=1, name="Europe")
-    asia_region = RegionTest(id=2, name="Asia")
-    americas_region = RegionTest(id=3, name="Americas")
+    global_region = RegionTest(id=Region.GLOBAL.value, name="Global")
+    europe_region = RegionTest(id=Region.EUROPE.value, name="Europe")
+    asia_region = RegionTest(id=Region.ASIA.value, name="Asia")
+    americas_region = RegionTest(id=Region.AMERICAS.value, name="Americas")
     
-    insert_into_table("regions", [
+    insert_into_table(Tables.REGIONS, [
         global_region, 
         europe_region, 
         asia_region, 
@@ -170,7 +172,7 @@ def insert_offers() -> None:
         company_id=3, 
         region_id=1,
     )
-    insert_into_table("offers", [
+    insert_into_table(Tables.OFFERS, [
         offer_1, offer_2, offer_3,
         offer_4, offer_5, offer_6,
         offer_7, offer_8, offer_9,
@@ -181,7 +183,7 @@ def insert_students() -> None:
     student_1 = StudentTest(1, "student1@mail.com", "John Doe", "2000-01-01", "University of Istanbul", "Maritime Engineering", 180, 8.50, 1, "123", pwd_context.hash("123"))
     student_2 = StudentTest(2, "student2@mail.com", "Boris Watson", "2001-04-01", "University of Barcelona", "Quantum Mechanics", 180, 7.50, 1, "123", pwd_context.hash("123"))
     student_3 = StudentTest(3, "student3@mail.com", "Maria Rogers", "2002-05-01", "Technical University - Munich", "Financial Law", 180, 9.50, 1, "123", pwd_context.hash("123"))
-    insert_into_table("students", [student_1, student_2, student_3])
+    insert_into_table(Tables.STUDENTS, [student_1, student_2, student_3])
 
 
 def insert_experiences() -> None:
@@ -266,7 +268,7 @@ def insert_experiences() -> None:
         description="Organized workshops and managed volunteer programs.",
         student_id=3
     )
-    insert_into_table("experiences", [
+    insert_into_table(Tables.EXPERIENCES, [
         experience_1, experience_2, experience_3,
         experience_4, experience_5, experience_6,
         experience_7, experience_8, experience_9,
@@ -319,7 +321,7 @@ def insert_subjects() -> None:
         name="Chemistry",
         grade=9
     )
-    insert_into_table("subjects", [
+    insert_into_table(Tables.SUBJECTS, [
         subject_1, subject_2, subject_3,
         subject_4, subject_5, subject_6,
         subject_7, subject_8, subject_9,
@@ -345,21 +347,21 @@ def insert_motivational_letters() -> None:
         skills_section="Expertise in graphic design, UI/UX principles, and Adobe Creative Suite.",
         looking_for_section="Aspiring to join a forward-thinking company to create impactful user experiences."
     )
-    insert_into_table("motivational_letters", [motivational_letter_1, motivational_letter_2, motivational_letter_3])
+    insert_into_table(Tables.MOTIVATIONAL_LETTERS, [motivational_letter_1, motivational_letter_2, motivational_letter_3])
 
 
 def insert_applications() -> None:
-    application_1 = ApplicationTest(student_id=1, offer_id=1, status="WAITING")
-    application_2 = ApplicationTest(student_id=2, offer_id=1, status="WAITING")
-    application_3 = ApplicationTest(student_id=3, offer_id=1, status="WAITING")
-    application_4 = ApplicationTest(student_id=1, offer_id=2, status="WAITING")
-    application_5 = ApplicationTest(student_id=2, offer_id=2, status="WAITING")
-    application_6 = ApplicationTest(student_id=3, offer_id=2, status="WAITING")
-    application_7 = ApplicationTest(student_id=1, offer_id=3, status="WAITING")
-    application_8 = ApplicationTest(student_id=2, offer_id=3, status="WAITING")
-    application_9 = ApplicationTest(student_id=3, offer_id=3, status="WAITING")
+    application_1 = ApplicationTest(student_id=1, offer_id=1, status=Status.WAITING.value)
+    application_2 = ApplicationTest(student_id=2, offer_id=1, status=Status.WAITING.value)
+    application_3 = ApplicationTest(student_id=3, offer_id=1, status=Status.WAITING.value)
+    application_4 = ApplicationTest(student_id=1, offer_id=2, status=Status.WAITING.value)
+    application_5 = ApplicationTest(student_id=2, offer_id=2, status=Status.WAITING.value)
+    application_6 = ApplicationTest(student_id=3, offer_id=2, status=Status.WAITING.value)
+    application_7 = ApplicationTest(student_id=1, offer_id=3, status=Status.WAITING.value)
+    application_8 = ApplicationTest(student_id=2, offer_id=3, status=Status.WAITING.value)
+    application_9 = ApplicationTest(student_id=3, offer_id=3, status=Status.WAITING.value)
     
-    insert_into_table("applications", [
+    insert_into_table(Tables.APPLICATIONS, [
         application_1, application_2, application_3,
         application_4, application_5, application_6,
         application_7, application_8, application_9,
@@ -367,6 +369,7 @@ def insert_applications() -> None:
 
 
 def insert_student_reports() -> None:
+    # To be implemented
     student_report_1 = ...
     student_report_2 = ...
     student_report_3 = ...
@@ -374,6 +377,7 @@ def insert_student_reports() -> None:
 
 
 def insert_company_reports() -> None:
+    # To be implemented
     company_report_1 = ...
     company_report_2 = ...
     company_report_3 = ...
@@ -381,6 +385,9 @@ def insert_company_reports() -> None:
 
 
 def insert_into_table(table_name: str, entities: list):
+    connection_string = get_connection_string()
+    connection = pg.connect(connection_string)
+
     for entity in entities:
         data = asdict(entity)    
         columns = [field.name for field in fields(entity) if field.name != "password"]
@@ -389,9 +396,6 @@ def insert_into_table(table_name: str, entities: list):
         columns_str = ", ".join(columns)
         placeholders = ", ".join(["%s"] * len(columns))
         query = f"INSERT INTO {table_name} ({columns_str}) VALUES ({placeholders});"
-        
-        connection_string = get_connection_string()
-        connection = pg.connect(connection_string)
 
         try:
             with connection.cursor() as cur:
@@ -403,6 +407,22 @@ def insert_into_table(table_name: str, entities: list):
             print(f"Failed to insert data into {table_name}: {e}")
 
 
+def delete_from_table(table_name: str):
+    connection_string = get_connection_string()
+    connection = pg.connect(connection_string)
+    query = f"DELETE FROM {table_name};"
+
+    try:
+        with connection.cursor() as cur:
+            cur.execute(query) # type: ignore
+        connection.commit()
+        print(f"All data deleted successfully from {table_name}.")
+    except Exception as e:
+        connection.rollback()
+        print(f"Failed to delete data from {table_name}: {e}")
+    finally:
+        connection.close()
+
 
 def insert_test_data() -> None:
     insert_regions()
@@ -413,11 +433,34 @@ def insert_test_data() -> None:
     insert_subjects()
     insert_motivational_letters()
     insert_applications()
+    # NOTE: To be implemented...
     # insert_student_reports()
     # insert_company_reports()
 
 
+def remove_test_data() -> None:
+    delete_from_table(Tables.COMPANY_REPORTS)
+    delete_from_table(Tables.STUDENT_REPORTS)
+    delete_from_table(Tables.APPLICATIONS)
+    delete_from_table(Tables.MOTIVATIONAL_LETTERS)
+    delete_from_table(Tables.SUBJECTS)
+    delete_from_table(Tables.EXPERIENCES)
+    delete_from_table(Tables.STUDENTS)
+    delete_from_table(Tables.OFFERS)
+    delete_from_table(Tables.COMPANIES)
+    delete_from_table(Tables.REGIONS)
+
+
 if __name__ == "__main__":
-    print("Inserting test data")
-    insert_test_data()
-    print("Insertion complete")
+    parser = argparse.ArgumentParser(description="Manage test data.")
+    parser.add_argument(
+        "action",
+        choices=["insert", "remove"],
+        help="Specify whether to 'insert' or 'remove' test data."
+    )
+    args = parser.parse_args()
+
+    if args.action == "insert":
+        insert_test_data()
+    elif args.action == "remove":
+        remove_test_data()

@@ -33,3 +33,16 @@ class Environment:
     EMAIL_PASSWORD = "EMAIL_PASSWORD"
     TRUE = "TRUE"
     FALSE = "FALSE"
+
+
+class Tables:
+    STUDENTS = "students"
+    COMPANIES = "companies"
+    OFFERS = "offers"
+    EXPERIENCES = "experiences"
+    APPLICATIONS = "applications"
+    REGIONS = "regions"
+    SUBJECTS = "subjects"
+    MOTIVATIONAL_LETTERS = "motivational_letters"
+    STUDENT_REPORTS = "student_reports"
+    COMPANY_REPORTS = "company_reports"
