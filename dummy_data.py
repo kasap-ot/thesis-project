@@ -35,7 +35,7 @@ def insert_regions() -> None:
 def insert_companies() -> None:
     company_1 = CompanyTest(
         id=1, 
-        email="company1@test.com", 
+        email="company1@mail.com", 
         password="123",
         hashed_password=pwd_context.hash("123"),
         name="Production Inc",
@@ -47,7 +47,7 @@ def insert_companies() -> None:
     )
     company_2 = CompanyTest(
         id=2, 
-        email="company2@test.com", 
+        email="company2@mail.com", 
         password="123",
         hashed_password=pwd_context.hash("123"),
         name="Marketing Inc",
@@ -59,7 +59,7 @@ def insert_companies() -> None:
     )
     company_3 = CompanyTest(
         id=3, 
-        email="company3@test.com", 
+        email="company3@mail.com", 
         password="123",
         hashed_password=pwd_context.hash("123"),
         name="Construction Inc",
@@ -180,9 +180,38 @@ def insert_offers() -> None:
 
 
 def insert_students() -> None:
-    student_1 = StudentTest(1, "student1@mail.com", "John Doe", "2000-01-01", "University of Istanbul", "Maritime Engineering", 180, 8.50, 1, "123", pwd_context.hash("123"))
-    student_2 = StudentTest(2, "student2@mail.com", "Boris Watson", "2001-04-01", "University of Barcelona", "Quantum Mechanics", 180, 7.50, 1, "123", pwd_context.hash("123"))
-    student_3 = StudentTest(3, "student3@mail.com", "Maria Rogers", "2002-05-01", "Technical University - Munich", "Financial Law", 180, 9.50, 1, "123", pwd_context.hash("123"))
+    student_1 = StudentTest(
+        1, 
+        "student1@mail.com", 
+        "John Doe", 
+        "2000-01-01", 
+        "University of Istanbul", 
+        "Maritime Engineering", 
+        180, 8.50, 1, 
+        "123", 
+        pwd_context.hash("123"))
+    student_2 = StudentTest(
+        2, 
+        "student2@mail.com", 
+        "Boris Watson", 
+        "2001-04-01", 
+        "University of Barcelona", 
+        "Quantum Mechanics", 
+        180, 7.50, 1, 
+        "123", 
+        pwd_context.hash("123")
+    )
+    student_3 = StudentTest(
+        3, 
+        "student3@mail.com", 
+        "Maria Rogers", 
+        "2002-05-01", 
+        "Technical University - Munich", 
+        "Financial Law", 
+        180, 9.50, 1, 
+        "123", 
+        pwd_context.hash("123")
+    )
     insert_into_table(Tables.STUDENTS, [student_1, student_2, student_3])
 
 
@@ -369,19 +398,17 @@ def insert_applications() -> None:
 
 
 def insert_student_reports() -> None:
-    # To be implemented
+    # To be implemented...
     student_report_1 = ...
     student_report_2 = ...
     student_report_3 = ...
-    ...
 
 
 def insert_company_reports() -> None:
-    # To be implemented
+    # To be implemented...
     company_report_1 = ...
     company_report_2 = ...
     company_report_3 = ...
-    ...
 
 
 def insert_into_table(table_name: str, entities: list):

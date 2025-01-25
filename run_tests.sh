@@ -4,8 +4,7 @@ export DB_NAME="diplomska-db-testing"
 export TESTING="TRUE"
 
 echo "Starting FastAPI server..."
-py -m source.main &
-SERVER_PID=$!
+py -m source.main & SERVER_PID=$!
 
 echo "Running the tests..."
 pytest tests/test_students.py

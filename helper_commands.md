@@ -1,0 +1,4 @@
+- `py -m source.main`: start the application
+- `bash run_test.sh`: run the tests
+- `py -m dummy_data insert`: insert dummy data to the main database
+- `py -m dummy_data remove`: remove all data from the main database
